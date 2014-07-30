@@ -12,10 +12,6 @@ public class MyMap extends HashMap<String, RSSDataBundle> implements Parcelable 
 		super();
 	}
 	
-	public MyMap(int n) {
-		super(n);
-	}
-	
 	@Override
 	public int describeContents() {
 		return 0;

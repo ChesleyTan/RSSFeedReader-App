@@ -1,5 +1,7 @@
 package tan.chesley.rssfeedreader;
 
+import java.util.UUID;
+
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -7,7 +9,13 @@ import android.os.Parcelable;
 public class RSSDataBundle implements Parcelable{
 	private String title, description, link; // Required descriptors
 	private String mediaURL, pubDate; // Optional descriptors
-	public RSSDataBundle() {}
+	private final String stringUUID;
+
+	public RSSDataBundle() { stringUUID = UUID.randomUUID().toString(); }
+	
+	public String getId() {
+		return stringUUID;
+	}
 	
 	public String getTitle() {
 		return title;

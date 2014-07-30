@@ -370,7 +370,7 @@ int drawable abc_textfield_searchview_right_holo_dark 0x7f020055
 int drawable abc_textfield_searchview_right_holo_light 0x7f020056
 int drawable button 0x7f020057
 int drawable ic_launcher 0x7f020058
-int id LinearLayout1 0x7f050041
+int id LinearLayout1 0x7f050042
 int id action_bar 0x7f05001d
 int id action_bar_activity_content 0x7f050015
 int id action_bar_container 0x7f05001c
@@ -382,10 +382,10 @@ int id action_context_bar 0x7f05001e
 int id action_menu_divider 0x7f050016
 int id action_menu_presenter 0x7f050017
 int id action_mode_close_button 0x7f050025
-int id action_settings 0x7f050044
+int id action_settings 0x7f050045
 int id activity_chooser_view_content 0x7f050026
 int id always 0x7f05000b
-int id articleTextView 0x7f05003f
+int id articleTextView 0x7f050040
 int id articleViewContainer 0x7f05003e
 int id beginning 0x7f050011
 int id checkbox 0x7f05002e
@@ -399,7 +399,7 @@ int id edit_query 0x7f050031
 int id end 0x7f050013
 int id expand_activities_button 0x7f050027
 int id expanded_menu 0x7f05002d
-int id feedsTitle 0x7f050042
+int id feedsTitle 0x7f050043
 int id home 0x7f050014
 int id homeAsUp 0x7f050005
 int id icon 0x7f05002b
@@ -411,10 +411,11 @@ int id middle 0x7f050012
 int id never 0x7f050009
 int id none 0x7f050010
 int id normal 0x7f050000
-int id openInBrowserButton 0x7f050040
+int id openInBrowserButton 0x7f050041
 int id progress_circular 0x7f050018
 int id progress_horizontal 0x7f050019
 int id radio 0x7f050030
+int id scrollView1 0x7f05003f
 int id search_badge 0x7f050033
 int id search_bar 0x7f050032
 int id search_button 0x7f050034
@@ -435,7 +436,7 @@ int id tabMode 0x7f050002
 int id title 0x7f05002c
 int id top_action_bar 0x7f050021
 int id up 0x7f050022
-int id updateButton 0x7f050043
+int id updateButton 0x7f050044
 int id useLogo 0x7f050003
 int id viewPager 0x7f05001a
 int id withText 0x7f05000c
@@ -482,9 +483,10 @@ int string abc_searchview_description_submit 0x7f0a0007
 int string abc_searchview_description_voice 0x7f0a0008
 int string abc_shareactionprovider_share_with 0x7f0a000c
 int string abc_shareactionprovider_share_with_application 0x7f0a000b
-int string action_settings 0x7f0a0011
+int string action_settings 0x7f0a0012
 int string app_name 0x7f0a000d
 int string feeds 0x7f0a000e
+int string noDescriptionAvailable 0x7f0a0011
 int string openInBrowser 0x7f0a0010
 int string update 0x7f0a000f
 int style AppBaseTheme 0x7f0b0083

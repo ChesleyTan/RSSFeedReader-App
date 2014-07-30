@@ -12,7 +12,7 @@ import android.view.View;
 public class RSSFeed extends FragmentActivity {
 	
 	public RSSFeed() {
-		Log.e("Instance", "Instance: Rss Feed activity created.");
+		//Log.e("Instance", "Instance: RSS Feed activity created.");
 	}
 
 	@Override
@@ -22,7 +22,7 @@ public class RSSFeed extends FragmentActivity {
 		FragmentManager fragMan = getSupportFragmentManager();
 		Fragment theFragment = fragMan.findFragmentById(R.id.container);
 		if (theFragment == null) {
-			Log.e("Instance", "Instance: New HeadlinesFragment created by RSSFeed.");
+			//Log.e("Instance", "Instance: New HeadlinesFragment created by RSSFeed.");
 			fragMan.beginTransaction()
 			.add(R.id.container, new HeadlinesFragment()).commit();
 		}
@@ -34,7 +34,7 @@ public class RSSFeed extends FragmentActivity {
 			HeadlinesFragment.getInstance().syncFeeds();
 		}
 		else {
-			Log.e("Instance", "Instance: headlinesFragment not found, cannot sync.");
+			//Log.e("Instance", "Instance: headlinesFragment not found, cannot sync.");
 		}
 	}
 

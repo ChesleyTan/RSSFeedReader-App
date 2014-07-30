@@ -6,16 +6,23 @@
     android:background="@color/DarkSeaGreen"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/articleTextView"
+    <ScrollView
+        android:id="@+id/scrollView1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="10dp"
-        android:textColor="#666666"
-        android:text="Article Placeholder"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-    
+        android:fillViewport="true" >
+
+        <TextView
+            android:id="@+id/articleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text=""
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="#666666" />
+    </ScrollView>
+
     <Button
         android:id="@+id/openInBrowserButton"
         android:layout_width="match_parent"
