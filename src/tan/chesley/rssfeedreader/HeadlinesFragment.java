@@ -15,11 +15,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +34,8 @@ public class HeadlinesFragment extends ListFragment {
 	public static final String ARTICLE_ID = "tan.chesley.rssfeedreader.articleid";
 	public static final int RSS_ARTICLE_COUNT_MAX = 30;
 	public static final String[] FEEDS = new String[] {
+			"http://rss.cnn.com/rss/cnn_world.rss",
+			"http://rss.cnn.com/rss/cnn_tech.rss",
 			"http://news.feedzilla.com/en_us/headlines/top-news/world-news.rss",
 			"http://news.feedzilla.com/en_us/headlines/science/top-stories.rss",
 			"http://news.feedzilla.com/en_us/headlines/technology/top-stories.rss",
@@ -235,7 +235,7 @@ public class HeadlinesFragment extends ListFragment {
 				 * "RSS|localName: " + localName); Log.e("RSS", "RSS|qName: " +
 				 * qName); Log.e("RSS", "RSS|attributes" + attributes);
 				 */
-				if (articleCount < RSS_ARTICLE_COUNT_MAX) {
+				if (articleCount < RSS_ARTICLE_COUNT_MAX && state == stateUnknown) {
 					if (localName.equalsIgnoreCase("title")) {
 						state = stateTitle;
 					} else if (localName.equalsIgnoreCase("description")) {
@@ -244,7 +244,6 @@ public class HeadlinesFragment extends ListFragment {
 						state = stateLink;
 					} else {
 						// Log.e("Unknown tag name", localName);
-						state = stateUnknown;
 					}
 				} else {
 					reset();
@@ -256,6 +255,10 @@ public class HeadlinesFragment extends ListFragment {
 		@Override
 		public void endElement(String uri, String localName, String qName)
 				throws SAXException {
+			if (System.currentTimeMillis() - startParsingTime > timeout) {
+				reset();
+				throw new SAXException();
+			}
 			if (localName.equalsIgnoreCase("item")) {
 				if (rdBundle != null) {
 					headlines.put(rdBundle.getTitle(), rdBundle);
@@ -270,34 +273,43 @@ public class HeadlinesFragment extends ListFragment {
 		@Override
 		public void characters(char[] ch, int start, int length)
 				throws SAXException {
-			String strCharacters = new String(ch, start, length);
+			if (System.currentTimeMillis() - startParsingTime > timeout) {
+				reset();
+				throw new SAXException();
+			}
+			String strCharacters = new String(ch, start, length).trim()
+					.replaceAll("\\s+", " ");
 			if (state == stateTitle) {
 				// Log.e("New Headline", strCharacters);
 				initializeRdBundleIfNeeded();
-				rdBundle.setTitle(strCharacters);
+				if (rdBundle.getTitle() == null) {
+					rdBundle.setTitle(strCharacters);
+				}
 			} else if (state == stateDescription) {
 				// Log.e("New Description", strCharacters);
 				initializeRdBundleIfNeeded();
 				if (rdBundle.getDescription() == null) {
-					// Special case where there is no description
-					if (strCharacters.equals("<") || strCharacters.equals(">")) {
-						rdBundle.setDescription(getResources().getString(
-								R.string.noDescriptionAvailable));
+					// Special case where description contains garbage data
+					if (strCharacters.contains("<") || strCharacters.contains(">")) {
+						rdBundle.setDescription(getResources().getString(R.string.noDescriptionAvailable));
 					} else {
+						// If good input, then just set description
 						rdBundle.setDescription(strCharacters);
 					}
 				}
 			} else if (state == stateLink) {
 				// Log.e("New Link", strCharacters);
 				initializeRdBundleIfNeeded();
-				rdBundle.setLink(strCharacters);
+				if (rdBundle.getLink() == null) {
+					rdBundle.setLink(strCharacters);
+				}
 			}
 		}
 	}
 
 	public class GetRssFeedTask extends AsyncTask<String, Void, Void> {
 		long startTime = System.currentTimeMillis();
-		long longRequestTime = 2000;
+		long longRequestTime = 4000;
 
 		@Override
 		protected Void doInBackground(String... urls) {
@@ -350,29 +362,10 @@ public class HeadlinesFragment extends ListFragment {
 			if (System.currentTimeMillis() - startTime > longRequestTime) {
 
 				showToast("Still working...", Toast.LENGTH_SHORT);
-				
+
 			}
 		}
 
-	}
-
-	// Original by Shlomi Schwartz at stackoverflow.com
-	private static ArrayList<View> getViewsByTag(ViewGroup root, String tag) {
-		ArrayList<View> views = new ArrayList<View>();
-		final int childCount = root.getChildCount();
-		for (int i = 0; i < childCount; i++) {
-			final View child = root.getChildAt(i);
-			if (child instanceof ViewGroup) {
-				views.addAll(getViewsByTag((ViewGroup) child, tag));
-			}
-
-			final Object tagObj = child.getTag();
-			if (tagObj != null && tagObj.equals(tag)) {
-				views.add(child);
-			}
-
-		}
-		return views;
 	}
 
 	public void showToast(String s, int toastDurationFlag) {

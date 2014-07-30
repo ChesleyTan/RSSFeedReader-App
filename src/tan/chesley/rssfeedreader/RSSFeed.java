@@ -4,15 +4,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 public class RSSFeed extends FragmentActivity {
-	
+
 	public RSSFeed() {
-		//Log.e("Instance", "Instance: RSS Feed activity created.");
+		// Log.e("Instance", "Instance: RSS Feed activity created.");
 	}
 
 	@Override
@@ -22,9 +21,10 @@ public class RSSFeed extends FragmentActivity {
 		FragmentManager fragMan = getSupportFragmentManager();
 		Fragment theFragment = fragMan.findFragmentById(R.id.container);
 		if (theFragment == null) {
-			//Log.e("Instance", "Instance: New HeadlinesFragment created by RSSFeed.");
+			// Log.e("Instance",
+			// "Instance: New HeadlinesFragment created by RSSFeed.");
 			fragMan.beginTransaction()
-			.add(R.id.container, new HeadlinesFragment()).commit();
+					.add(R.id.container, new HeadlinesFragment()).commit();
 		}
 
 	}
@@ -32,9 +32,9 @@ public class RSSFeed extends FragmentActivity {
 	public void syncFeeds(View v) {
 		if (HeadlinesFragment.getInstance() != null) {
 			HeadlinesFragment.getInstance().syncFeeds();
-		}
-		else {
-			//Log.e("Instance", "Instance: headlinesFragment not found, cannot sync.");
+		} else {
+			// Log.e("Instance",
+			// "Instance: headlinesFragment not found, cannot sync.");
 		}
 	}
 

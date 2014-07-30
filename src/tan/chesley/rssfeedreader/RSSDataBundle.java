@@ -76,7 +76,7 @@ public class RSSDataBundle implements Parcelable{
 		return 5; // total number of descriptors that are packaged in the parcel
 	}
 
-	public final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {
+	public static final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {
 		public RSSDataBundle createFromParcel(Parcel in) {
 			RSSDataBundle newRdBundle = new RSSDataBundle();
 			newRdBundle.restoreParcel(in);
