@@ -2,6 +2,8 @@ package tan.chesley.rssfeedreader;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,13 +12,18 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils.TruncateAt;
+import android.text.method.ScrollingMovementMethod;
 import android.text.method.SingleLineTransformationMethod;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 
 public class ArticleView extends FragmentActivity {
+	public static final String ARTICLE_SELECTED_KEY = "tan.chesley.rssfeedreader.articleselected";
 	private ViewPager theViewPager;
 	private ArrayList<MyMap> rssData;
 	private ArticleViewPagerChangeListener viewPagerPageChangeListener;
+	private TextView title;
 
 	public class ArticleViewPagerChangeListener implements
 			ViewPager.OnPageChangeListener {
@@ -25,6 +32,9 @@ public class ArticleView extends FragmentActivity {
 		public void onPageSelected(int arg0) {
 			String headline = rssData.get(arg0).keySet().iterator().next();
 			setTitle(headline);
+			if (title != null) {
+				title.scrollTo(0, 0);
+			}
 		}
 
 		@Override
@@ -48,6 +58,10 @@ public class ArticleView extends FragmentActivity {
 		setContentView(theViewPager);
 		theViewPager
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
+		assert (HeadlinesFragment.getInstance() != null);
+		if (HeadlinesFragment.getInstance() == null) {
+			return;
+		}
 		rssData = HeadlinesFragment.getInstance().getRssData();
 		FragmentManager fragMan = getSupportFragmentManager();
 		theViewPager.setAdapter(new FragmentStatePagerAdapter(fragMan) {
@@ -87,17 +101,26 @@ public class ArticleView extends FragmentActivity {
 		} else {
 			titleId = R.id.action_bar_title;
 		}
-		TextView title = (TextView) findViewById(titleId);
+		title = (TextView) findViewById(titleId);
+
 		if (title != null) {
-			title.setEllipsize(TruncateAt.MARQUEE);
-			title.setMarqueeRepeatLimit(-1);
+			title.setEllipsize(null);
+			title.setHorizontallyScrolling(true);
 			title.setFocusable(true);
 			title.setFocusableInTouchMode(true);
 			title.requestFocus();
+			title.setMovementMethod(new ScrollingMovementMethod());
 			title.setTransformationMethod(SingleLineTransformationMethod
 					.getInstance());
 		}
 	}
 
+	@Override
+	public void finish() {
+		Intent intent = new Intent();
+		intent.putExtra(ARTICLE_SELECTED_KEY, theViewPager.getCurrentItem());
+		setResult(Activity.RESULT_OK, intent);
+		super.finish();
+	}
 
 }

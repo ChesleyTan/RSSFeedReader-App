@@ -18,6 +18,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,7 +33,9 @@ import android.widget.Toast;
 public class HeadlinesFragment extends ListFragment {
 	public static final String PARSED_FEED_DATA = "tan.chesley.rssfeedreader.parsedfeeddata";
 	public static final String ARTICLE_ID = "tan.chesley.rssfeedreader.articleid";
-	public static final int RSS_ARTICLE_COUNT_MAX = 30;
+	public static final int RSS_ARTICLE_COUNT_MAX = 20;
+	public static final int ARTICLE_VIEW_INTENT = 0;
+	public static final long SYNC_TIMEOUT = 5000;
 	public static final String[] FEEDS = new String[] {
 			"http://rss.cnn.com/rss/cnn_world.rss",
 			"http://rss.cnn.com/rss/cnn_tech.rss",
@@ -44,6 +47,7 @@ public class HeadlinesFragment extends ListFragment {
 	public static Map<String, RSSDataBundle> headlines = new MyMap();
 	public static ArrayList<MyMap> data = new ArrayList<MyMap>();
 	private static HeadlinesFragment singleton;
+	private boolean syncing = false;
 	public Button updateButton;
 
 	/*
@@ -104,8 +108,22 @@ public class HeadlinesFragment extends ListFragment {
 	}
 
 	public void syncFeeds() {
-		new GetRssFeedTask().execute(FEEDS);
-		showToast("Syncing feeds...", Toast.LENGTH_LONG);
+		if (!syncing) {
+			syncing = true;
+			final GetRssFeedTask syncTask = new GetRssFeedTask();
+			syncTask.execute(FEEDS);
+			showToast("Syncing feeds...", Toast.LENGTH_LONG);
+			new Handler().postDelayed(new Runnable() {
+				public void run() {
+					if (syncTask.getStatus() != AsyncTask.Status.FINISHED) {
+						syncTask.cancel(true);
+						showToast("Sync connection timeout", Toast.LENGTH_SHORT);
+					} else {
+						Log.e("Feed", "Feed sync completed successfully.");
+					}
+				}
+			}, SYNC_TIMEOUT);
+		}
 	}
 
 	private void updateFeedView() {
@@ -169,7 +187,15 @@ public class HeadlinesFragment extends ListFragment {
 		Intent intent = new Intent(getActivity(), ArticleView.class);
 		intent.putExtra(ARTICLE_ID, map.get(map.keySet().iterator().next())
 				.getId());
-		startActivity(intent);
+		startActivityForResult(intent, ARTICLE_VIEW_INTENT);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == ARTICLE_VIEW_INTENT) {
+			assert(data != null);
+			getListView().setSelection(data.getIntExtra(ArticleView.ARTICLE_SELECTED_KEY, 0));
+		}
 	}
 
 	public ArrayList<MyMap> getRssData() {
@@ -230,12 +256,8 @@ public class HeadlinesFragment extends ListFragment {
 
 			// Parse tag and save data
 			if (reading) {
-				/*
-				 * Log.e("RSS", "RSS|uri: " + uri); Log.e("RSS",
-				 * "RSS|localName: " + localName); Log.e("RSS", "RSS|qName: " +
-				 * qName); Log.e("RSS", "RSS|attributes" + attributes);
-				 */
-				if (articleCount < RSS_ARTICLE_COUNT_MAX && state == stateUnknown) {
+				if (articleCount < RSS_ARTICLE_COUNT_MAX
+						&& state == stateUnknown) {
 					if (localName.equalsIgnoreCase("title")) {
 						state = stateTitle;
 					} else if (localName.equalsIgnoreCase("description")) {
@@ -277,33 +299,37 @@ public class HeadlinesFragment extends ListFragment {
 				reset();
 				throw new SAXException();
 			}
-			String strCharacters = new String(ch, start, length).trim()
-					.replaceAll("\\s+", " ");
 			if (state == stateTitle) {
 				// Log.e("New Headline", strCharacters);
 				initializeRdBundleIfNeeded();
 				if (rdBundle.getTitle() == null) {
-					rdBundle.setTitle(strCharacters);
+					rdBundle.setTitle(makeString(ch, start, length));
 				}
 			} else if (state == stateDescription) {
 				// Log.e("New Description", strCharacters);
 				initializeRdBundleIfNeeded();
 				if (rdBundle.getDescription() == null) {
+					String s = makeString(ch, start, length);
 					// Special case where description contains garbage data
-					if (strCharacters.contains("<") || strCharacters.contains(">")) {
-						rdBundle.setDescription(getResources().getString(R.string.noDescriptionAvailable));
+					if (s.contains("<") || s.contains(">")) {
+						rdBundle.setDescription(getResources().getString(
+								R.string.noDescriptionAvailable));
 					} else {
 						// If good input, then just set description
-						rdBundle.setDescription(strCharacters);
+						rdBundle.setDescription(s);
 					}
 				}
 			} else if (state == stateLink) {
 				// Log.e("New Link", strCharacters);
 				initializeRdBundleIfNeeded();
 				if (rdBundle.getLink() == null) {
-					rdBundle.setLink(strCharacters);
+					rdBundle.setLink(makeString(ch, start, length));
 				}
 			}
+		}
+
+		public String makeString(char[] ch, int start, int length) {
+			return new String(ch, start, length).trim().replaceAll("\\s+", " ");
 		}
 	}
 
@@ -337,16 +363,16 @@ public class HeadlinesFragment extends ListFragment {
 
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
-				Log.e("Parser", "Cannot connect to RSS feed!");
+				Log.e("Feed", "Cannot connect to RSS feed!");
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
-				Log.e("Parser", "Cannot connect to RSS feed!");
+				Log.e("Feed", "Cannot connect to RSS feed!");
 			} catch (SAXException e) {
 				e.printStackTrace();
-				Log.e("Parser", "Cannot connect to RSS feed!");
+				Log.e("Feed", "Cannot connect to RSS feed!");
 			} catch (IOException e) {
 				e.printStackTrace();
-				Log.e("Parser", "Cannot connect to RSS feed!");
+				Log.e("Feed", "Cannot connect to RSS feed!");
 			}
 			return null;
 		}
@@ -354,6 +380,15 @@ public class HeadlinesFragment extends ListFragment {
 		@Override
 		protected void onPostExecute(Void v) {
 			updateFeedView();
+			syncing = false;
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			updateFeedView();
+			Log.e("Feed", "Feed sync timeout reached. Thread cancelled.");
+			syncing = false;
 		}
 
 		@Override
@@ -372,4 +407,5 @@ public class HeadlinesFragment extends ListFragment {
 		Toast.makeText(getActivity().getApplicationContext(), s,
 				toastDurationFlag).show();
 	}
+
 }
