@@ -1127,7 +1127,6 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020058;
     }
     public static final class id {
-        public static final int LinearLayout1=0x7f050042;
         public static final int action_bar=0x7f05001d;
         public static final int action_bar_activity_content=0x7f050015;
         public static final int action_bar_container=0x7f05001c;
@@ -1139,7 +1138,7 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f050016;
         public static final int action_menu_presenter=0x7f050017;
         public static final int action_mode_close_button=0x7f050025;
-        public static final int action_settings=0x7f050045;
+        public static final int action_settings=0x7f050046;
         public static final int activity_chooser_view_content=0x7f050026;
         public static final int always=0x7f05000b;
         public static final int articleTextView=0x7f050040;
@@ -1157,6 +1156,7 @@ containing a value of this type.
         public static final int expand_activities_button=0x7f050027;
         public static final int expanded_menu=0x7f05002d;
         public static final int feedsTitle=0x7f050043;
+        public static final int headlinesLinearLayout=0x7f050042;
         public static final int home=0x7f050014;
         public static final int homeAsUp=0x7f050005;
         public static final int icon=0x7f05002b;
@@ -1189,11 +1189,12 @@ containing a value of this type.
         public static final int showTitle=0x7f050006;
         public static final int split_action_bar=0x7f05001f;
         public static final int submit_area=0x7f05003a;
+        public static final int syncProgressBar=0x7f050044;
         public static final int tabMode=0x7f050002;
         public static final int title=0x7f05002c;
         public static final int top_action_bar=0x7f050021;
         public static final int up=0x7f050022;
-        public static final int updateButton=0x7f050044;
+        public static final int updateButton=0x7f050045;
         public static final int useLogo=0x7f050003;
         public static final int viewPager=0x7f05001a;
         public static final int withText=0x7f05000c;

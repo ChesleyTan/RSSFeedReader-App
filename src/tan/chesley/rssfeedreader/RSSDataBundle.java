@@ -2,6 +2,7 @@ package tan.chesley.rssfeedreader;
 
 import java.util.UUID;
 
+import junit.framework.Assert;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -9,6 +10,7 @@ import android.os.Parcelable;
 public class RSSDataBundle implements Parcelable{
 	private String title, description, link; // Required descriptors
 	private String mediaURL, pubDate; // Optional descriptors
+	private String[] data = new String[] {title, description, link, mediaURL, pubDate};
 	private final String stringUUID;
 
 	public RSSDataBundle() { stringUUID = UUID.randomUUID().toString(); }
@@ -56,24 +58,36 @@ public class RSSDataBundle implements Parcelable{
 	@SuppressLint("Recycle")
 	public Parcel getParcel() {
 		Parcel parcel = Parcel.obtain();
-		parcel.writeString(title);
-		parcel.writeString(description);
-		parcel.writeString(link);
-		parcel.writeString(mediaURL);
-		parcel.writeString(pubDate);
+		for (String s : data) {
+			if (s != null) {
+				parcel.writeByte((byte) 1);
+				parcel.writeString(s);
+			}
+			else {
+				parcel.writeByte((byte) 0);
+			}
+		}
 		return parcel;
 	}
 	
 	public void restoreParcel(Parcel parcel) {
-		title = parcel.readString();
-		description = parcel.readString();
-		link = parcel.readString();
-		mediaURL = parcel.readString();
-		pubDate = parcel.readString();
+		for (int i = 0;i < data.length;i++) {
+			if (parcel.readByte() == 1) {
+				data[i] = parcel.readString();
+			}
+			else {
+				data[i] = null;
+			}
+		}
+		Assert.assertEquals(title, data[0]);
+		Assert.assertEquals(description, data[1]);
+		Assert.assertEquals(link, data[2]);
+		Assert.assertEquals(mediaURL, data[3]);
+		Assert.assertEquals(pubDate, data[4]);
 	}
 	
 	public int getParceledLength() {
-		return 5; // total number of descriptors that are packaged in the parcel
+		return data.length; // total number of descriptors that are packaged in the parcel
 	}
 
 	public static final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {

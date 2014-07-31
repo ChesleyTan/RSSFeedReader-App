@@ -2,6 +2,7 @@ package tan.chesley.rssfeedreader;
 
 import java.util.ArrayList;
 
+import junit.framework.Assert;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
@@ -58,7 +59,7 @@ public class ArticleView extends FragmentActivity {
 		setContentView(theViewPager);
 		theViewPager
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
-		assert (HeadlinesFragment.getInstance() != null);
+		Assert.assertNotNull(HeadlinesFragment.getInstance());
 		if (HeadlinesFragment.getInstance() == null) {
 			return;
 		}
@@ -69,9 +70,9 @@ public class ArticleView extends FragmentActivity {
 			@Override
 			public Fragment getItem(int arg0) {
 				MyMap data = rssData.get(arg0);
-				String myHeadline = data.keySet().iterator().next();
-				return ArticleViewFragment.newArticleViewFragment(myHeadline,
-						data.get(myHeadline));
+				RSSDataBundle rdBundle = data.values().iterator().next();
+				return ArticleViewFragment.newArticleViewFragment(rdBundle.getTitle(),
+						rdBundle);
 			}
 
 			@Override
@@ -85,7 +86,7 @@ public class ArticleView extends FragmentActivity {
 
 		for (int i = 0; i < rssData.size(); i++) {
 			MyMap map = rssData.get(i);
-			if (map.get(map.keySet().iterator().next()).getId().equals(uuid)) {
+			if (map.values().iterator().next().getId().equals(uuid)) {
 				theViewPager.setCurrentItem(i);
 				// Explicitly call the page change listener to set the action
 				// bar title appropriately

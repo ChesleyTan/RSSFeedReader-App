@@ -1,5 +1,6 @@
 package tan.chesley.rssfeedreader;
 
+import junit.framework.Assert;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,7 +26,7 @@ public class ArticleViewFragment extends Fragment {
 		Bundle bundle = new Bundle();
 		bundle.putString(ARTICLE_HEADLINE, headline);
 		bundle.putParcelable(RSSDATABUNDLE, rdBundle);
-		assert (rdBundle != null);
+		Assert.assertNotNull(rdBundle);
 		ArticleViewFragment fragment = new ArticleViewFragment();
 		fragment.setArguments(bundle);
 		return fragment;

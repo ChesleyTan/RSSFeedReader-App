@@ -26,7 +26,7 @@ public class MyMap extends HashMap<String, RSSDataBundle> implements Parcelable 
 		}
 	}
 
-	public final Parcelable.Creator<MyMap> CREATOR = new Parcelable.Creator<MyMap>() {
+	public static final Parcelable.Creator<MyMap> CREATOR = new Parcelable.Creator<MyMap>() {
 		public MyMap createFromParcel(Parcel in) {
 			return new MyMap(in);
 		}
@@ -46,4 +46,5 @@ public class MyMap extends HashMap<String, RSSDataBundle> implements Parcelable 
 			put(key, value);
 		}
 	}
+	
 }
