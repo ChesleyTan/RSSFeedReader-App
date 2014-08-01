@@ -149,8 +149,11 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 					.findViewById(android.R.id.text1);
 			TextView articleTextView = (TextView) convertView
 					.findViewById(android.R.id.text2);
+			TextView sourceTextView = (TextView) convertView
+					.findViewById(R.id.sourceTextView);
 			RSSDataBundle rdBundle = dataMap.values().iterator().next();
 			headlineTextView.setText(rdBundle.getTitle());
+			sourceTextView.setText(rdBundle.getSourceTitle());
 			articleTextView.setText(rdBundle.getDescription());
 			return convertView;
 		}

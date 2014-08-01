@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import android.app.Activity;
+import tan.chesley.rssfeedreader.TaskFragment.GetRssFeedTask;
 import android.util.Log;
 
 public class RSSHandler extends DefaultHandler {
@@ -15,6 +15,7 @@ public class RSSHandler extends DefaultHandler {
 	final int stateLink = 3;
 	final int stateSourceTitle = 4;
 	final long timeout = 2000; // 2 second timeout for feed parsing
+	final GetRssFeedTask parent;
 	ArrayList<MyMap> data = new ArrayList<MyMap>();
 
 	int state = stateUnknown;
@@ -25,6 +26,10 @@ public class RSSHandler extends DefaultHandler {
 	String sourceTitle = null;
 	String sourceURL = null;
 
+	public RSSHandler(GetRssFeedTask task) {
+		parent = task;
+	}
+	
 	public void reset() {
 		state = stateUnknown;
 		articleCount = 0;
@@ -43,20 +48,31 @@ public class RSSHandler extends DefaultHandler {
 
 	@Override
 	public void startDocument() throws SAXException {
+		if (parent.isCancelled()) {
+			throw new SAXException();
+		}
 		Log.e("Feed", "Started feed stream.");
 		startParsingTime = System.currentTimeMillis();
 	}
 
 	@Override
 	public void endDocument() throws SAXException {
+		if (parent.isCancelled()) {
+			throw new SAXException();
+		}
 		Log.e("Feed", "Ended feed stream.");
 	}
 
 	@Override
 	public void startElement(String uri, String localName, String qName,
 			org.xml.sax.Attributes attributes) throws SAXException {
+		
+		if (parent.isCancelled()) {
+			throw new SAXException();
+		}
 
 		if (System.currentTimeMillis() - startParsingTime > timeout) {
+			// Skip to next source
 			reset();
 			throw new SAXException();
 		}
@@ -94,7 +110,13 @@ public class RSSHandler extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
+		
+		if (parent.isCancelled()) {
+			throw new SAXException();
+		}
+		
 		if (System.currentTimeMillis() - startParsingTime > timeout) {
+			// Skip to next source
 			reset();
 			throw new SAXException();
 		}
@@ -116,7 +138,11 @@ public class RSSHandler extends DefaultHandler {
 	@Override
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
+		if (parent.isCancelled()) {
+			throw new SAXException();
+		}
 		if (System.currentTimeMillis() - startParsingTime > timeout) {
+			// Skip to next source
 			reset();
 			throw new SAXException();
 		}

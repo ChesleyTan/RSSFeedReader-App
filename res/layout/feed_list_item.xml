@@ -14,14 +14,24 @@
         android:lines="1"
         android:text="Headline Placeholder"
         android:textSize="@dimen/feed_list_item_title_size" />
+    
+     <TextView
+        android:id="@+id/sourceTextView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@android:id/text1"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="Source Placeholder"
+        android:textSize="@dimen/feed_list_item_source_size" />
 
     <TextView
         android:id="@android:id/text2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@android:id/text1"
+        android:layout_below="@id/sourceTextView"
         android:ellipsize="end"
-        android:lines="3"
+        android:lines="2"
         android:text="Article Placeholder"
         android:textSize="@dimen/feed_list_item_description_size" />
 

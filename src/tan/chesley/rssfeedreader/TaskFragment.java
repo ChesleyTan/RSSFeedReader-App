@@ -102,7 +102,7 @@ public class TaskFragment extends Fragment {
 						.newInstance();
 				SAXParser mySAXParser = mySAXParserFactory.newSAXParser();
 				XMLReader myXMLReader = mySAXParser.getXMLReader();
-				myRSSHandler = new RSSHandler();
+				myRSSHandler = new RSSHandler(this);
 				myXMLReader.setContentHandler(myRSSHandler);
 				InputSource myInputSource;
 				URL url;
@@ -118,6 +118,9 @@ public class TaskFragment extends Fragment {
 					Log.e("Feed", "Syncing feed " + s);
 					myInputSource = new InputSource(feedStream);
 					try {
+						if (aborted || isCancelled()) {
+							break;
+						}
 						myRSSHandler.notifyCurrentSource(url.toString());
 						myXMLReader.parse(myInputSource);
 					} catch (SAXException e) {
