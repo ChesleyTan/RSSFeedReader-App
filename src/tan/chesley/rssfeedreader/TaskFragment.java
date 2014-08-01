@@ -118,6 +118,7 @@ public class TaskFragment extends Fragment {
 					Log.e("Feed", "Syncing feed " + s);
 					myInputSource = new InputSource(feedStream);
 					try {
+						myRSSHandler.notifyCurrentSource(url.toString());
 						myXMLReader.parse(myInputSource);
 					} catch (SAXException e) {
 						if (aborted) {

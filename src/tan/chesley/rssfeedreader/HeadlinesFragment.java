@@ -208,22 +208,13 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 		Collections.sort(list, new Comparator<MyMap>() {
 			public int compare(MyMap first, MyMap second) {
 				if (sortCriteria == HeadlinesAdapter.SORT_BY_SOURCE) {
-					return first
-							.values()
-							.iterator()
-							.next()
-							.getLink()
-							.compareTo(
-									second.values().iterator().next().getLink());
+					String firstTitle = first.values().iterator().next().getSource();
+					String secondTitle = second.values().iterator().next().getSource();
+					return firstTitle.compareTo(secondTitle);
 				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_TITLE) {
-					return first
-							.values()
-							.iterator()
-							.next()
-							.getTitle()
-							.compareTo(
-									second.values().iterator().next()
-											.getTitle());
+					String firstTitle = first.values().iterator().next().getTitle();
+					String secondTitle = second.values().iterator().next().getTitle();
+					return firstTitle.compareTo(secondTitle);
 				}
 				return 0;
 			}

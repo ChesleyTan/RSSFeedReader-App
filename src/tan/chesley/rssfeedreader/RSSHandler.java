@@ -13,6 +13,7 @@ public class RSSHandler extends DefaultHandler {
 	final int stateTitle = 1;
 	final int stateDescription = 2;
 	final int stateLink = 3;
+	final int stateSourceTitle = 4;
 	final long timeout = 2000; // 2 second timeout for feed parsing
 	ArrayList<MyMap> data = new ArrayList<MyMap>();
 
@@ -21,6 +22,8 @@ public class RSSHandler extends DefaultHandler {
 	long startParsingTime = 0;
 	RSSDataBundle rdBundle = null;
 	boolean reading = false;
+	String sourceTitle = null;
+	String sourceURL = null;
 
 	public void reset() {
 		state = stateUnknown;
@@ -28,6 +31,8 @@ public class RSSHandler extends DefaultHandler {
 		startParsingTime = 0;
 		rdBundle = null;
 		reading = false;
+		sourceTitle = null;
+		sourceURL = null;
 	}
 
 	public void initializeRdBundleIfNeeded() {
@@ -55,6 +60,11 @@ public class RSSHandler extends DefaultHandler {
 			reset();
 			throw new SAXException();
 		}
+		
+		if (!reading && localName.equalsIgnoreCase("title") && sourceTitle == null) {
+			state = stateSourceTitle;
+		}
+			
 		// Skip to first article
 		if (!reading && localName.equalsIgnoreCase("item")) {
 			reading = true;
@@ -90,6 +100,8 @@ public class RSSHandler extends DefaultHandler {
 		}
 		if (localName.equalsIgnoreCase("item")) {
 			if (rdBundle != null) {
+				rdBundle.setSourceTitle(sourceTitle);
+				rdBundle.setSource(sourceURL);
 				MyMap datum = new MyMap();
 				datum.put(rdBundle.getTitle(), rdBundle);
 				data.add(datum);
@@ -135,6 +147,9 @@ public class RSSHandler extends DefaultHandler {
 			if (rdBundle.getLink() == null) {
 				rdBundle.setLink(makeString(ch, start, length));
 			}
+		} else if (state == stateSourceTitle) {
+			sourceTitle = makeString(ch, start, length);
+			//Log.e("New Source Title", sourceTitle);
 		}
 	}
 
@@ -144,5 +159,10 @@ public class RSSHandler extends DefaultHandler {
 	
 	public ArrayList<MyMap> getData() {
 		return data;
+	}
+	
+	public void notifyCurrentSource(String url) {
+		sourceURL = url;
+		Log.e("New Source", url);
 	}
 }

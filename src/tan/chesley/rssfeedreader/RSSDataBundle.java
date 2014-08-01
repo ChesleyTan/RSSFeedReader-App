@@ -8,9 +8,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class RSSDataBundle implements Parcelable{
-	private String title, description, link; // Required descriptors
-	private String mediaURL, pubDate; // Optional descriptors
-	private String[] data = new String[] {title, description, link, mediaURL, pubDate};
+	private String title, description, link, source, sourceTitle; // Required descriptors
+	private String pubDate; // Optional descriptors
+	private String[] data = new String[] {title, description, link, source, sourceTitle, pubDate};
 	private final String stringUUID;
 
 	public RSSDataBundle() { stringUUID = UUID.randomUUID().toString(); }
@@ -40,11 +40,18 @@ public class RSSDataBundle implements Parcelable{
 		this.link = link;
 		return this;
 	}
-	public String getMediaURL() {
-		return mediaURL;
+	public String getSource() {
+		return source;
 	}
-	public RSSDataBundle setMediaURL(String mediaURL) {
-		this.mediaURL = mediaURL;
+	public RSSDataBundle setSource(String source) {
+		this.source = source;
+		return this;
+	}
+	public String getSourceTitle() {
+		return sourceTitle;
+	}
+	public RSSDataBundle setSourceTitle(String sourceTitle) {
+		this.sourceTitle = sourceTitle;
 		return this;
 	}
 	public String getPubDate() {
@@ -82,8 +89,9 @@ public class RSSDataBundle implements Parcelable{
 		Assert.assertEquals(title, data[0]);
 		Assert.assertEquals(description, data[1]);
 		Assert.assertEquals(link, data[2]);
-		Assert.assertEquals(mediaURL, data[3]);
-		Assert.assertEquals(pubDate, data[4]);
+		Assert.assertEquals(source, data[3]);
+		Assert.assertEquals(sourceTitle, data[4]);
+		Assert.assertEquals(pubDate, data[5]);
 	}
 	
 	public int getParceledLength() {
