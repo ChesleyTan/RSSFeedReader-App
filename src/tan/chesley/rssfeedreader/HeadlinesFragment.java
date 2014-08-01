@@ -3,15 +3,11 @@ package tan.chesley.rssfeedreader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
 
 import junit.framework.Assert;
-
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.Gravity;
@@ -30,6 +26,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 	public static final String PARSED_FEED_DATA = "tan.chesley.rssfeedreader.parsedfeeddata";
 	public static final String ARTICLE_ID = "tan.chesley.rssfeedreader.articleid";
 	public static final String TASK_FRAGMENT = "tan.chesley.rssfeedreader.taskfragment";
+	public static final String SYNCING = "tan.chesley.rssfeedreader.syncing";
 	public static final int RSS_ARTICLE_COUNT_MAX = 20;
 	public static final int ARTICLE_VIEW_INTENT = 0;
 	public static ArrayList<MyMap> data = new ArrayList<MyMap>();
@@ -60,9 +57,22 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		singleton = this;
+		if (savedInstanceState != null) {
+			syncing = savedInstanceState.getBoolean(SYNCING);
+		}
 		// Log.e("Instance", "Instance: Calling onCreate method for fragment.");
-		
-		// TODO Move this outside of onCreate to prevent illegalStateException
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		updateButton = (Button) view.findViewById(R.id.updateButton);
+		syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
+		Assert.assertNotNull(updateButton);
+		Assert.assertNotNull(syncProgressBar);
+		if (syncing) {
+			toggleProgressBar();
+		}
 		if (savedInstanceState != null) {
 			ArrayList<MyMap> tmp = savedInstanceState
 					.getParcelableArrayList(PARSED_FEED_DATA);
@@ -75,38 +85,31 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 			}
 		}
 	}
-	
-	
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		updateButton = (Button) view.findViewById(R.id.updateButton);
-		syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
-		Assert.assertNotNull(updateButton);
-		Assert.assertNotNull(syncProgressBar);
-	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putParcelableArrayList(PARSED_FEED_DATA, data);
+		outState.putBoolean(SYNCING, syncing);
 		// Log.e("Instance", "Saved Instance State.");
 	}
 
 	public void syncFeeds() {
 		if (!syncing) {
+			// Use syncing flag to prevent calling multiple sync tasks concurrently
 			syncing = true;
+			// Show progress bar
 			toggleProgressBar();
+			// Create retained TaskFragment that will execute the sync AsyncTask
 			mTaskFragment = new TaskFragment();
-			// TODO clean up after AsyncTask is complete
 			getActivity().getSupportFragmentManager().beginTransaction().add(mTaskFragment, TASK_FRAGMENT).commit();
 			showToast("Syncing feeds...", Toast.LENGTH_LONG);
 		}
 	}
 
 	private void updateFeedView() {
-		sortHeadlinesBy(HeadlinesAdapter.SORT_BY_LINK, data);
+		// Sort headlines by a given criteria before updating the screen
+		sortHeadlinesBy(HeadlinesAdapter.SORT_BY_SOURCE, data);
 		updateListAdapter();
 	}
 
@@ -116,6 +119,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 			setListAdapter(adapter);
 		}
 		else {
+			// If adapter already exists, update its data and notify it of changes
 			adapter.clear();
 			for (MyMap m : data) {
 				adapter.add(m);
@@ -128,7 +132,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 
 		public static final int SORT_BY_NONE = 0;
 		public static final int SORT_BY_TITLE = 1;
-		public static final int SORT_BY_LINK = 2;
+		public static final int SORT_BY_SOURCE = 2;
 
 		public HeadlinesAdapter(ArrayList<MyMap> myData) {
 			super(getActivity(), R.layout.feed_list_item, myData);
@@ -169,6 +173,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 				"Title: " + map.values().iterator().next().getTitle() + "\n" +
 				"Article ID: " + uuid);
 		*/
+		// Start new ArticleView activity, passing to it the id of the clicked article
 		Intent intent = new Intent(getActivity(), ArticleView.class);
 		intent.putExtra(ARTICLE_ID, map.values().iterator().next().getId());
 		startActivityForResult(intent, ARTICLE_VIEW_INTENT);
@@ -176,6 +181,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// Receive current article index from ArticleView activity
 		if (requestCode == ARTICLE_VIEW_INTENT) {
 			Assert.assertNotNull(data);
 			getListView().setSelection(
@@ -188,6 +194,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 	}
 	
 	public void setRssData(ArrayList<MyMap> in) {
+		// Called by TaskFragment to update the RSS data fetched by RSSHandler
 		data = in;
 	}
 
@@ -200,7 +207,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 			ArrayList<MyMap> list) {
 		Collections.sort(list, new Comparator<MyMap>() {
 			public int compare(MyMap first, MyMap second) {
-				if (sortCriteria == HeadlinesAdapter.SORT_BY_LINK) {
+				if (sortCriteria == HeadlinesAdapter.SORT_BY_SOURCE) {
 					return first
 							.values()
 							.iterator()
@@ -248,17 +255,24 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 
 	@Override
 	public void onCancelled() {
-		updateFeedView();
 		Log.e("Feed", "Feed sync timeout reached. Thread stopped.");
-		syncing = false;
-		toggleProgressBar();
+		feedSyncTaskFinishedCallback();
 	}
 
 	@Override
 	public void onPostExecute() {
+		feedSyncTaskFinishedCallback();
+	}
+	
+	public void feedSyncTaskFinishedCallback() {
+		// Update list adapter
 		updateFeedView();
 		syncing = false;
+		// Hide the progress bar
 		toggleProgressBar();
+		// Remove the TaskFragment
+		FragmentManager fragMan = getActivity().getSupportFragmentManager();
+		fragMan.beginTransaction().remove(fragMan.findFragmentByTag(TASK_FRAGMENT)).addToBackStack(null).commit();
 	}
 
 }

@@ -123,7 +123,7 @@ public class RSSHandler extends DefaultHandler {
 				if (s.contains("<") || s.contains(">")) {
 					// TODO Figure out how to get a string resource without invoking an activity
 					//rdBundle.setDescription(new Activity().getResources().getString(R.string.noDescriptionAvailable));
-					rdBundle.setDescription("No Description available.");
+					rdBundle.setDescription("No description available.");
 				} else {
 					// If good input, then just set description
 					rdBundle.setDescription(s);

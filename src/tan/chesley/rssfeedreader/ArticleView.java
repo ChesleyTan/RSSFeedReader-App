@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 public class ArticleView extends FragmentActivity {
 	public static final String ARTICLE_SELECTED_KEY = "tan.chesley.rssfeedreader.articleselected";
+	public static final String INITIALLY_CREATED_KEY = "tan.chesley.rssfeedreader.initiallycreated";
 	private ViewPager theViewPager;
 	private ArrayList<MyMap> rssData;
 	private ArticleViewPagerChangeListener viewPagerPageChangeListener;
@@ -39,29 +40,25 @@ public class ArticleView extends FragmentActivity {
 
 		@Override
 		public void onPageScrolled(int arg0, float arg1, int arg2) {
-			// TODO Auto-generated method stub
-
+			
 		}
 
 		@Override
 		public void onPageScrollStateChanged(int arg0) {
-			// TODO Auto-generated method stub
 
 		}
 	}
 
 	@Override
-	protected void onCreate(Bundle arg0) {
-		super.onCreate(arg0);
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		theViewPager = new ViewPager(this);
 		theViewPager.setId(R.id.viewPager);
 		setContentView(theViewPager);
 		theViewPager
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
-		if (initiallyCreated) {
-			Log.e("debug", "ArticleView activity already created.");
-			Log.e("debug", rssData == null ? "rssData is null" : "rssData is set");
-			Log.e("debug", HeadlinesFragment.getInstance() == null ? "headlinesFragment is null" : "headlinesFragment is set");
+		if (savedInstanceState != null) {
+			initiallyCreated = savedInstanceState.getBoolean(INITIALLY_CREATED_KEY);
 		}
 		if (!initiallyCreated) {
 			Log.e("debug", "ArticleView activity not yet created.");
@@ -127,6 +124,16 @@ public class ArticleView extends FragmentActivity {
 			}
 		}
 	}
+	
+	
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(INITIALLY_CREATED_KEY, initiallyCreated);
+	}
+
+
 
 	@Override
 	public void finish() {
