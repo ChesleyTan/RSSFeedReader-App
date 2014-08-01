@@ -19,6 +19,7 @@ public class ArticleViewFragment extends Fragment {
 	private String myArticle = "";
 	private String myLink = "";
 	private TextView articleTextView;
+	private TextView titleTextView;
 	private Button openInBrowserButton;
 
 	public static ArticleViewFragment newArticleViewFragment(String headline,
@@ -51,6 +52,8 @@ public class ArticleViewFragment extends Fragment {
 				.inflate(R.layout.article_view, container, false);
 		articleTextView = (TextView) theView.findViewById(R.id.articleTextView);
 		articleTextView.setText(myArticle);
+		titleTextView = (TextView) theView.findViewById(R.id.titleTextView);
+		titleTextView.setText(myHeadline);
 		openInBrowserButton = (Button) theView
 				.findViewById(R.id.openInBrowserButton);
 		openInBrowserButton

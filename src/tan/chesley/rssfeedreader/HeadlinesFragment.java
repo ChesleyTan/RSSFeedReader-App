@@ -1,29 +1,17 @@
 package tan.chesley.rssfeedreader;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import junit.framework.Assert;
 
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.Gravity;
@@ -38,25 +26,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class HeadlinesFragment extends ListFragment {
+public class HeadlinesFragment extends ListFragment implements TaskFragment.TaskCallbacks{
 	public static final String PARSED_FEED_DATA = "tan.chesley.rssfeedreader.parsedfeeddata";
 	public static final String ARTICLE_ID = "tan.chesley.rssfeedreader.articleid";
+	public static final String TASK_FRAGMENT = "tan.chesley.rssfeedreader.taskfragment";
 	public static final int RSS_ARTICLE_COUNT_MAX = 20;
 	public static final int ARTICLE_VIEW_INTENT = 0;
-	public static final long SYNC_TIMEOUT = 5000;
-	public static final String[] FEEDS = new String[] {
-			"http://rss.cnn.com/rss/cnn_world.rss",
-			"http://rss.cnn.com/rss/cnn_tech.rss",
-			"http://news.feedzilla.com/en_us/headlines/top-news/world-news.rss",
-			"http://news.feedzilla.com/en_us/headlines/science/top-stories.rss",
-			"http://news.feedzilla.com/en_us/headlines/technology/top-stories.rss",
-			"http://news.feedzilla.com/en_us/headlines/programming/top-stories.rss",
-			"http://www.reddit.com/.rss" };
-	public static Map<String, RSSDataBundle> headlines = new MyMap();
 	public static ArrayList<MyMap> data = new ArrayList<MyMap>();
 	private static HeadlinesFragment singleton;
 	private HeadlinesAdapter adapter;
-	private InputStream feedStream;
+	private TaskFragment mTaskFragment;
 	private boolean syncing = false;
 	private Button updateButton;
 	private ProgressBar syncProgressBar;
@@ -80,8 +59,10 @@ public class HeadlinesFragment extends ListFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		singleton = this;
 		// Log.e("Instance", "Instance: Calling onCreate method for fragment.");
-
+		
+		// TODO Move this outside of onCreate to prevent illegalStateException
 		if (savedInstanceState != null) {
 			ArrayList<MyMap> tmp = savedInstanceState
 					.getParcelableArrayList(PARSED_FEED_DATA);
@@ -117,32 +98,15 @@ public class HeadlinesFragment extends ListFragment {
 		if (!syncing) {
 			syncing = true;
 			toggleProgressBar();
-			final GetRssFeedTask syncTask = new GetRssFeedTask();
-			syncTask.execute(FEEDS);
+			mTaskFragment = new TaskFragment();
+			// TODO clean up after AsyncTask is complete
+			getActivity().getSupportFragmentManager().beginTransaction().add(mTaskFragment, TASK_FRAGMENT).commit();
 			showToast("Syncing feeds...", Toast.LENGTH_LONG);
-			new Handler().postDelayed(new Runnable() {
-				public void run() {
-					if (syncTask.getStatus() != AsyncTask.Status.FINISHED) {
-						syncTask.cancel(true);
-						abortInputStreams();
-						showToast("Sync connection timeout", Toast.LENGTH_SHORT);
-					} else {
-						Log.e("Feed", "Feed sync completed successfully.");
-					}
-				}
-			}, SYNC_TIMEOUT);
 		}
 	}
 
 	private void updateFeedView() {
-		ArrayList<MyMap> newData = new ArrayList<MyMap>();
-		for (String s : headlines.keySet()) {
-			MyMap datum = new MyMap();
-			datum.put(s, headlines.get(s));
-			newData.add(datum);
-		}
-		sortHeadlinesBy(HeadlinesAdapter.SORT_BY_LINK, newData);
-		data = newData;
+		sortHeadlinesBy(HeadlinesAdapter.SORT_BY_LINK, data);
 		updateListAdapter();
 	}
 
@@ -151,7 +115,13 @@ public class HeadlinesFragment extends ListFragment {
 			adapter = new HeadlinesAdapter(data);
 			setListAdapter(adapter);
 		}
-		((HeadlinesAdapter) getListAdapter()).notifyDataSetChanged();
+		else {
+			adapter.clear();
+			for (MyMap m : data) {
+				adapter.add(m);
+			}
+			adapter.notifyDataSetChanged();
+		}
 	}
 
 	private class HeadlinesAdapter extends ArrayAdapter<MyMap> {
@@ -193,9 +163,12 @@ public class HeadlinesFragment extends ListFragment {
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Map<String, RSSDataBundle> map = ((Map<String, RSSDataBundle>) ((HeadlinesAdapter) getListAdapter())
-				.getItem(position));
-		// Log.e("Click", "Clicked " + map.toString());
+		MyMap map = adapter.getItem(position);
+		/*
+		Log.e("Click", "Clicked Article Index: " + position + "\n" +
+				"Title: " + map.values().iterator().next().getTitle() + "\n" +
+				"Article ID: " + uuid);
+		*/
 		Intent intent = new Intent(getActivity(), ArticleView.class);
 		intent.putExtra(ARTICLE_ID, map.values().iterator().next().getId());
 		startActivityForResult(intent, ARTICLE_VIEW_INTENT);
@@ -213,226 +186,14 @@ public class HeadlinesFragment extends ListFragment {
 	public ArrayList<MyMap> getRssData() {
 		return data;
 	}
-
-	private class RSSHandler extends DefaultHandler {
-		final int stateUnknown = 0;
-		final int stateTitle = 1;
-		final int stateDescription = 2;
-		final int stateLink = 3;
-		final long timeout = 2000; // 2 second timeout for feed parsing
-
-		int state = stateUnknown;
-		int articleCount = 0;
-		long startParsingTime = 0;
-		RSSDataBundle rdBundle = null;
-		boolean reading = false;
-
-		public void reset() {
-			state = stateUnknown;
-			articleCount = 0;
-			startParsingTime = 0;
-			rdBundle = null;
-			reading = false;
-		}
-
-		public void initializeRdBundleIfNeeded() {
-			if (rdBundle == null) {
-				rdBundle = new RSSDataBundle();
-			}
-		}
-
-		@Override
-		public void startDocument() throws SAXException {
-			Log.e("Feed", "Started feed stream.");
-			startParsingTime = System.currentTimeMillis();
-		}
-
-		@Override
-		public void endDocument() throws SAXException {
-			Log.e("Feed", "Ended feed stream.");
-		}
-
-		@Override
-		public void startElement(String uri, String localName, String qName,
-				org.xml.sax.Attributes attributes) throws SAXException {
-
-			if (System.currentTimeMillis() - startParsingTime > timeout) {
-				reset();
-				throw new SAXException();
-			}
-			// Skip to first article
-			if (!reading && localName.equalsIgnoreCase("item")) {
-				reading = true;
-				articleCount++;
-			}
-
-			// Parse tag and save data
-			if (reading) {
-				if (articleCount < RSS_ARTICLE_COUNT_MAX
-						&& state == stateUnknown) {
-					if (localName.equalsIgnoreCase("title")) {
-						state = stateTitle;
-					} else if (localName.equalsIgnoreCase("description")) {
-						state = stateDescription;
-					} else if (localName.equalsIgnoreCase("link")) {
-						state = stateLink;
-					} else {
-						// Log.e("Unknown tag name", localName);
-					}
-				} else {
-					reset();
-					throw new SAXException();
-				}
-			}
-		}
-
-		@Override
-		public void endElement(String uri, String localName, String qName)
-				throws SAXException {
-			if (System.currentTimeMillis() - startParsingTime > timeout) {
-				reset();
-				throw new SAXException();
-			}
-			if (localName.equalsIgnoreCase("item")) {
-				if (rdBundle != null) {
-					headlines.put(rdBundle.getTitle(), rdBundle);
-				}
-				rdBundle = null;
-				// Stop reading until we get to the next item tag
-				reading = false;
-			}
-			state = stateUnknown;
-		}
-
-		@Override
-		public void characters(char[] ch, int start, int length)
-				throws SAXException {
-			if (System.currentTimeMillis() - startParsingTime > timeout) {
-				reset();
-				throw new SAXException();
-			}
-			if (state == stateTitle) {
-				// Log.e("New Headline", strCharacters);
-				initializeRdBundleIfNeeded();
-				if (rdBundle.getTitle() == null) {
-					rdBundle.setTitle(makeString(ch, start, length));
-				}
-			} else if (state == stateDescription) {
-				// Log.e("New Description", strCharacters);
-				initializeRdBundleIfNeeded();
-				if (rdBundle.getDescription() == null) {
-					String s = makeString(ch, start, length);
-					// Special case where description contains garbage data
-					if (s.contains("<") || s.contains(">")) {
-						rdBundle.setDescription(getResources().getString(
-								R.string.noDescriptionAvailable));
-					} else {
-						// If good input, then just set description
-						rdBundle.setDescription(s);
-					}
-				}
-			} else if (state == stateLink) {
-				// Log.e("New Link", strCharacters);
-				initializeRdBundleIfNeeded();
-				if (rdBundle.getLink() == null) {
-					rdBundle.setLink(makeString(ch, start, length));
-				}
-			}
-		}
-
-		public String makeString(char[] ch, int start, int length) {
-			return new String(ch, start, length).trim().replaceAll("\\s+", " ");
-		}
-	}
-
-	public class GetRssFeedTask extends AsyncTask<String, Void, Void> {
-		long startTime = System.currentTimeMillis();
-		long longRequestTime = 4000;
-
-		@Override
-		protected Void doInBackground(String... urls) {
-			try {
-
-				SAXParserFactory mySAXParserFactory = SAXParserFactory
-						.newInstance();
-				SAXParser mySAXParser = mySAXParserFactory.newSAXParser();
-				XMLReader myXMLReader = mySAXParser.getXMLReader();
-				RSSHandler myRSSHandler = new RSSHandler();
-				myXMLReader.setContentHandler(myRSSHandler);
-				InputSource myInputSource;
-				URL url;
-				for (String s : urls) {
-					if (isCancelled())
-						break;
-					publishProgress((Void) null);
-					url = new URL(s);
-					feedStream = url.openStream();
-					Log.e("Feed", "Syncing feed " + s);
-					myInputSource = new InputSource(feedStream);
-					try {
-						myXMLReader.parse(myInputSource);
-					} catch (SAXException e) {
-						continue;
-					}
-				}
-
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-				Log.e("Feed", "Cannot connect to RSS feed!");
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-				Log.e("Feed", "Cannot connect to RSS feed!");
-			} catch (SAXException e) {
-				e.printStackTrace();
-				Log.e("Feed", "Cannot connect to RSS feed!");
-			} catch (IOException e) {
-				e.printStackTrace();
-				Log.e("Feed", "Cannot connect to RSS feed!");
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void v) {
-			updateFeedView();
-			syncing = false;
-			toggleProgressBar();
-		}
-
-		@Override
-		protected void onCancelled() {
-			super.onCancelled();
-			updateFeedView();
-			Log.e("Feed", "Feed sync timeout reached. Thread stopped.");
-			syncing = false;
-			toggleProgressBar();
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... values) {
-			super.onProgressUpdate(values);
-			if (System.currentTimeMillis() - startTime > longRequestTime) {
-
-				showToast("Still working...", Toast.LENGTH_SHORT);
-
-			}
-		}
-
+	
+	public void setRssData(ArrayList<MyMap> in) {
+		data = in;
 	}
 
 	public void showToast(String s, int toastDurationFlag) {
 		Toast.makeText(getActivity().getApplicationContext(), s,
 				toastDurationFlag).show();
-	}
-
-	public void abortInputStreams() {
-		if (feedStream != null) {
-			try {
-				feedStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public static ArrayList<MyMap> sortHeadlinesBy(final int sortCriteria,
@@ -473,6 +234,31 @@ public class HeadlinesFragment extends ListFragment {
 			syncProgressBar.setVisibility(View.GONE);
 			updateButton.setVisibility(View.VISIBLE);
 		}
+	}
+
+	@Override
+	public void onPreExecute() {
+		
+	}
+
+	@Override
+	public void onProgressUpdate() {
+		showToast("Still working...", Toast.LENGTH_SHORT);
+	}
+
+	@Override
+	public void onCancelled() {
+		updateFeedView();
+		Log.e("Feed", "Feed sync timeout reached. Thread stopped.");
+		syncing = false;
+		toggleProgressBar();
+	}
+
+	@Override
+	public void onPostExecute() {
+		updateFeedView();
+		syncing = false;
+		toggleProgressBar();
 	}
 
 }

@@ -28,6 +28,10 @@ public class RSSFeed extends FragmentActivity {
 		}
 
 	}
+	
+	public HeadlinesFragment getHeadlinesFragment() {
+		return (HeadlinesFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+	}
 
 	public void syncFeeds(View v) {
 		if (HeadlinesFragment.getInstance() != null) {
