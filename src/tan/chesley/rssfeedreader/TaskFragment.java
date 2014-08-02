@@ -64,21 +64,24 @@ public class TaskFragment extends Fragment {
 		if (savedInstanceState != null) {
 			taskCompleted = savedInstanceState.getBoolean(TASK_COMPLETE);
 		} else {
-			Log.e("TaskFragment", "Starting new sync task.");
-			mTask = new GetRssFeedTask();
-			mTask.execute(FEEDS);
-			new Handler().postDelayed(new Runnable() {
-				public void run() {
-					if (mTask.getStatus() != AsyncTask.Status.FINISHED) {
-						mTask.cancel(true);
-						abortInputStreams();
-						((HeadlinesFragment) mCallbacks).showToast(
-								"Sync connection timeout", Toast.LENGTH_SHORT);
-					} else {
-						Log.e("Feed", "Feed sync completed successfully.");
+			if (!taskCompleted) {
+				Log.e("TaskFragment", "Starting new sync task.");
+				mTask = new GetRssFeedTask();
+				mTask.execute(FEEDS);
+				new Handler().postDelayed(new Runnable() {
+					public void run() {
+						if (mTask.getStatus() != AsyncTask.Status.FINISHED) {
+							mTask.cancel(true);
+							abortInputStreams();
+							((HeadlinesFragment) mCallbacks).showToast(
+									"Sync connection timeout",
+									Toast.LENGTH_SHORT);
+						} else {
+							Log.e("Feed", "Feed sync completed successfully.");
+						}
 					}
-				}
-			}, SYNC_TIMEOUT);
+				}, SYNC_TIMEOUT);
+			}
 		}
 	}
 

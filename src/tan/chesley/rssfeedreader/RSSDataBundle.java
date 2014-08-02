@@ -1,5 +1,6 @@
 package tan.chesley.rssfeedreader;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import android.annotation.SuppressLint;
@@ -61,6 +62,71 @@ public class RSSDataBundle implements Parcelable{
 	public RSSDataBundle setPubDate(String pubDate) {
 		this.pubDate = pubDate;
 		return this;
+	}
+	public Calendar getCalendar() {
+		Calendar calendar = Calendar.getInstance();
+		String[] pubDateFields = pubDate.split(" ");
+		// TODO account for case when the year is only two digits
+		int year = Integer.parseInt(pubDateFields[2]);
+		String monthStr = pubDateFields[1];
+		int month = monthStr.contains("Jan") ? 1 :
+					monthStr.contains("Feb") ? 2 :
+					monthStr.contains("Mar") ? 3 :
+					monthStr.contains("Apr") ? 4 :
+					monthStr.contains("May") ? 5 :
+					monthStr.contains("Jun") ? 6 :
+					monthStr.contains("Jul") ? 7 :
+					monthStr.contains("Aug") ? 8 :
+					monthStr.contains("Sep") ? 9 :
+					monthStr.contains("Oct") ? 10 :
+					monthStr.contains("Nov") ? 11 :
+					12;
+		int day = Integer.parseInt(pubDateFields[0]);
+		String[] timeFields = pubDateFields[3].split(":");
+		int hour = Integer.parseInt(timeFields[0]);
+		int minute = Integer.parseInt(timeFields[1]);
+		int second = Integer.parseInt(timeFields[2]);
+		calendar.set(year, month, day, hour, minute, second);
+		int hourOffset = pubDateFields[4].substring(0, 1).equals("+") ? Integer.parseInt(pubDateFields[4].substring(1, 3)) : -1 * Integer.parseInt(pubDateFields[4].substring(1, 3));
+		int minuteOffset = pubDateFields[4].substring(0, 1).equals("+") ? Integer.parseInt(pubDateFields[4].substring(3)) : -1 * Integer.parseInt(pubDateFields[4].substring(3));
+		calendar.add(Calendar.HOUR, hourOffset);
+		calendar.add(Calendar.MINUTE, minuteOffset);
+		return calendar;
+	}
+	public String getFormattedDate() {
+		Calendar calendar = getCalendar();
+		int hr = calendar.get(Calendar.HOUR_OF_DAY);
+		String hour = Integer.toString(hr);
+		if (hr < 10) {
+			hour = "0" + hour;
+		}
+		int min = calendar.get(Calendar.MINUTE);
+		String minute = Integer.toString(min);
+		if (min < 10) {
+			minute = "0" + minute;
+		}
+		int sec = calendar.get(Calendar.SECOND);
+		String second = Integer.toString(sec);
+		if (sec < 10) {
+			second = "0" + second;
+		}
+		int mth = calendar.get(Calendar.MONTH);
+		String month = mth == 1 ? "Jan" :
+					   mth == 2 ? "Feb" :
+					   mth == 3 ? "Mar" :
+					   mth == 4 ? "Apr" :
+					   mth == 5 ? "May" :
+					   mth == 6 ? "Jun" :
+					   mth == 7 ? "Jul" :
+					   mth == 8 ? "Aug" :
+					   mth == 9 ? "Sep" :
+					   mth == 10 ? "Oct" :
+					   mth == 11 ? "Nov" :
+					   "Dec";
+		String day = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH));
+		String year = Integer.toString(calendar.get(Calendar.YEAR));
+		return  hour + ":" + minute + ":" + second + " " +
+				month + " " + day + " " + year;
 	}
 	
 	@SuppressLint("Recycle")

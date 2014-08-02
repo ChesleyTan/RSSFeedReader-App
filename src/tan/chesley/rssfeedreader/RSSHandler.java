@@ -1,6 +1,7 @@
 package tan.chesley.rssfeedreader;
 
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -15,6 +16,7 @@ public class RSSHandler extends DefaultHandler {
 	final int stateDescription = 2;
 	final int stateLink = 3;
 	final int stateSourceTitle = 4;
+	final int statePubDate = 5;
 	final long timeout = 2000; // 2 second timeout for feed parsing
 	final GetRssFeedTask parent;
 	final String noDescriptionAvailableString;
@@ -27,6 +29,7 @@ public class RSSHandler extends DefaultHandler {
 	boolean reading = false;
 	String sourceTitle = null;
 	String sourceURL = null;
+	boolean badInput = false;
 
 	public RSSHandler(GetRssFeedTask task, Context context) {
 		parent = task;
@@ -41,6 +44,7 @@ public class RSSHandler extends DefaultHandler {
 		reading = false;
 		sourceTitle = null;
 		sourceURL = null;
+		badInput = false;
 	}
 
 	public void initializeRdBundleIfNeeded() {
@@ -69,17 +73,18 @@ public class RSSHandler extends DefaultHandler {
 	@Override
 	public void startElement(String uri, String localName, String qName,
 			org.xml.sax.Attributes attributes) throws SAXException {
-		
+		// Check if sync task was cancelled
 		if (parent.isCancelled()) {
 			throw new SAXException();
 		}
-
+		// Check if syncing timeout has been reached
 		if (System.currentTimeMillis() - startParsingTime > timeout) {
 			// Skip to next source
 			reset();
+			Log.e("RSSHandler", "Individual source feed syncing timeout reached.");
 			throw new SAXException();
 		}
-		
+		// Check if we need to get the source title
 		if (!reading && localName.equalsIgnoreCase("title") && sourceTitle == null) {
 			state = stateSourceTitle;
 		}
@@ -100,11 +105,14 @@ public class RSSHandler extends DefaultHandler {
 					state = stateDescription;
 				} else if (localName.equalsIgnoreCase("link")) {
 					state = stateLink;
+				} else if (localName.equalsIgnoreCase("pubDate")) {
+					state = statePubDate;
 				} else {
 					// Log.e("Unknown tag name", localName);
 				}
-			} else {
+			} else { // Stop when we have reached the max number of articles to read
 				reset();
+				endDocument();
 				throw new SAXException();
 			}
 		}
@@ -113,25 +121,29 @@ public class RSSHandler extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		
+		// Check if sync task has been cancelled
 		if (parent.isCancelled()) {
 			throw new SAXException();
 		}
-		
+		// Check if syncing timeout has been reached
 		if (System.currentTimeMillis() - startParsingTime > timeout) {
 			// Skip to next source
 			reset();
+			Log.e("RSSHandler", "Individual source feed syncing timeout reached.");
 			throw new SAXException();
 		}
 		if (localName.equalsIgnoreCase("item")) {
-			if (rdBundle != null) {
+			if (rdBundle != null && !badInput) {
 				rdBundle.setSourceTitle(sourceTitle);
 				rdBundle.setSource(sourceURL);
 				MyMap datum = new MyMap();
 				datum.put(rdBundle.getTitle(), rdBundle);
 				data.add(datum);
 			}
+			// Reset rdBundle to store next item's data
 			rdBundle = null;
+			// Reset the bad input flag
+			badInput = false;
 			// Stop reading until we get to the next item tag
 			reading = false;
 		}
@@ -141,22 +153,24 @@ public class RSSHandler extends DefaultHandler {
 	@Override
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
+		// Check if sync task has been cancelled
 		if (parent.isCancelled()) {
 			throw new SAXException();
 		}
+		// Check if syncing timeout has been reached
 		if (System.currentTimeMillis() - startParsingTime > timeout) {
 			// Skip to next source
 			reset();
+			Log.e("RSSHandler", "Individual source feed syncing timeout reached.");
 			throw new SAXException();
 		}
 		if (state == stateTitle) {
-			// Log.e("New Headline", strCharacters);
 			initializeRdBundleIfNeeded();
 			if (rdBundle.getTitle().equals("")) {
 				rdBundle.setTitle(makeString(ch, start, length));
+				//Log.e("New Headline", rdBundle.getTitle());
 			}
 		} else if (state == stateDescription) {
-			// Log.e("New Description", strCharacters);
 			initializeRdBundleIfNeeded();
 			if (rdBundle.getDescription().equals("")) {
 				String s = makeString(ch, start, length);
@@ -167,16 +181,43 @@ public class RSSHandler extends DefaultHandler {
 					// If good input, then just set description
 					rdBundle.setDescription(s);
 				}
+				//Log.e("New Description", rdBundle.getDescription());
 			}
 		} else if (state == stateLink) {
-			// Log.e("New Link", strCharacters);
 			initializeRdBundleIfNeeded();
 			if (rdBundle.getLink().equals("")) {
 				rdBundle.setLink(makeString(ch, start, length));
 			}
+			// Log.e("New Link", rdBundle.getLink());
 		} else if (state == stateSourceTitle) {
 			sourceTitle = makeString(ch, start, length);
-			//Log.e("New Source Title", sourceTitle);
+			// Log.e("New Source Title", sourceTitle);
+		} else if (state == statePubDate) {
+			String dateString = makeString(ch, start, length);
+			String[] dateStringFields = dateString.split(" ");
+			// TODO more robustly recognize bad input
+			if (dateStringFields.length < 6) {
+				badInput = true;
+				Log.e("New pubDate", "Bad input found. Skipping this item.");
+				return;
+			}
+			String pubDate = dateStringFields[1] + " " + dateStringFields[2] + " " + dateStringFields[3] + " " + dateStringFields[4];
+			if (!dateStringFields[5].contains("0")) {
+				double offset = TimeZone.getDefault().getRawOffset() / 1000.0 / 60.0 / 60.0;
+				int hourOffset = (int) offset;
+				int minutesOffset = (int) (offset % 1.0 * 60);
+				String hourOffsetStr = hourOffset < 10 && hourOffset >= 0 ? "0" + hourOffset : 
+						hourOffset > -10 && hourOffset < 0 ? "-0" + Math.abs(hourOffset) : Integer.toString(hourOffset);
+				String minutesOffsetStr = minutesOffset == 0 ? "00" : Integer.toString(minutesOffset);
+				String sign = offset > 0 ? "+" : ""; // Negative offsets already have a sign 
+				String timeZone = sign + hourOffsetStr + minutesOffsetStr;
+				Log.e("New pubDate", "Non-offset time zone detected. Using " + sign + hourOffsetStr + minutesOffsetStr + " instead.");
+				pubDate += " " + timeZone;
+			} else {
+				pubDate += " " + dateStringFields[5];
+			}
+			rdBundle.setPubDate(pubDate);
+			//Log.e("New pubDate", rdBundle.getPubDate());
 		}
 	}
 
@@ -193,6 +234,6 @@ public class RSSHandler extends DefaultHandler {
 	
 	public void notifyCurrentSource(String url) {
 		sourceURL = url;
-		Log.e("New Source", url);
+		//Log.e("New Source", url);
 	}
 }

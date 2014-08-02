@@ -1,6 +1,7 @@
 package tan.chesley.rssfeedreader;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -62,10 +63,7 @@ public class HeadlinesFragment extends ListFragment implements
 		if (savedInstanceState != null) {
 			syncing = savedInstanceState.getBoolean(SYNCING);
 		}
-		Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
-		Log.e("HeadlinesFragment", getActivity().getSupportFragmentManager()
-				.findFragmentByTag(TASK_FRAGMENT) == null ? "TaskFragment null"
-				: "TaskFragment exists");
+		//Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
 	}
 
 	@Override
@@ -94,10 +92,9 @@ public class HeadlinesFragment extends ListFragment implements
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Log.e("HeadlinesFragment", "Saving instance state.");
+		//Log.e("HeadlinesFragment", "Saving instance state.");
 		outState.putParcelableArrayList(PARSED_FEED_DATA, data);
 		outState.putBoolean(SYNCING, syncing);
-		// Log.e("Instance", "Saved Instance State.");
 	}
 
 	public void syncFeeds() {
@@ -117,7 +114,7 @@ public class HeadlinesFragment extends ListFragment implements
 
 	private void updateFeedView() {
 		// Sort headlines by a given criteria before updating the screen
-		sortHeadlinesBy(HeadlinesAdapter.SORT_BY_SOURCE, data);
+		sortHeadlinesBy(HeadlinesAdapter.SORT_BY_DATE, data);
 		updateListAdapter();
 	}
 
@@ -141,6 +138,7 @@ public class HeadlinesFragment extends ListFragment implements
 		public static final int SORT_BY_NONE = 0;
 		public static final int SORT_BY_TITLE = 1;
 		public static final int SORT_BY_SOURCE = 2;
+		public static final int SORT_BY_DATE = 3;
 
 		public HeadlinesAdapter(ArrayList<MyMap> myData) {
 			super(getActivity(), R.layout.feed_list_item, myData);
@@ -159,9 +157,12 @@ public class HeadlinesFragment extends ListFragment implements
 					.findViewById(android.R.id.text2);
 			TextView sourceTextView = (TextView) convertView
 					.findViewById(R.id.sourceTextView);
+			TextView dateTextView = (TextView) convertView
+					.findViewById(R.id.dateTextView);
 			RSSDataBundle rdBundle = dataMap.values().iterator().next();
 			headlineTextView.setText(rdBundle.getTitle());
 			sourceTextView.setText(rdBundle.getSourceTitle());
+			dateTextView.setText(rdBundle.getFormattedDate());
 			articleTextView.setText(rdBundle.getDescription());
 			return convertView;
 		}
@@ -231,6 +232,10 @@ public class HeadlinesFragment extends ListFragment implements
 					String secondTitle = second.values().iterator().next()
 							.getTitle();
 					return firstTitle.compareTo(secondTitle);
+				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_DATE) {
+					Calendar firstCalendar = first.values().iterator().next().getCalendar();
+					Calendar secondCalendar = second.values().iterator().next().getCalendar();
+					return -1 * firstCalendar.compareTo(secondCalendar);
 				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_NONE) {
 				}
 				return 0;
