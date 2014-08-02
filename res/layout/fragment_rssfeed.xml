@@ -1,9 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/headlinesLinearLayout"
-    android:background="@color/DarkSeaGreen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/DarkSeaGreen"
     android:orientation="vertical"
     tools:context="tan.chesley.rssfeedreader.HeadlinesFragment" >
 
@@ -21,8 +21,12 @@
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_height="0dp" >
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:fadingEdge="none" >
+
     </ListView>
 
     <ProgressBar

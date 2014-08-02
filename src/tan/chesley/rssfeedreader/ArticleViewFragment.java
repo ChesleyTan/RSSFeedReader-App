@@ -15,6 +15,9 @@ import android.widget.TextView;
 public class ArticleViewFragment extends Fragment {
 	private static final String RSSDATABUNDLE = "tan.chesley.rssfeedreader.rssdatabundle";
 	private static final String ARTICLE_HEADLINE = "tan.chesley.rssfeedreader.articleheadline";
+	private static final String HEADLINE = "tan.chesley.rssfeedreader.headline";
+	private static final String ARTICLE = "tan.chesley.rssfeedreader.article";
+	private static final String LINK = "tan.chesley.rssfeedreader.link";
 	private String myHeadline = "";
 	private String myArticle = "";
 	private String myLink = "";
@@ -43,6 +46,11 @@ public class ArticleViewFragment extends Fragment {
 			myArticle = rdBundle.getDescription();
 			myLink = rdBundle.getLink();
 		}
+		if (savedInstanceState != null) {
+			myHeadline = savedInstanceState.getString(HEADLINE);
+			myArticle = savedInstanceState.getString(ARTICLE);
+			myLink = savedInstanceState.getString(LINK);
+		}
 	}
 
 	@Override
@@ -65,6 +73,9 @@ public class ArticleViewFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		outState.putString(HEADLINE, myHeadline);
+		outState.putString(ARTICLE, myArticle);
+		outState.putString(LINK, myLink);
 	}
 
 	public class ArticleViewOpenInBrowserButtonClickListener implements
@@ -77,7 +88,7 @@ public class ArticleViewFragment extends Fragment {
 				url = "http://" + url;
 				Log.e("URL", "URL modified to " + url);
 			}
-			Log.e("URL Open", "URL: " + url);
+			//Log.e("URL Open", "URL: " + url);
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 		}
 

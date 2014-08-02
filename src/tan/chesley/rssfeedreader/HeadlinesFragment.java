@@ -3,6 +3,7 @@ package tan.chesley.rssfeedreader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import junit.framework.Assert;
 import android.content.Intent;
@@ -22,7 +23,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class HeadlinesFragment extends ListFragment implements TaskFragment.TaskCallbacks{
+public class HeadlinesFragment extends ListFragment implements
+		TaskFragment.TaskCallbacks {
 	public static final String PARSED_FEED_DATA = "tan.chesley.rssfeedreader.parsedfeeddata";
 	public static final String ARTICLE_ID = "tan.chesley.rssfeedreader.articleid";
 	public static final String TASK_FRAGMENT = "tan.chesley.rssfeedreader.taskfragment";
@@ -60,7 +62,10 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 		if (savedInstanceState != null) {
 			syncing = savedInstanceState.getBoolean(SYNCING);
 		}
-		// Log.e("Instance", "Instance: Calling onCreate method for fragment.");
+		Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
+		Log.e("HeadlinesFragment", getActivity().getSupportFragmentManager()
+				.findFragmentByTag(TASK_FRAGMENT) == null ? "TaskFragment null"
+				: "TaskFragment exists");
 	}
 
 	@Override
@@ -89,6 +94,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		Log.e("HeadlinesFragment", "Saving instance state.");
 		outState.putParcelableArrayList(PARSED_FEED_DATA, data);
 		outState.putBoolean(SYNCING, syncing);
 		// Log.e("Instance", "Saved Instance State.");
@@ -96,13 +102,15 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 
 	public void syncFeeds() {
 		if (!syncing) {
-			// Use syncing flag to prevent calling multiple sync tasks concurrently
+			// Use syncing flag to prevent calling multiple sync tasks
+			// concurrently
 			syncing = true;
 			// Show progress bar
 			toggleProgressBar();
 			// Create retained TaskFragment that will execute the sync AsyncTask
 			mTaskFragment = new TaskFragment();
-			getActivity().getSupportFragmentManager().beginTransaction().add(mTaskFragment, TASK_FRAGMENT).commit();
+			getActivity().getSupportFragmentManager().beginTransaction()
+					.add(mTaskFragment, TASK_FRAGMENT).commit();
 			showToast("Syncing feeds...", Toast.LENGTH_LONG);
 		}
 	}
@@ -117,9 +125,9 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 		if (getListAdapter() == null) {
 			adapter = new HeadlinesAdapter(data);
 			setListAdapter(adapter);
-		}
-		else {
-			// If adapter already exists, update its data and notify it of changes
+		} else {
+			// If adapter already exists, update its data and notify it of
+			// changes
 			adapter.clear();
 			for (MyMap m : data) {
 				adapter.add(m);
@@ -144,7 +152,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 				convertView = getActivity().getLayoutInflater().inflate(
 						R.layout.feed_list_item, null);
 			}
-			MyMap dataMap = getItem(position);
+			HashMap<String, RSSDataBundle> dataMap = getItem(position);
 			TextView headlineTextView = (TextView) convertView
 					.findViewById(android.R.id.text1);
 			TextView articleTextView = (TextView) convertView
@@ -170,13 +178,14 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		MyMap map = adapter.getItem(position);
+		HashMap<String, RSSDataBundle> map = adapter.getItem(position);
 		/*
-		Log.e("Click", "Clicked Article Index: " + position + "\n" +
-				"Title: " + map.values().iterator().next().getTitle() + "\n" +
-				"Article ID: " + uuid);
-		*/
-		// Start new ArticleView activity, passing to it the id of the clicked article
+		 * Log.e("Click", "Clicked Article Index: " + position + "\n" +
+		 * "Title: " + map.values().iterator().next().getTitle() + "\n" +
+		 * "Article ID: " + uuid);
+		 */
+		// Start new ArticleView activity, passing to it the id of the clicked
+		// article
 		Intent intent = new Intent(getActivity(), ArticleView.class);
 		intent.putExtra(ARTICLE_ID, map.values().iterator().next().getId());
 		startActivityForResult(intent, ARTICLE_VIEW_INTENT);
@@ -195,7 +204,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 	public ArrayList<MyMap> getRssData() {
 		return data;
 	}
-	
+
 	public void setRssData(ArrayList<MyMap> in) {
 		// Called by TaskFragment to update the RSS data fetched by RSSHandler
 		data = in;
@@ -211,27 +220,35 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 		Collections.sort(list, new Comparator<MyMap>() {
 			public int compare(MyMap first, MyMap second) {
 				if (sortCriteria == HeadlinesAdapter.SORT_BY_SOURCE) {
-					String firstTitle = first.values().iterator().next().getSource();
-					String secondTitle = second.values().iterator().next().getSource();
+					String firstTitle = first.values().iterator().next()
+							.getSource();
+					String secondTitle = second.values().iterator().next()
+							.getSource();
 					return firstTitle.compareTo(secondTitle);
 				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_TITLE) {
-					String firstTitle = first.values().iterator().next().getTitle();
-					String secondTitle = second.values().iterator().next().getTitle();
+					String firstTitle = first.values().iterator().next()
+							.getTitle();
+					String secondTitle = second.values().iterator().next()
+							.getTitle();
 					return firstTitle.compareTo(secondTitle);
+				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_NONE) {
 				}
 				return 0;
 			}
 		});
 		return list;
 	}
-	
+
 	public void toggleProgressBar() {
 		if (syncProgressBar.getVisibility() == View.GONE && syncing == true) {
-			syncProgressBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
+			syncProgressBar.setLayoutParams(new LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
+					Gravity.CENTER));
 			syncProgressBar.setIndeterminate(true);
 			syncProgressBar.setVisibility(View.VISIBLE);
 			updateButton.setVisibility(View.GONE);
-		} else if (syncProgressBar.getVisibility() == View.VISIBLE && syncing == false) {
+		} else if (syncProgressBar.getVisibility() == View.VISIBLE
+				&& syncing == false) {
 			syncProgressBar.setVisibility(View.GONE);
 			updateButton.setVisibility(View.VISIBLE);
 		}
@@ -239,7 +256,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 
 	@Override
 	public void onPreExecute() {
-		
+
 	}
 
 	@Override
@@ -257,7 +274,7 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 	public void onPostExecute() {
 		feedSyncTaskFinishedCallback();
 	}
-	
+
 	public void feedSyncTaskFinishedCallback() {
 		// Update list adapter
 		updateFeedView();
@@ -266,7 +283,8 @@ public class HeadlinesFragment extends ListFragment implements TaskFragment.Task
 		toggleProgressBar();
 		// Remove the TaskFragment
 		FragmentManager fragMan = getActivity().getSupportFragmentManager();
-		fragMan.beginTransaction().remove(fragMan.findFragmentByTag(TASK_FRAGMENT)).addToBackStack(null).commit();
+		fragMan.beginTransaction()
+				.remove(fragMan.findFragmentByTag(TASK_FRAGMENT))
+				.addToBackStack(null).commit();
 	}
-
 }

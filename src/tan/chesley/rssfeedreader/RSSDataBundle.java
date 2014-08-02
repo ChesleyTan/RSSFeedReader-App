@@ -2,7 +2,6 @@ package tan.chesley.rssfeedreader;
 
 import java.util.UUID;
 
-import junit.framework.Assert;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -10,10 +9,12 @@ import android.os.Parcelable;
 public class RSSDataBundle implements Parcelable{
 	private String title, description, link, source, sourceTitle; // Required descriptors
 	private String pubDate; // Optional descriptors
-	private String[] data = new String[] {title, description, link, source, sourceTitle, pubDate};
 	private final String stringUUID;
 
-	public RSSDataBundle() { stringUUID = UUID.randomUUID().toString(); }
+	public RSSDataBundle() {
+		stringUUID = UUID.randomUUID().toString();
+		title = description = link = source = sourceTitle = pubDate = "";
+	}
 	
 	public String getId() {
 		return stringUUID;
@@ -65,37 +66,29 @@ public class RSSDataBundle implements Parcelable{
 	@SuppressLint("Recycle")
 	public Parcel getParcel() {
 		Parcel parcel = Parcel.obtain();
-		for (String s : data) {
-			if (s != null) {
-				parcel.writeByte((byte) 1);
-				parcel.writeString(s);
-			}
-			else {
-				parcel.writeByte((byte) 0);
-			}
-		}
+		writeToParcel(parcel, 0);
 		return parcel;
 	}
 	
 	public void restoreParcel(Parcel parcel) {
-		for (int i = 0;i < data.length;i++) {
-			if (parcel.readByte() == 1) {
-				data[i] = parcel.readString();
-			}
-			else {
-				data[i] = null;
-			}
-		}
-		Assert.assertEquals(title, data[0]);
-		Assert.assertEquals(description, data[1]);
-		Assert.assertEquals(link, data[2]);
-		Assert.assertEquals(source, data[3]);
-		Assert.assertEquals(sourceTitle, data[4]);
-		Assert.assertEquals(pubDate, data[5]);
+		title = parcel.readString();
+		description = parcel.readString();
+		link = parcel.readString();
+		source = parcel.readString();
+		sourceTitle = parcel.readString();
+		pubDate = parcel.readString();
+		/*
+		Log.e("RSSDataBundle", "Read Title: " + title);
+		Log.e("RSSDataBundle", "Read Desc: " + description);
+		Log.e("RSSDataBundle", "Read Link: " + link);
+		Log.e("RSSDataBundle", "Read Source: " + source);
+		Log.e("RSSDataBundle", "Read Source Title: " + sourceTitle);
+		Log.e("RSSDataBundle", "Read pubData: " + pubDate);
+		*/
 	}
 	
 	public int getParceledLength() {
-		return data.length; // total number of descriptors that are packaged in the parcel
+		return 6; // the total number of descriptors that are packaged in the parcel
 	}
 
 	public static final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {
@@ -117,6 +110,19 @@ public class RSSDataBundle implements Parcelable{
 
 	@Override
 	public void writeToParcel(Parcel arg0, int arg1) {
-		arg0 = getParcel();
+		/*
+		Log.e("RSSDataBundle", "Write Title: " + title);
+		Log.e("RSSDataBundle", "Write Desc: " + description);
+		Log.e("RSSDataBundle", "Write Link: " + link);
+		Log.e("RSSDataBundle", "Write Source: " + source);
+		Log.e("RSSDataBundle", "Write Source Title: " + sourceTitle);
+		Log.e("RSSDataBundle", "Write pubData: " + pubDate);
+		*/
+		arg0.writeString(title);
+		arg0.writeString(description);
+		arg0.writeString(link);
+		arg0.writeString(source);
+		arg0.writeString(sourceTitle);
+		arg0.writeString(pubDate);
 	}
 }

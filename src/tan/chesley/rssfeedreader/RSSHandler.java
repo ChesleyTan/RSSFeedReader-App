@@ -6,6 +6,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import tan.chesley.rssfeedreader.TaskFragment.GetRssFeedTask;
+import android.content.Context;
 import android.util.Log;
 
 public class RSSHandler extends DefaultHandler {
@@ -16,6 +17,7 @@ public class RSSHandler extends DefaultHandler {
 	final int stateSourceTitle = 4;
 	final long timeout = 2000; // 2 second timeout for feed parsing
 	final GetRssFeedTask parent;
+	final String noDescriptionAvailableString;
 	ArrayList<MyMap> data = new ArrayList<MyMap>();
 
 	int state = stateUnknown;
@@ -26,8 +28,9 @@ public class RSSHandler extends DefaultHandler {
 	String sourceTitle = null;
 	String sourceURL = null;
 
-	public RSSHandler(GetRssFeedTask task) {
+	public RSSHandler(GetRssFeedTask task, Context context) {
 		parent = task;
+		noDescriptionAvailableString = context.getResources().getString(R.string.noDescriptionAvailable);
 	}
 	
 	public void reset() {
@@ -149,19 +152,17 @@ public class RSSHandler extends DefaultHandler {
 		if (state == stateTitle) {
 			// Log.e("New Headline", strCharacters);
 			initializeRdBundleIfNeeded();
-			if (rdBundle.getTitle() == null) {
+			if (rdBundle.getTitle().equals("")) {
 				rdBundle.setTitle(makeString(ch, start, length));
 			}
 		} else if (state == stateDescription) {
 			// Log.e("New Description", strCharacters);
 			initializeRdBundleIfNeeded();
-			if (rdBundle.getDescription() == null) {
+			if (rdBundle.getDescription().equals("")) {
 				String s = makeString(ch, start, length);
 				// Special case where description contains garbage data
 				if (s.contains("<") || s.contains(">")) {
-					// TODO Figure out how to get a string resource without invoking an activity
-					//rdBundle.setDescription(new Activity().getResources().getString(R.string.noDescriptionAvailable));
-					rdBundle.setDescription("No description available.");
+					rdBundle.setDescription(noDescriptionAvailableString);
 				} else {
 					// If good input, then just set description
 					rdBundle.setDescription(s);
@@ -170,7 +171,7 @@ public class RSSHandler extends DefaultHandler {
 		} else if (state == stateLink) {
 			// Log.e("New Link", strCharacters);
 			initializeRdBundleIfNeeded();
-			if (rdBundle.getLink() == null) {
+			if (rdBundle.getLink().equals("")) {
 				rdBundle.setLink(makeString(ch, start, length));
 			}
 		} else if (state == stateSourceTitle) {
@@ -179,7 +180,10 @@ public class RSSHandler extends DefaultHandler {
 		}
 	}
 
-	public String makeString(char[] ch, int start, int length) {
+	public String makeString(char[] ch, int start, int length) throws SAXException {
+		if (parent.isCancelled()) {
+			throw new SAXException();
+		}
 		return new String(ch, start, length).trim().replaceAll("\\s+", " ");
 	}
 	

@@ -21,17 +21,20 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.widget.Toast;
 
+// Credits to Alex Lockwood for original model of a task fragment
 public class TaskFragment extends Fragment {
 	public static final long SYNC_TIMEOUT = 5000;
+	public static final String TASK_COMPLETE = "tan.chesley.rssfeedreader.taskcomplete";
 	public static final String[] FEEDS = new String[] {
-		"http://rss.cnn.com/rss/cnn_world.rss",
-		"http://rss.cnn.com/rss/cnn_tech.rss",
-		"http://news.feedzilla.com/en_us/headlines/top-news/world-news.rss",
-		"http://news.feedzilla.com/en_us/headlines/science/top-stories.rss",
-		"http://news.feedzilla.com/en_us/headlines/technology/top-stories.rss",
-		"http://news.feedzilla.com/en_us/headlines/programming/top-stories.rss",
-		"http://www.reddit.com/.rss" };
-	static interface TaskCallbacks {
+			"http://rss.cnn.com/rss/cnn_world.rss",
+			"http://rss.cnn.com/rss/cnn_tech.rss",
+			"http://news.feedzilla.com/en_us/headlines/top-news/world-news.rss",
+			"http://news.feedzilla.com/en_us/headlines/science/top-stories.rss",
+			"http://news.feedzilla.com/en_us/headlines/technology/top-stories.rss",
+			"http://news.feedzilla.com/en_us/headlines/programming/top-stories.rss",
+			"http://www.reddit.com/.rss" };
+
+	public static interface TaskCallbacks {
 		void onPreExecute();
 
 		void onProgressUpdate();
@@ -45,36 +48,50 @@ public class TaskFragment extends Fragment {
 	private GetRssFeedTask mTask;
 	private InputStream feedStream;
 	private boolean aborted = false;
+	private boolean taskCompleted = false;
 
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		mCallbacks = (TaskCallbacks) ((RSSFeed)activity).getHeadlinesFragment();
+		mCallbacks = (TaskCallbacks) ((RSSFeed) activity)
+				.getHeadlinesFragment();
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);
-		mTask = new GetRssFeedTask();
-		mTask.execute(FEEDS);
-		new Handler().postDelayed(new Runnable() {
-			public void run() {
-				if (mTask.getStatus() != AsyncTask.Status.FINISHED) {
-					mTask.cancel(true);
-					abortInputStreams();
-					((HeadlinesFragment) mCallbacks).showToast("Sync connection timeout", Toast.LENGTH_SHORT);
-				} else {
-					Log.e("Feed", "Feed sync completed successfully.");
+		if (savedInstanceState != null) {
+			taskCompleted = savedInstanceState.getBoolean(TASK_COMPLETE);
+		} else {
+			Log.e("TaskFragment", "Starting new sync task.");
+			mTask = new GetRssFeedTask();
+			mTask.execute(FEEDS);
+			new Handler().postDelayed(new Runnable() {
+				public void run() {
+					if (mTask.getStatus() != AsyncTask.Status.FINISHED) {
+						mTask.cancel(true);
+						abortInputStreams();
+						((HeadlinesFragment) mCallbacks).showToast(
+								"Sync connection timeout", Toast.LENGTH_SHORT);
+					} else {
+						Log.e("Feed", "Feed sync completed successfully.");
+					}
 				}
-			}
-		}, SYNC_TIMEOUT);
+			}, SYNC_TIMEOUT);
+		}
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = null;
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(TASK_COMPLETE, taskCompleted);
 	}
 
 	public void abortInputStreams() {
@@ -102,7 +119,7 @@ public class TaskFragment extends Fragment {
 						.newInstance();
 				SAXParser mySAXParser = mySAXParserFactory.newSAXParser();
 				XMLReader myXMLReader = mySAXParser.getXMLReader();
-				myRSSHandler = new RSSHandler(this);
+				myRSSHandler = new RSSHandler(this, getActivity());
 				myXMLReader.setContentHandler(myRSSHandler);
 				InputSource myInputSource;
 				URL url;
@@ -183,9 +200,10 @@ public class TaskFragment extends Fragment {
 				}
 			}
 		}
-		
+
 		private void deliverData() {
 			((HeadlinesFragment) mCallbacks).setRssData(myRSSHandler.getData());
+			taskCompleted = true;
 		}
 
 	}

@@ -2,36 +2,46 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="2dp"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="2dp" >
 
     <TextView
         android:id="@android:id/text1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/feed_list_item_source_size"
         android:ellipsize="end"
-        android:singleLine="true"
         android:lines="1"
+        android:singleLine="true"
         android:text="Headline Placeholder"
         android:textSize="@dimen/feed_list_item_title_size" />
-    
-     <TextView
+
+    <TextView
         android:id="@+id/sourceTextView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@android:id/text1"
         android:ellipsize="end"
+        android:gravity="right"
         android:lines="1"
         android:text="Source Placeholder"
         android:textSize="@dimen/feed_list_item_source_size" />
+
+    <View
+        style="@style/HorizontalLine"
+        android:id="@+id/divider"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_below="@android:id/text1"
+        android:alpha="0.1"
+        android:background="#555555" />
 
     <TextView
         android:id="@android:id/text2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/sourceTextView"
+        android:layout_below="@id/divider"
         android:ellipsize="end"
-        android:lines="2"
+        android:lines="3"
         android:text="Article Placeholder"
         android:textSize="@dimen/feed_list_item_description_size" />
 
