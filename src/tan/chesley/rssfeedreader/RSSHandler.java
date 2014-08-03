@@ -1,6 +1,7 @@
 package tan.chesley.rssfeedreader;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.xml.sax.SAXException;
@@ -202,8 +203,14 @@ public class RSSHandler extends DefaultHandler {
 				return;
 			}
 			String pubDate = dateStringFields[1] + " " + dateStringFields[2] + " " + dateStringFields[3] + " " + dateStringFields[4];
-			if (!dateStringFields[5].contains("0")) {
-				double offset = TimeZone.getDefault().getRawOffset() / 1000.0 / 60.0 / 60.0;
+			// Recognize when timezone given is not in the form of an offset from UTC
+			if (!dateStringFields[5].contains("0") && !dateStringFields[5].contains("5")) {
+				TimeZone here = TimeZone.getDefault();
+				double offset = here.getRawOffset();
+				if (here.inDaylightTime(new Date())) {
+					offset += here.getDSTSavings();
+				}
+				offset = offset / 1000.0 / 60.0 / 60.0;
 				int hourOffset = (int) offset;
 				int minutesOffset = (int) (offset % 1.0 * 60);
 				String hourOffsetStr = hourOffset < 10 && hourOffset >= 0 ? "0" + hourOffset : 

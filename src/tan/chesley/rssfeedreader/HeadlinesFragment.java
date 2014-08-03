@@ -7,7 +7,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import junit.framework.Assert;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
@@ -63,7 +66,7 @@ public class HeadlinesFragment extends ListFragment implements
 		if (savedInstanceState != null) {
 			syncing = savedInstanceState.getBoolean(SYNCING);
 		}
-		//Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
+		// Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
 	}
 
 	@Override
@@ -92,15 +95,21 @@ public class HeadlinesFragment extends ListFragment implements
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		//Log.e("HeadlinesFragment", "Saving instance state.");
+		// Log.e("HeadlinesFragment", "Saving instance state.");
 		outState.putParcelableArrayList(PARSED_FEED_DATA, data);
 		outState.putBoolean(SYNCING, syncing);
 	}
 
 	public void syncFeeds() {
 		if (!syncing) {
-			// Use syncing flag to prevent calling multiple sync tasks
-			// concurrently
+			// Check if connected to network
+			ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+			if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
+				showToast("Could not connect to network", Toast.LENGTH_SHORT);
+				return;
+			}
+			// Use syncing flag to prevent calling multiple sync tasks concurrently
 			syncing = true;
 			// Show progress bar
 			toggleProgressBar();
@@ -180,11 +189,6 @@ public class HeadlinesFragment extends ListFragment implements
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		HashMap<String, RSSDataBundle> map = adapter.getItem(position);
-		/*
-		 * Log.e("Click", "Clicked Article Index: " + position + "\n" +
-		 * "Title: " + map.values().iterator().next().getTitle() + "\n" +
-		 * "Article ID: " + uuid);
-		 */
 		// Start new ArticleView activity, passing to it the id of the clicked
 		// article
 		Intent intent = new Intent(getActivity(), ArticleView.class);
@@ -233,8 +237,10 @@ public class HeadlinesFragment extends ListFragment implements
 							.getTitle();
 					return firstTitle.compareTo(secondTitle);
 				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_DATE) {
-					Calendar firstCalendar = first.values().iterator().next().getCalendar();
-					Calendar secondCalendar = second.values().iterator().next().getCalendar();
+					Calendar firstCalendar = first.values().iterator().next()
+							.getCalendar();
+					Calendar secondCalendar = second.values().iterator().next()
+							.getCalendar();
 					return -1 * firstCalendar.compareTo(secondCalendar);
 				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_NONE) {
 				}

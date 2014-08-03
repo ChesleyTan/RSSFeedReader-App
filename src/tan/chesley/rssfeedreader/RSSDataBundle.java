@@ -1,6 +1,8 @@
 package tan.chesley.rssfeedreader;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import android.annotation.SuppressLint;
@@ -87,8 +89,14 @@ public class RSSDataBundle implements Parcelable{
 		int minute = Integer.parseInt(timeFields[1]);
 		int second = Integer.parseInt(timeFields[2]);
 		calendar.set(year, month, day, hour, minute, second);
-		int hourOffset = pubDateFields[4].substring(0, 1).equals("+") ? Integer.parseInt(pubDateFields[4].substring(1, 3)) : -1 * Integer.parseInt(pubDateFields[4].substring(1, 3));
-		int minuteOffset = pubDateFields[4].substring(0, 1).equals("+") ? Integer.parseInt(pubDateFields[4].substring(3)) : -1 * Integer.parseInt(pubDateFields[4].substring(3));
+		TimeZone here = TimeZone.getDefault();
+		int offset = here.getRawOffset();
+		if (here.inDaylightTime(new Date())) {
+			offset += here.getDSTSavings();
+		}
+		int hourOffset = pubDateFields[4].substring(0, 1).equals("+") ? -1 * Integer.parseInt(pubDateFields[4].substring(1, 3)) : Integer.parseInt(pubDateFields[4].substring(1, 3));
+		int minuteOffset = pubDateFields[4].substring(0, 1).equals("+") ? -1 * Integer.parseInt(pubDateFields[4].substring(3)) : Integer.parseInt(pubDateFields[4].substring(3));
+		minuteOffset += offset / 1000 / 60;
 		calendar.add(Calendar.HOUR, hourOffset);
 		calendar.add(Calendar.MINUTE, minuteOffset);
 		return calendar;
