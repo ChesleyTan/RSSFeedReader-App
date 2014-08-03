@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class ArticleViewFragment extends Fragment {
+
 	private static final String RSSDATABUNDLE = "tan.chesley.rssfeedreader.rssdatabundle";
 	private static final String ARTICLE_HEADLINE = "tan.chesley.rssfeedreader.articleheadline";
 	private static final String HEADLINE = "tan.chesley.rssfeedreader.headline";
@@ -88,7 +89,7 @@ public class ArticleViewFragment extends Fragment {
 				url = "http://" + url;
 				Log.e("URL", "URL modified to " + url);
 			}
-			//Log.e("URL Open", "URL: " + url);
+			// Log.e("URL Open", "URL: " + url);
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 		}
 

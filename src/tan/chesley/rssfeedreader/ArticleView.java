@@ -17,6 +17,7 @@ import android.text.method.SingleLineTransformationMethod;
 import android.widget.TextView;
 
 public class ArticleView extends FragmentActivity {
+
 	public static final String ARTICLE_SELECTED_KEY = "tan.chesley.rssfeedreader.articleselected";
 	public static final String RSS_DATA_KEY = "tan.chesley.rssfeedreader.rssdata";
 	private ViewPager theViewPager;
@@ -86,7 +87,6 @@ public class ArticleView extends FragmentActivity {
 		String uuid = getIntent().getStringExtra(HeadlinesFragment.ARTICLE_ID);
 
 		for (int i = 0; i < rssData.size(); i++) {
-			// TODO why doesn't this return a MyMap?
 			HashMap<String, RSSDataBundle> map = rssData.get(i);
 			if (map.values().iterator().next().getId().equals(uuid)) {
 				theViewPager.setCurrentItem(i);
@@ -101,7 +101,8 @@ public class ArticleView extends FragmentActivity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			titleId = getResources().getIdentifier("action_bar_title", "id",
 					"android");
-		} else {
+		}
+		else {
 			titleId = R.id.action_bar_title;
 		}
 		title = (TextView) findViewById(titleId);

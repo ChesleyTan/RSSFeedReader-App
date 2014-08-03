@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 public class HeadlinesFragment extends ListFragment implements
 		TaskFragment.TaskCallbacks {
+
 	public static final String PARSED_FEED_DATA = "tan.chesley.rssfeedreader.parsedfeeddata";
 	public static final String ARTICLE_ID = "tan.chesley.rssfeedreader.articleid";
 	public static final String TASK_FRAGMENT = "tan.chesley.rssfeedreader.taskfragment";
@@ -42,14 +43,6 @@ public class HeadlinesFragment extends ListFragment implements
 	private boolean syncing = false;
 	private Button updateButton;
 	private ProgressBar syncProgressBar;
-
-	/*
-	 * static { headlines = new HashMap<String, String>();
-	 * headlines.put("Headline 1", "Article 1"); headlines.put("Headline 2",
-	 * "Article 2"); headlines.put("Headline 3", "Article 3");
-	 * headlines.put("Headline 4", "Article 4"); Log.e("HeadlinesFragment",
-	 * "HeadlinesFragment initialized."); }
-	 */
 
 	public HeadlinesFragment() {
 		singleton = this;
@@ -84,7 +77,8 @@ public class HeadlinesFragment extends ListFragment implements
 					.getParcelableArrayList(PARSED_FEED_DATA);
 			if (tmp == null) {
 				// Log.e("Instance", "Instance: no saved data found.");
-			} else {
+			}
+			else {
 				data = tmp;
 				updateListAdapter();
 				// Log.e("Instance", "Restored Instance State.");
@@ -103,13 +97,16 @@ public class HeadlinesFragment extends ListFragment implements
 	public void syncFeeds() {
 		if (!syncing) {
 			// Check if connected to network
-			ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+			ConnectivityManager connectivityManager = (ConnectivityManager) getActivity()
+					.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo activeNetworkInfo = connectivityManager
+					.getActiveNetworkInfo();
 			if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
 				showToast("Could not connect to network", Toast.LENGTH_SHORT);
 				return;
 			}
-			// Use syncing flag to prevent calling multiple sync tasks concurrently
+			// Use syncing flag to prevent calling multiple sync tasks
+			// concurrently
 			syncing = true;
 			// Show progress bar
 			toggleProgressBar();
@@ -131,7 +128,8 @@ public class HeadlinesFragment extends ListFragment implements
 		if (getListAdapter() == null) {
 			adapter = new HeadlinesAdapter(data);
 			setListAdapter(adapter);
-		} else {
+		}
+		else {
 			// If adapter already exists, update its data and notify it of
 			// changes
 			adapter.clear();
@@ -223,6 +221,7 @@ public class HeadlinesFragment extends ListFragment implements
 	public static ArrayList<MyMap> sortHeadlinesBy(final int sortCriteria,
 			ArrayList<MyMap> list) {
 		Collections.sort(list, new Comparator<MyMap>() {
+
 			public int compare(MyMap first, MyMap second) {
 				if (sortCriteria == HeadlinesAdapter.SORT_BY_SOURCE) {
 					String firstTitle = first.values().iterator().next()
@@ -230,20 +229,22 @@ public class HeadlinesFragment extends ListFragment implements
 					String secondTitle = second.values().iterator().next()
 							.getSource();
 					return firstTitle.compareTo(secondTitle);
-				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_TITLE) {
+				}
+				else if (sortCriteria == HeadlinesAdapter.SORT_BY_TITLE) {
 					String firstTitle = first.values().iterator().next()
 							.getTitle();
 					String secondTitle = second.values().iterator().next()
 							.getTitle();
 					return firstTitle.compareTo(secondTitle);
-				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_DATE) {
+				}
+				else if (sortCriteria == HeadlinesAdapter.SORT_BY_DATE) {
 					Calendar firstCalendar = first.values().iterator().next()
 							.getCalendar();
 					Calendar secondCalendar = second.values().iterator().next()
 							.getCalendar();
 					return -1 * firstCalendar.compareTo(secondCalendar);
-				} else if (sortCriteria == HeadlinesAdapter.SORT_BY_NONE) {
 				}
+				else if (sortCriteria == HeadlinesAdapter.SORT_BY_NONE) {}
 				return 0;
 			}
 		});
@@ -258,7 +259,8 @@ public class HeadlinesFragment extends ListFragment implements
 			syncProgressBar.setIndeterminate(true);
 			syncProgressBar.setVisibility(View.VISIBLE);
 			updateButton.setVisibility(View.GONE);
-		} else if (syncProgressBar.getVisibility() == View.VISIBLE
+		}
+		else if (syncProgressBar.getVisibility() == View.VISIBLE
 				&& syncing == false) {
 			syncProgressBar.setVisibility(View.GONE);
 			updateButton.setVisibility(View.VISIBLE);

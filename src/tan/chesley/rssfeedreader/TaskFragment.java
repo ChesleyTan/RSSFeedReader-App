@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 // Credits to Alex Lockwood for original model of a task fragment
 public class TaskFragment extends Fragment {
+
 	public static final long SYNC_TIMEOUT = 5000;
 	public static final String TASK_COMPLETE = "tan.chesley.rssfeedreader.taskcomplete";
 	public static final String[] FEEDS = new String[] {
@@ -35,6 +36,7 @@ public class TaskFragment extends Fragment {
 			"http://www.reddit.com/.rss" };
 
 	public static interface TaskCallbacks {
+
 		void onPreExecute();
 
 		void onProgressUpdate();
@@ -63,12 +65,14 @@ public class TaskFragment extends Fragment {
 		setRetainInstance(true);
 		if (savedInstanceState != null) {
 			taskCompleted = savedInstanceState.getBoolean(TASK_COMPLETE);
-		} else {
+		}
+		else {
 			if (!taskCompleted) {
 				Log.e("TaskFragment", "Starting new sync task.");
 				mTask = new GetRssFeedTask();
 				mTask.execute(FEEDS);
 				new Handler().postDelayed(new Runnable() {
+
 					public void run() {
 						if (mTask.getStatus() != AsyncTask.Status.FINISHED) {
 							mTask.cancel(true);
@@ -76,7 +80,8 @@ public class TaskFragment extends Fragment {
 							((HeadlinesFragment) mCallbacks).showToast(
 									"Sync connection timeout",
 									Toast.LENGTH_SHORT);
-						} else {
+						}
+						else {
 							Log.e("Feed", "Feed sync completed successfully.");
 						}
 					}
@@ -110,6 +115,7 @@ public class TaskFragment extends Fragment {
 	}
 
 	public class GetRssFeedTask extends AsyncTask<String, Void, Void> {
+
 		long startTime = System.currentTimeMillis();
 		long longRequestTime = 4000;
 		private RSSHandler myRSSHandler;
