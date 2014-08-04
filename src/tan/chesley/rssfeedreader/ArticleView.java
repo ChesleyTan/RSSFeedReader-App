@@ -3,6 +3,7 @@ package tan.chesley.rssfeedreader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
@@ -11,9 +12,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils.TruncateAt;
 import android.text.method.SingleLineTransformationMethod;
+import android.util.Log;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 public class ArticleView extends FragmentActivity {
@@ -50,6 +54,7 @@ public class ArticleView extends FragmentActivity {
 		}
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,6 +67,9 @@ public class ArticleView extends FragmentActivity {
 		theViewPager = new ViewPager(this);
 		theViewPager.setId(R.id.viewPager);
 		setContentView(theViewPager);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 		theViewPager
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
 		FragmentManager fragMan = getSupportFragmentManager();
@@ -116,6 +124,7 @@ public class ArticleView extends FragmentActivity {
 			title.requestFocus();
 			title.setTransformationMethod(SingleLineTransformationMethod
 					.getInstance());
+			title.setTextColor(getResources().getColor((R.color.DeepSkyBlue)));
 		}
 	}
 
@@ -126,10 +135,23 @@ public class ArticleView extends FragmentActivity {
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				//Log.e("ArticleView", "Up button selected.");
+				// Finish activity to return the current item to HeadlinesFragment
+				finish();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
 	public void finish() {
 		Intent intent = new Intent();
 		intent.putExtra(ARTICLE_SELECTED_KEY, theViewPager.getCurrentItem());
 		setResult(Activity.RESULT_OK, intent);
+		//Log.e("ArticleView", "Activity Finished.");
 		super.finish();
 	}
 

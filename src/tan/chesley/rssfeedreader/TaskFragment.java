@@ -26,14 +26,6 @@ public class TaskFragment extends Fragment {
 
 	public static final long SYNC_TIMEOUT = 5000;
 	public static final String TASK_COMPLETE = "tan.chesley.rssfeedreader.taskcomplete";
-	public static final String[] FEEDS = new String[] {
-			"http://rss.cnn.com/rss/cnn_world.rss",
-			"http://rss.cnn.com/rss/cnn_tech.rss",
-			"http://news.feedzilla.com/en_us/headlines/top-news/world-news.rss",
-			"http://news.feedzilla.com/en_us/headlines/science/top-stories.rss",
-			"http://news.feedzilla.com/en_us/headlines/technology/top-stories.rss",
-			"http://news.feedzilla.com/en_us/headlines/programming/top-stories.rss",
-			"http://www.reddit.com/.rss" };
 
 	public static interface TaskCallbacks {
 
@@ -46,15 +38,17 @@ public class TaskFragment extends Fragment {
 		void onPostExecute();
 	}
 
+	private String[] FEEDS;
 	private TaskCallbacks mCallbacks;
 	private GetRssFeedTask mTask;
 	private InputStream feedStream;
 	private boolean aborted = false;
 	private boolean taskCompleted = false;
-
+	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+		FEEDS = new SourcesManager(activity).getSources();
 		mCallbacks = (TaskCallbacks) ((RSSFeed) activity)
 				.getHeadlinesFragment();
 	}

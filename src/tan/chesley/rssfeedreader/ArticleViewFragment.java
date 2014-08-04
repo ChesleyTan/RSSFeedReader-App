@@ -19,11 +19,14 @@ public class ArticleViewFragment extends Fragment {
 	private static final String HEADLINE = "tan.chesley.rssfeedreader.headline";
 	private static final String ARTICLE = "tan.chesley.rssfeedreader.article";
 	private static final String LINK = "tan.chesley.rssfeedreader.link";
+	private static final String SOURCE = "tan.chesley.rssfeedreader.source";
 	private String myHeadline = "";
 	private String myArticle = "";
 	private String myLink = "";
+	private String mySource = "";
 	private TextView articleTextView;
 	private TextView titleTextView;
+	private TextView sourceTextView;
 	private Button openInBrowserButton;
 
 	public static ArticleViewFragment newArticleViewFragment(String headline,
@@ -46,11 +49,13 @@ public class ArticleViewFragment extends Fragment {
 					.getParcelable(RSSDATABUNDLE));
 			myArticle = rdBundle.getDescription();
 			myLink = rdBundle.getLink();
+			mySource = rdBundle.getSourceTitle();
 		}
 		if (savedInstanceState != null) {
 			myHeadline = savedInstanceState.getString(HEADLINE);
 			myArticle = savedInstanceState.getString(ARTICLE);
 			myLink = savedInstanceState.getString(LINK);
+			mySource = savedInstanceState.getString(SOURCE);
 		}
 	}
 
@@ -63,6 +68,8 @@ public class ArticleViewFragment extends Fragment {
 		articleTextView.setText(myArticle);
 		titleTextView = (TextView) theView.findViewById(R.id.titleTextView);
 		titleTextView.setText(myHeadline);
+		sourceTextView = (TextView) theView.findViewById(R.id.sourceTextView);
+		sourceTextView.setText(mySource);
 		openInBrowserButton = (Button) theView
 				.findViewById(R.id.openInBrowserButton);
 		openInBrowserButton
@@ -77,6 +84,7 @@ public class ArticleViewFragment extends Fragment {
 		outState.putString(HEADLINE, myHeadline);
 		outState.putString(ARTICLE, myArticle);
 		outState.putString(LINK, myLink);
+		outState.putString(SOURCE, mySource);
 	}
 
 	public class ArticleViewOpenInBrowserButtonClickListener implements

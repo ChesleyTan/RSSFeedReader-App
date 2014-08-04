@@ -3,7 +3,7 @@
     android:id="@+id/headlinesLinearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/DarkSeaGreen"
+    android:background="@color/AppDefault"
     android:orientation="vertical"
     tools:context="tan.chesley.rssfeedreader.HeadlinesFragment" >
 
@@ -15,7 +15,7 @@
         android:gravity="center"
         android:text="@string/feeds"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="#EEEEEE"
+        android:textColor="@color/DeepSkyBlue"
         android:textStyle="bold" />
 
     <ListView
@@ -26,22 +26,31 @@
         android:divider="@null"
         android:dividerHeight="0dp"
         android:fadingEdge="none" >
-
     </ListView>
 
-    <ProgressBar
-        android:id="@+id/syncProgressBar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" /> 
-    
+    <LinearLayout
+        android:id="@+id/progressBarContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <ProgressBar
+            android:id="@+id/syncProgressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/updateButton"
         android:layout_width="match_parent"
-        android:layout_weight="0"
         android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:onClick="syncFeeds"
         android:text="@string/update"
-        android:onClick="syncFeeds" />
+        android:textColor="@color/DeepSkyBlue" />
 
 </LinearLayout>

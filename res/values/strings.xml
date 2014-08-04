@@ -6,6 +6,7 @@
     <string name="update">Update</string>
     <string name="openInBrowser">Open in Browser</string>
     <string name="noDescriptionAvailable">No description available.</string>
+    <string name="keySourcesPreferencesFile">tan.chesley.rssfeedreader.keySourcesPreferencesFile</string>
     <string name="action_settings">Settings</string>
 
 </resources>

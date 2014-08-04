@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -43,6 +44,7 @@ public class HeadlinesFragment extends ListFragment implements
 	private boolean syncing = false;
 	private Button updateButton;
 	private ProgressBar syncProgressBar;
+	private LinearLayout syncProgressBarContainer;
 
 	public HeadlinesFragment() {
 		singleton = this;
@@ -67,8 +69,10 @@ public class HeadlinesFragment extends ListFragment implements
 		super.onViewCreated(view, savedInstanceState);
 		updateButton = (Button) view.findViewById(R.id.updateButton);
 		syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
+		syncProgressBarContainer = (LinearLayout) view.findViewById(R.id.progressBarContainer);
 		Assert.assertNotNull(updateButton);
 		Assert.assertNotNull(syncProgressBar);
+		Assert.assertNotNull(syncProgressBarContainer);
 		if (syncing) {
 			toggleProgressBar();
 		}
@@ -253,16 +257,15 @@ public class HeadlinesFragment extends ListFragment implements
 
 	public void toggleProgressBar() {
 		if (syncProgressBar.getVisibility() == View.GONE && syncing == true) {
-			syncProgressBar.setLayoutParams(new LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
-					Gravity.CENTER));
 			syncProgressBar.setIndeterminate(true);
 			syncProgressBar.setVisibility(View.VISIBLE);
+			syncProgressBarContainer.setVisibility(View.VISIBLE);
 			updateButton.setVisibility(View.GONE);
 		}
 		else if (syncProgressBar.getVisibility() == View.VISIBLE
 				&& syncing == false) {
 			syncProgressBar.setVisibility(View.GONE);
+			syncProgressBarContainer.setVisibility(View.GONE);
 			updateButton.setVisibility(View.VISIBLE);
 		}
 	}

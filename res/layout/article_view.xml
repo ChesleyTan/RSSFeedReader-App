@@ -3,7 +3,7 @@
     android:id="@+id/articleViewContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/DarkSeaGreen"
+    android:background="@color/AppDefault"
     android:gravity="center"
     android:orientation="vertical" >
 
@@ -24,26 +24,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text=""
+                android:text="Headline Placeholder"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="#444444"
+                android:textColor="@color/DeepSkyBlue"
                 android:textSize="32sp" />
+
+            <TextView
+                android:id="@+id/sourceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="Source Placeholder"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#888888" />
 
            	<View
            	    style="@style/HorizontalLine"
            	    android:layout_marginLeft="10dp"
            	    android:layout_marginRight="10dp"
            	    android:alpha="0.1"
-           	    android:background="#555555" />
+           	    android:background="#999999" />
             
             <TextView
                 android:id="@+id/articleTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text=""
+                android:text="Article Placeholder"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="#666666" />
+                android:textColor="#BBBBBB" />
         </LinearLayout>
     </ScrollView>
 
@@ -52,6 +62,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/openInBrowser"
-        android:textColor="#222" />
+        android:textColor="@color/DeepSkyBlue" />
 
 </LinearLayout>
