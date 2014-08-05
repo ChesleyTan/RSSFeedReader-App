@@ -14,7 +14,7 @@
         android:lines="1"
         android:singleLine="true"
         android:text="Headline Placeholder"
-        android:textColor="@color/DeepSkyBlue"
+        android:textColor="@color/AppPrimaryTextColor"
         android:textSize="@dimen/feed_list_item_title_size" />
 
     <LinearLayout

@@ -12,11 +12,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils.TruncateAt;
 import android.text.method.SingleLineTransformationMethod;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -124,7 +122,7 @@ public class ArticleView extends FragmentActivity {
 			title.requestFocus();
 			title.setTransformationMethod(SingleLineTransformationMethod
 					.getInstance());
-			title.setTextColor(getResources().getColor((R.color.DeepSkyBlue)));
+			title.setTextColor(getResources().getColor((R.color.AppPrimaryTextColor)));
 		}
 	}
 

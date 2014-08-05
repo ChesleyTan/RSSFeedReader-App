@@ -19,7 +19,7 @@ public class RSSHandler extends DefaultHandler {
 	final int stateLink = 3;
 	final int stateSourceTitle = 4;
 	final int statePubDate = 5;
-	final long timeout = 2000; // 2 second timeout for feed parsing
+	final long timeout; // timeout for parsing an individual feed
 	final GetRssFeedTask parent;
 	final String noDescriptionAvailableString;
 	final String[] timezones = TimeZone.getAvailableIDs();
@@ -34,10 +34,11 @@ public class RSSHandler extends DefaultHandler {
 	String sourceURL = null;
 	boolean badInput = false;
 
-	public RSSHandler(GetRssFeedTask task, Context context) {
+	public RSSHandler(GetRssFeedTask task, int numSources, Context context) {
 		parent = task;
 		noDescriptionAvailableString = context.getResources().getString(
 				R.string.noDescriptionAvailable);
+		timeout = TaskFragment.SYNC_TIMEOUT / numSources;
 	}
 
 	public void reset() {

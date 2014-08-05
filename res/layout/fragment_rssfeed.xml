@@ -3,7 +3,6 @@
     android:id="@+id/headlinesLinearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/AppDefault"
     android:orientation="vertical"
     tools:context="tan.chesley.rssfeedreader.HeadlinesFragment" >
 
@@ -11,11 +10,11 @@
         android:id="@+id/feedsTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#222222"
+        android:background="@drawable/feeds_title_gradient"
         android:gravity="center"
         android:text="@string/feeds"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/DeepSkyBlue"
+        android:textColor="@color/AppPrimaryTextColor"
         android:textStyle="bold" />
 
     <ListView
@@ -25,7 +24,11 @@
         android:layout_weight="1"
         android:divider="@null"
         android:dividerHeight="0dp"
-        android:fadingEdge="none" >
+        android:fadingEdge="none"
+        android:scrollbarFadeDuration="700"
+        android:scrollbarDefaultDelayBeforeFade="0"
+        android:fadeScrollbars="true"
+        android:scrollbarThumbVertical="@drawable/scrollbar" >
     </ListView>
 
     <LinearLayout
@@ -39,8 +42,9 @@
         <ProgressBar
             android:id="@+id/syncProgressBar"
             style="?android:attr/progressBarStyleLarge"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginBottom="50dp"
             android:visibility="gone" />
     </LinearLayout>
 
@@ -51,6 +55,6 @@
         android:layout_weight="0"
         android:onClick="syncFeeds"
         android:text="@string/update"
-        android:textColor="@color/DeepSkyBlue" />
+        android:textColor="@color/button_text_color" />
 
 </LinearLayout>

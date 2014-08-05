@@ -32,7 +32,7 @@
         <activity
             android:name="tan.chesley.rssfeedreader.ArticleView"
             android:parentActivityName="tan.chesley.rssfeedreader.RSSFeed"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/ArticleView" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
               	android:value="tan.chesley.rssfeedreader.RSSFeed" />

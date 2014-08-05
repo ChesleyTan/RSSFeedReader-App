@@ -7,22 +7,22 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import junit.framework.Assert;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -217,9 +217,16 @@ public class HeadlinesFragment extends ListFragment implements
 		data = in;
 	}
 
+	@SuppressLint("NewApi")
 	public void showToast(String s, int toastDurationFlag) {
-		Toast.makeText(getActivity().getApplicationContext(), s,
-				toastDurationFlag).show();
+		Toast toast = Toast.makeText(getActivity().getApplicationContext(), s,
+				toastDurationFlag);
+		TextView toastTextView = (TextView) toast.getView().findViewById(android.R.id.message);
+		toastTextView.setTextColor(getResources().getColor(R.color.AppPrimaryTextColor));
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+			toast.getView().getBackground().setAlpha(180);
+		}
+		toast.show();
 	}
 
 	public static ArrayList<MyMap> sortHeadlinesBy(final int sortCriteria,

@@ -69,11 +69,14 @@ public class TaskFragment extends Fragment {
 
 					public void run() {
 						if (mTask.getStatus() != AsyncTask.Status.FINISHED) {
-							mTask.cancel(true);
 							abortInputStreams();
-							((HeadlinesFragment) mCallbacks).showToast(
-									"Sync connection timeout",
-									Toast.LENGTH_SHORT);
+							mTask.cancel(true);
+							mTask.onCancelled();
+							if (mCallbacks != null) {
+								((HeadlinesFragment) mCallbacks).showToast(
+										"Sync connection timeout",
+										Toast.LENGTH_SHORT);
+							}
 						}
 						else {
 							Log.e("Feed", "Feed sync completed successfully.");
@@ -94,6 +97,14 @@ public class TaskFragment extends Fragment {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(TASK_COMPLETE, taskCompleted);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		abortInputStreams();
+		mTask.cancel(true);
+		//Log.e("TaskFragment","Destroying TaskFragment.");
 	}
 
 	public void abortInputStreams() {
@@ -122,7 +133,7 @@ public class TaskFragment extends Fragment {
 						.newInstance();
 				SAXParser mySAXParser = mySAXParserFactory.newSAXParser();
 				XMLReader myXMLReader = mySAXParser.getXMLReader();
-				myRSSHandler = new RSSHandler(this, getActivity());
+				myRSSHandler = new RSSHandler(this, FEEDS.length, getActivity());
 				myXMLReader.setContentHandler(myRSSHandler);
 				InputSource myInputSource;
 				URL url;
@@ -177,7 +188,7 @@ public class TaskFragment extends Fragment {
 
 		@Override
 		protected void onPostExecute(Void v) {
-			if (mCallbacks != null) {
+			if (mCallbacks != null && !taskCompleted) {
 				deliverData();
 				mCallbacks.onPostExecute();
 			}
@@ -186,7 +197,7 @@ public class TaskFragment extends Fragment {
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
-			if (mCallbacks != null) {
+			if (mCallbacks != null && !taskCompleted) {
 				deliverData();
 				mCallbacks.onCancelled();
 			}
@@ -205,9 +216,16 @@ public class TaskFragment extends Fragment {
 		}
 
 		private void deliverData() {
+			if (myRSSHandler == null) {
+				Log.e("TaskFragment", "Data delivery failed... myRSSHandler was null!");
+				return;
+			}
+			if (mCallbacks == null) {
+				Log.e("TaskFragment", "Data delivery failed... mCallbacks was null!");
+				return;
+			}
 			((HeadlinesFragment) mCallbacks).setRssData(myRSSHandler.getData());
 			taskCompleted = true;
 		}
-
 	}
 }
