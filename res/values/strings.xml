@@ -8,5 +8,8 @@
     <string name="noDescriptionAvailable">No description available.</string>
     <string name="keySourcesPreferencesFile">tan.chesley.rssfeedreader.keySourcesPreferencesFile</string>
     <string name="action_settings">Settings</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="pref_feedSortBy_title">Sort feeds by: </string>
+    <string name="pref_feedSortBy_default">0</string>
 
 </resources>

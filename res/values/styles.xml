@@ -16,16 +16,21 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-    
+
     <style name="RSSFeed" parent="AppBaseTheme">
-        <item name="android:windowNoTitle">true</item>
+
+        <!-- <item name="android:windowNoTitle">true</item> -->
         <item name="android:windowBackground">@color/AppDefaultBackgroundColor</item>
-    </style><style name="ArticleView" parent="AppBaseTheme">
+    </style>
+
+    <style name="ArticleView" parent="AppBaseTheme">
         <item name="android:windowBackground">@color/AppDefaultBackgroundColor</item>
         <!-- <item name="android:windowTitleBackgroundStyle"></item> -->
         <!-- For API 11+ -->
         <!-- <item name="android:actionBarStyle"></item> -->
     </style>
+
+    <style name="SettingsActivity" parent="AppBaseTheme"></style>
 
     <style name="HorizontalLine">
         <item name="android:layout_height">1dp</item>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <ListPreference
+        android:defaultValue="@string/pref_feedSortBy_default"
+        android:dialogTitle="@string/pref_feedSortBy_title"
+        android:entries="@array/pref_feedSortBy_entries"
+        android:entryValues="@array/pref_feedSortBy_values"
+        android:key="pref_feedSortBy_type"
+        android:title="@string/pref_feedSortBy_title" />
+
+</PreferenceScreen>

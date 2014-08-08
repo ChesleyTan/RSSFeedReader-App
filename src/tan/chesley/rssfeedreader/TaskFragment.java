@@ -103,7 +103,9 @@ public class TaskFragment extends Fragment {
 	public void onDestroy() {
 		super.onDestroy();
 		abortInputStreams();
-		mTask.cancel(true);
+		if (mTask != null) {
+			mTask.cancel(true);
+		}
 		//Log.e("TaskFragment","Destroying TaskFragment.");
 	}
 

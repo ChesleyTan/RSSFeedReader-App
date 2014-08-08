@@ -6,6 +6,7 @@
     android:orientation="vertical"
     tools:context="tan.chesley.rssfeedreader.HeadlinesFragment" >
 
+    <!-- 
     <TextView
         android:id="@+id/feedsTitle"
         android:layout_width="match_parent"
@@ -16,6 +17,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/AppPrimaryTextColor"
         android:textStyle="bold" />
+	-->
 
     <ListView
         android:id="@android:id/list"

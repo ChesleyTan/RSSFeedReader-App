@@ -11,7 +11,7 @@ public class MyMap extends HashMap<String, RSSDataBundle> implements Parcelable 
 	public MyMap() {
 		super();
 	}
-	
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -22,11 +22,13 @@ public class MyMap extends HashMap<String, RSSDataBundle> implements Parcelable 
 		out.writeInt(size());
 		for (String key : keySet()) {
 			out.writeString(key);
-			out.appendFrom(get(key).getParcel(), 0, get(key).getParceledLength());
+			out.appendFrom(get(key).getParcel(), 0, get(key)
+					.getParceledLength());
 		}
 	}
 
 	public static final Parcelable.Creator<MyMap> CREATOR = new Parcelable.Creator<MyMap>() {
+
 		public MyMap createFromParcel(Parcel in) {
 			return new MyMap(in);
 		}
@@ -46,5 +48,11 @@ public class MyMap extends HashMap<String, RSSDataBundle> implements Parcelable 
 			put(key, value);
 		}
 	}
-	
+
+	public static MyMap createFromHashMap(HashMap<String, RSSDataBundle> a) {
+		MyMap map = new MyMap();
+		map.put(a.keySet().iterator().next(), a.values().iterator().next());
+		return map;
+	}
+
 }

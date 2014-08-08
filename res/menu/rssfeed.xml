@@ -4,9 +4,15 @@
     tools:context="tan.chesley.rssfeedreader.RSSFeed" >
 
     <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:title="@string/action_refresh"
+        android:showAsAction="always" />
+    
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        android:showAsAction="never"/>
 
 </menu>

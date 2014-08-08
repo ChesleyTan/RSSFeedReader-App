@@ -14,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -58,8 +59,27 @@ public class HeadlinesFragment extends ListFragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		singleton = this;
+		int titleId = 0;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			titleId = getResources().getIdentifier("action_bar_title", "id",
+					"android");
+		}
+		else {
+			titleId = R.id.action_bar_title;
+		}
+		TextView title = (TextView) getActivity().findViewById(titleId);
+		if (title != null) {
+			getActivity().setTitle(getResources().getString(R.string.feeds));
+			title.setTextColor(getResources().getColor(
+					(R.color.AppPrimaryTextColor)));
+		}
+
 		if (savedInstanceState != null) {
 			syncing = savedInstanceState.getBoolean(SYNCING);
+		}
+		if (savedInstanceState == null && data != null) {
+			// Log.e("HeadlinesFragment", "Restoring view.");
+			updateFeedView();
 		}
 		// Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
 	}
@@ -69,7 +89,8 @@ public class HeadlinesFragment extends ListFragment implements
 		super.onViewCreated(view, savedInstanceState);
 		updateButton = (Button) view.findViewById(R.id.updateButton);
 		syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
-		syncProgressBarContainer = (LinearLayout) view.findViewById(R.id.progressBarContainer);
+		syncProgressBarContainer = (LinearLayout) view
+				.findViewById(R.id.progressBarContainer);
 		Assert.assertNotNull(updateButton);
 		Assert.assertNotNull(syncProgressBar);
 		Assert.assertNotNull(syncProgressBarContainer);
@@ -80,12 +101,18 @@ public class HeadlinesFragment extends ListFragment implements
 			ArrayList<MyMap> tmp = savedInstanceState
 					.getParcelableArrayList(PARSED_FEED_DATA);
 			if (tmp == null) {
-				// Log.e("Instance", "Instance: no saved data found.");
+				Log.e("Instance", "Instance: no saved data found.");
 			}
 			else {
-				data = tmp;
-				updateListAdapter();
-				// Log.e("Instance", "Restored Instance State.");
+				// restored ArrayList actually contains HashMaps rather than
+				// MyMaps which can lead to a ClassCastException later on if
+				// the HashMaps are not manually converted to MyMaps
+				data.clear();
+				for (HashMap<String, RSSDataBundle> m : tmp) {
+					data.add(MyMap.createFromHashMap(m));
+				}
+				Log.e("Instance", "Restored Instance State.");
+				updateFeedView();
 			}
 		}
 	}
@@ -94,7 +121,7 @@ public class HeadlinesFragment extends ListFragment implements
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		// Log.e("HeadlinesFragment", "Saving instance state.");
-		outState.putParcelableArrayList(PARSED_FEED_DATA, data);
+		outState.putParcelableArrayList(PARSED_FEED_DATA, clone(data));
 		outState.putBoolean(SYNCING, syncing);
 	}
 
@@ -122,15 +149,18 @@ public class HeadlinesFragment extends ListFragment implements
 		}
 	}
 
-	private void updateFeedView() {
+	public void updateFeedView() {
 		// Sort headlines by a given criteria before updating the screen
-		sortHeadlinesBy(HeadlinesAdapter.SORT_BY_DATE, data);
+		int sortType = Integer.parseInt(PreferenceManager
+				.getDefaultSharedPreferences(getActivity()).getString(
+						"pref_feedSortBy_type", "0"));
+		sortHeadlinesBy(sortType, data);
 		updateListAdapter();
 	}
 
 	private void updateListAdapter() {
 		if (getListAdapter() == null) {
-			adapter = new HeadlinesAdapter(data);
+			adapter = new HeadlinesAdapter(clone(data));
 			setListAdapter(adapter);
 		}
 		else {
@@ -159,7 +189,7 @@ public class HeadlinesFragment extends ListFragment implements
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = getActivity().getLayoutInflater().inflate(
-						R.layout.feed_list_item, null);
+						R.layout.feed_list_item, parent, false);
 			}
 			HashMap<String, RSSDataBundle> dataMap = getItem(position);
 			TextView headlineTextView = (TextView) convertView
@@ -221,8 +251,10 @@ public class HeadlinesFragment extends ListFragment implements
 	public void showToast(String s, int toastDurationFlag) {
 		Toast toast = Toast.makeText(getActivity().getApplicationContext(), s,
 				toastDurationFlag);
-		TextView toastTextView = (TextView) toast.getView().findViewById(android.R.id.message);
-		toastTextView.setTextColor(getResources().getColor(R.color.AppPrimaryTextColor));
+		TextView toastTextView = (TextView) toast.getView().findViewById(
+				android.R.id.message);
+		toastTextView.setTextColor(getResources().getColor(
+				R.color.AppPrimaryTextColor));
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
 			toast.getView().getBackground().setAlpha(180);
 		}
@@ -264,16 +296,19 @@ public class HeadlinesFragment extends ListFragment implements
 
 	public void toggleProgressBar() {
 		if (syncProgressBar.getVisibility() == View.GONE && syncing == true) {
-			syncProgressBar.setIndeterminate(true);
 			syncProgressBar.setVisibility(View.VISIBLE);
 			syncProgressBarContainer.setVisibility(View.VISIBLE);
-			updateButton.setVisibility(View.GONE);
 		}
 		else if (syncProgressBar.getVisibility() == View.VISIBLE
 				&& syncing == false) {
 			syncProgressBar.setVisibility(View.GONE);
 			syncProgressBarContainer.setVisibility(View.GONE);
-			updateButton.setVisibility(View.VISIBLE);
+		}
+		if (syncProgressBar.getVisibility() == View.VISIBLE) {
+			Log.e("toggle", "progress bar visible");
+		}
+		if (syncProgressBarContainer.getVisibility() == View.VISIBLE) {
+			Log.e("toggle", "progress bar container visible");
 		}
 	}
 
@@ -309,5 +344,13 @@ public class HeadlinesFragment extends ListFragment implements
 		fragMan.beginTransaction()
 				.remove(fragMan.findFragmentByTag(TASK_FRAGMENT))
 				.addToBackStack(null).commit();
+	}
+
+	private ArrayList<MyMap> clone(ArrayList<MyMap> a) {
+		ArrayList<MyMap> newList = new ArrayList<MyMap>();
+		for (MyMap m : a) {
+			newList.add(m);
+		}
+		return newList;
 	}
 }

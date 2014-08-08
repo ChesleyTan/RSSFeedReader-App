@@ -1,15 +1,15 @@
 package tan.chesley.rssfeedreader;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 
 public class RSSFeed extends FragmentActivity {
 
@@ -21,6 +21,7 @@ public class RSSFeed extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		setContentView(R.layout.activity_rssfeed);
 		FragmentManager fragMan = getSupportFragmentManager();
 		Fragment theFragment = fragMan.findFragmentById(R.id.container);
@@ -32,15 +33,17 @@ public class RSSFeed extends FragmentActivity {
 		}
 
 	}
-	
+
 	public HeadlinesFragment getHeadlinesFragment() {
-		return (HeadlinesFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+		return (HeadlinesFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.container);
 	}
 
 	public void syncFeeds(View v) {
 		if (HeadlinesFragment.getInstance() != null) {
 			HeadlinesFragment.getInstance().syncFeeds();
-		} else {
+		}
+		else {
 			// Log.e("Instance",
 			// "Instance: headlinesFragment not found, cannot sync.");
 		}
@@ -61,6 +64,18 @@ public class RSSFeed extends FragmentActivity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivity(intent);
+			return true;
+		}
+		else if (id == R.id.action_refresh) {
+			if (HeadlinesFragment.getInstance() != null) {
+				HeadlinesFragment.getInstance().updateFeedView();
+			}
+			else {
+				// Log.e("Instance",
+				// "Instance: headlinesFragment not found, cannot sync.");
+			}
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
