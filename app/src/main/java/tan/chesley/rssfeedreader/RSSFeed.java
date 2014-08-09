@@ -1,29 +1,27 @@
 package tan.chesley.rssfeedreader;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class RSSFeed extends FragmentActivity {
+public class RSSFeed extends Activity {
 
 	public RSSFeed() {
 		// Log.e("Instance", "Instance: RSS Feed activity created.");
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		setContentView(R.layout.activity_rssfeed);
-		FragmentManager fragMan = getSupportFragmentManager();
+		FragmentManager fragMan = getFragmentManager();
 		Fragment theFragment = fragMan.findFragmentById(R.id.container);
 		if (theFragment == null) {
 			// Log.e("Instance",
@@ -35,7 +33,7 @@ public class RSSFeed extends FragmentActivity {
 	}
 
 	public HeadlinesFragment getHeadlinesFragment() {
-		return (HeadlinesFragment) getSupportFragmentManager()
+		return (HeadlinesFragment) getFragmentManager()
 				.findFragmentById(R.id.container);
 	}
 

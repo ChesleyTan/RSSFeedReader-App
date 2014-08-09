@@ -9,4 +9,7 @@
         android:key="pref_feedSortBy_type"
         android:title="@string/pref_feedSortBy_title" />
 
+    <Preference android:title="@string/pref_modify_sources" >
+        <intent android:action="tan.chesley.rssfeedreader.ModifySources"/>
+    </Preference>
 </PreferenceScreen>

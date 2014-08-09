@@ -11,5 +11,6 @@
     <string name="action_refresh">Refresh</string>
     <string name="pref_feedSortBy_title">Sort feeds by: </string>
     <string name="pref_feedSortBy_default">0</string>
-
+    <string name="pref_modify_sources">Modify sources</string>
+    <string name="addNewSource">Add</string>
 </resources>

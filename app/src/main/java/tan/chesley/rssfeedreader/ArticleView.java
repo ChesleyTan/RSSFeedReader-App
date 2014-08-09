@@ -1,12 +1,7 @@
 package tan.chesley.rssfeedreader;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -17,6 +12,9 @@ import android.text.TextUtils.TruncateAt;
 import android.text.method.SingleLineTransformationMethod;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ArticleView extends FragmentActivity {
 
@@ -52,7 +50,6 @@ public class ArticleView extends FragmentActivity {
 		}
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,9 +62,13 @@ public class ArticleView extends FragmentActivity {
 		theViewPager = new ViewPager(this);
 		theViewPager.setId(R.id.viewPager);
 		setContentView(theViewPager);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
+
+        try {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
 		theViewPager
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
 		FragmentManager fragMan = getSupportFragmentManager();
@@ -103,14 +104,9 @@ public class ArticleView extends FragmentActivity {
 			}
 		}
 
-		int titleId = 0;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			titleId = getResources().getIdentifier("action_bar_title", "id",
+
+		int	titleId = getResources().getIdentifier("action_bar_title", "id",
 					"android");
-		}
-		else {
-			titleId = R.id.action_bar_title;
-		}
 		title = (TextView) findViewById(titleId);
 
 		if (title != null) {

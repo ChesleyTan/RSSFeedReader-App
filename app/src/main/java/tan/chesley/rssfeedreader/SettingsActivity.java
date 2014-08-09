@@ -11,14 +11,9 @@ public class SettingsActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
-		int titleId = 0;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			titleId = getResources().getIdentifier("action_bar_title", "id",
+
+		int	titleId = getResources().getIdentifier("action_bar_title", "id",
 					"android");
-		}
-		else {
-			titleId = R.id.action_bar_title;
-		}
 		TextView title = (TextView) findViewById(titleId);
 		if (title != null) {
 			setTitle(R.string.feeds);
