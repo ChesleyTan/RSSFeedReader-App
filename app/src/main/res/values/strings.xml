@@ -3,6 +3,7 @@
 
     <string name="app_name">RSS Feed Reader</string>
     <string name="feeds">Feeds</string>
+    <string name="sources">Sources</string>
     <string name="update">Update</string>
     <string name="openInBrowser">Open in Browser</string>
     <string name="noDescriptionAvailable">No description available.</string>

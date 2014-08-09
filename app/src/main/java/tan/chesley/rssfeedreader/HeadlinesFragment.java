@@ -79,6 +79,43 @@ public class HeadlinesFragment extends ListFragment implements
     }
 
     @Override
+    public View onCreateView (LayoutInflater inflater, ViewGroup container,
+                              Bundle savedInstanceState) {
+        // Log.e("Instance", "Instance: Inflating new fragment.");
+        View view = inflater.inflate(R.layout.fragment_rssfeed, container,
+                                     false);
+        updateButton = (Button) view.findViewById(R.id.updateButton);
+        syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
+        syncProgressBarContainer = (LinearLayout) view
+            .findViewById(R.id.progressBarContainer);
+        Assert.assertNotNull(updateButton);
+        Assert.assertNotNull(syncProgressBar);
+        Assert.assertNotNull(syncProgressBarContainer);
+        if (syncing) {
+            toggleProgressBar();
+        }
+        if (savedInstanceState != null) {
+            ArrayList<MyMap> tmp = savedInstanceState
+                .getParcelableArrayList(PARSED_FEED_DATA);
+            if (tmp == null) {
+                Log.e("Instance", "Instance: no saved data found.");
+            }
+            else {
+                // restored ArrayList actually contains HashMaps rather than
+                // MyMaps which can lead to a ClassCastException later on if
+                // the HashMaps are not manually converted to MyMaps
+                data.clear();
+                for (HashMap<String, RSSDataBundle> m : tmp) {
+                    data.add(MyMap.createFromHashMap(m));
+                }
+                Log.e("Instance", "Restored Instance State.");
+                updateFeedView();
+            }
+        }
+        return view;
+    }
+
+    @Override
     public void onSaveInstanceState (Bundle outState) {
         super.onSaveInstanceState(outState);
         // Log.e("HeadlinesFragment", "Saving instance state.");
@@ -168,43 +205,6 @@ public class HeadlinesFragment extends ListFragment implements
             articleTextView.setText(rdBundle.getDescription());
             return convertView;
         }
-    }
-
-    @Override
-    public View onCreateView (LayoutInflater inflater, ViewGroup container,
-                              Bundle savedInstanceState) {
-        // Log.e("Instance", "Instance: Inflating new fragment.");
-        View view = inflater.inflate(R.layout.fragment_rssfeed, container,
-                                     false);
-        updateButton = (Button) view.findViewById(R.id.updateButton);
-        syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
-        syncProgressBarContainer = (LinearLayout) view
-            .findViewById(R.id.progressBarContainer);
-        Assert.assertNotNull(updateButton);
-        Assert.assertNotNull(syncProgressBar);
-        Assert.assertNotNull(syncProgressBarContainer);
-        if (syncing) {
-            toggleProgressBar();
-        }
-        if (savedInstanceState != null) {
-            ArrayList<MyMap> tmp = savedInstanceState
-                .getParcelableArrayList(PARSED_FEED_DATA);
-            if (tmp == null) {
-                Log.e("Instance", "Instance: no saved data found.");
-            }
-            else {
-                // restored ArrayList actually contains HashMaps rather than
-                // MyMaps which can lead to a ClassCastException later on if
-                // the HashMaps are not manually converted to MyMaps
-                data.clear();
-                for (HashMap<String, RSSDataBundle> m : tmp) {
-                    data.add(MyMap.createFromHashMap(m));
-                }
-                Log.e("Instance", "Restored Instance State.");
-                updateFeedView();
-            }
-        }
-        return view;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package tan.chesley.rssfeedreader;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import android.content.Context;
@@ -59,4 +60,13 @@ public class SourcesManager {
 		}
 		return sources;
 	}
+
+    public ArrayList<String> getSourcesArrayList() {
+        int size = mSharedPreferences.getInt("0", 0);
+        ArrayList<String> sources = new ArrayList<String>();
+        for (int i = 1;i <= size;i++) {
+            sources.add(mSharedPreferences.getString(Integer.toString(i), ""));
+        }
+        return sources;
+    }
 }
