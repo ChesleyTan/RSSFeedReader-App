@@ -208,7 +208,7 @@ public class RSSHandler extends DefaultHandler {
 			// TODO more robustly recognize bad input
 			if (dateStringFields.length < 6) {
 				badInput = true;
-				Log.e("New pubDate", "Bad input found. Skipping this item.");
+				//Log.e("New pubDate", "Bad input found. Skipping this item.");
 				return;
 			}
 			String pubDate = dateStringFields[1] + " " + dateStringFields[2]
@@ -222,17 +222,17 @@ public class RSSHandler extends DefaultHandler {
 				for (String s : timezones) {
 					if (s.contains(dateStringFields[5])) {
 						TimeZone tz = TimeZone.getTimeZone(s);
-						Log.e("RSSHandler", "Found match for time zone "
-								+ dateStringFields[5] + " : "
-								+ tz.getRawOffset() / 1000
-								/ 60 + " minutes.");
+						//Log.e("RSSHandler", "Found match for time zone "
+						//		+ dateStringFields[5] + " : "
+						//		+ tz.getRawOffset() / 1000
+						//		/ 60 + " minutes.");
 						timeZoneFound = true;
 						offset = tz.getRawOffset();
 					}
 				}
 				if (!timeZoneFound) {
-					Log.e("RSSHandler", "No match found for time zone "
-							+ dateStringFields[5] + ". Using local time zone instead.");
+					//Log.e("RSSHandler", "No match found for time zone "
+					//		+ dateStringFields[5] + ". Using local time zone instead.");
 					TimeZone here = TimeZone.getDefault();
 					offset = here.getRawOffset();
 					if (here.inDaylightTime(new Date())) {
@@ -252,8 +252,8 @@ public class RSSHandler extends DefaultHandler {
 				String sign = offset > 0 ? "+" : ""; // Negative offsets already
 														// have a sign
 				String timeZone = sign + hourOffsetStr + minutesOffsetStr;
-				Log.e("New pubDate", "Non-offset time zone detected. Using "
-						+ sign + hourOffsetStr + minutesOffsetStr + " instead.");
+				//Log.e("New pubDate", "Non-offset time zone detected. Using "
+				//		+ sign + hourOffsetStr + minutesOffsetStr + " instead.");
 				pubDate += " " + timeZone;
 			} else {
 				pubDate += " " + dateStringFields[5];

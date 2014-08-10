@@ -6,19 +6,6 @@
     android:orientation="vertical"
     tools:context="tan.chesley.rssfeedreader.HeadlinesFragment" >
 
-    <!-- 
-    <TextView
-        android:id="@+id/feedsTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/feeds_title_gradient"
-        android:gravity="center"
-        android:text="@string/feeds"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/AppPrimaryTextColor"
-        android:textStyle="bold" />
-	-->
-
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
@@ -35,8 +22,8 @@
 
     <LinearLayout
         android:id="@+id/progressBarContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone" >
@@ -49,14 +36,5 @@
             android:layout_marginBottom="50dp"
             android:visibility="gone" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/updateButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:onClick="syncFeeds"
-        android:text="@string/update"
-        android:textColor="@color/button_text_color" />
 
 </LinearLayout>

@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 
 public class SourcesManager {
@@ -15,6 +16,9 @@ public class SourcesManager {
 	public SourcesManager(Context context) {
 		key_sourcesPreferenceFile = context.getString(R.string.keySourcesPreferencesFile);
 		mSharedPreferences = context.getSharedPreferences(key_sourcesPreferenceFile, Context.MODE_PRIVATE);
+
+        /*
+        Log.e("SourcesManager", "Regenerating defaults");
 		SharedPreferences.Editor editor = mSharedPreferences.edit();
 		editor.clear();
 		editor.putInt("0", 7);
@@ -26,16 +30,20 @@ public class SourcesManager {
 		editor.putString("6", "http://news.feedzilla.com/en_us/headlines/programming/top-stories.rss");
 		editor.putString("7", "http://www.reddit.com/.rss");
 		editor.commit();
+		*/
 	}
 	
 	public void addSource(String s) {
 		int size = mSharedPreferences.getInt("0", 0);
-		mSharedPreferences.edit().putString(Integer.toString(size + 1), s).commit();
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+		editor.putString(Integer.toString(size + 1), s);
+        editor.putInt("0", size + 1);
+        editor.commit();
 	}
 	
 	public void removeSource(String s) {
 		int size = mSharedPreferences.getInt("0", 0);
-		HashSet<String> sources = new HashSet<String>();
+		ArrayList<String> sources = new ArrayList<String>();
 		for (int i = 1;i <= size;i++) {
 			String tmp = mSharedPreferences.getString(Integer.toString(i), "");
 			if (!tmp.equals(s)) {
@@ -47,10 +55,14 @@ public class SourcesManager {
 		editor.clear();
 		editor.putInt("0", size);
 		for (int i = 1;i <= size;i++) {
-			editor.putString(Integer.toString(i), sources.iterator().next());
+			editor.putString(Integer.toString(i), sources.get(i - 1));
 		}
 		editor.commit();
 	}
+
+    public void clearAll() {
+        mSharedPreferences.edit().clear().commit();
+    }
 	
 	public String[] getSources() {
 		int size = mSharedPreferences.getInt("0", 0);

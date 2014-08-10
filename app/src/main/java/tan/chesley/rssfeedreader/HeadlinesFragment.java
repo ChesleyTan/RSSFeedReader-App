@@ -42,7 +42,6 @@ public class HeadlinesFragment extends ListFragment implements
     private HeadlinesAdapter adapter;
     private TaskFragment mTaskFragment;
     private boolean syncing = false;
-    private Button updateButton;
     private ProgressBar syncProgressBar;
     private LinearLayout syncProgressBarContainer;
 
@@ -84,16 +83,11 @@ public class HeadlinesFragment extends ListFragment implements
         // Log.e("Instance", "Instance: Inflating new fragment.");
         View view = inflater.inflate(R.layout.fragment_rssfeed, container,
                                      false);
-        updateButton = (Button) view.findViewById(R.id.updateButton);
         syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
         syncProgressBarContainer = (LinearLayout) view
             .findViewById(R.id.progressBarContainer);
-        Assert.assertNotNull(updateButton);
         Assert.assertNotNull(syncProgressBar);
         Assert.assertNotNull(syncProgressBarContainer);
-        if (syncing) {
-            toggleProgressBar();
-        }
         if (savedInstanceState != null) {
             ArrayList<MyMap> tmp = savedInstanceState
                 .getParcelableArrayList(PARSED_FEED_DATA);
@@ -113,6 +107,14 @@ public class HeadlinesFragment extends ListFragment implements
             }
         }
         return view;
+    }
+
+    @Override
+    public void onStart () {
+        super.onStart();
+        if (syncing) {
+            toggleProgressBar();
+        }
     }
 
     @Override
@@ -237,7 +239,7 @@ public class HeadlinesFragment extends ListFragment implements
     }
 
     public void showToast (String s, int toastDurationFlag) {
-        Toast toast = Toast.makeText(getActivity().getApplicationContext(), s,
+        Toast toast = Toast.makeText(getActivity(), s,
                                      toastDurationFlag);
         TextView toastTextView = (TextView) toast.getView().findViewById(
             android.R.id.message);
@@ -281,19 +283,15 @@ public class HeadlinesFragment extends ListFragment implements
 
     public void toggleProgressBar () {
         if (syncProgressBar.getVisibility() == View.GONE && syncing) {
-            syncProgressBar.setVisibility(View.VISIBLE);
             syncProgressBarContainer.setVisibility(View.VISIBLE);
+            syncProgressBar.setVisibility(View.VISIBLE);
+            getListView().setVisibility(View.GONE);
         }
         else if (syncProgressBar.getVisibility() == View.VISIBLE
             && !syncing) {
-            syncProgressBar.setVisibility(View.GONE);
             syncProgressBarContainer.setVisibility(View.GONE);
-        }
-        if (syncProgressBar.getVisibility() == View.VISIBLE) {
-            Log.e("toggle", "progress bar visible");
-        }
-        if (syncProgressBarContainer.getVisibility() == View.VISIBLE) {
-            Log.e("toggle", "progress bar container visible");
+            syncProgressBar.setVisibility(View.GONE);
+            getListView().setVisibility(View.VISIBLE);
         }
     }
 

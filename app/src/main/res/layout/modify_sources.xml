@@ -15,11 +15,4 @@
         android:scrollbarThumbVertical="@drawable/scrollbar"
         />
 
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/addNewSource"
-        android:id="@+id/newSourceButton"
-        android:layout_gravity="bottom"
-        android:textColor="@color/button_text_color"/>
 </LinearLayout>

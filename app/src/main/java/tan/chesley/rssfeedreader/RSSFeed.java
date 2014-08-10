@@ -20,6 +20,7 @@ public class RSSFeed extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        // TODO is this setContentView necessary?
 		setContentView(R.layout.activity_rssfeed);
 		FragmentManager fragMan = getFragmentManager();
 		Fragment theFragment = fragMan.findFragmentById(R.id.container);
@@ -35,16 +36,6 @@ public class RSSFeed extends Activity {
 	public HeadlinesFragment getHeadlinesFragment() {
 		return (HeadlinesFragment) getFragmentManager()
 				.findFragmentById(R.id.container);
-	}
-
-	public void syncFeeds(View v) {
-		if (HeadlinesFragment.getInstance() != null) {
-			HeadlinesFragment.getInstance().syncFeeds();
-		}
-		else {
-			// Log.e("Instance",
-			// "Instance: headlinesFragment not found, cannot sync.");
-		}
 	}
 
 	@Override
@@ -68,7 +59,7 @@ public class RSSFeed extends Activity {
 		}
 		else if (id == R.id.action_refresh) {
 			if (HeadlinesFragment.getInstance() != null) {
-				HeadlinesFragment.getInstance().updateFeedView();
+				HeadlinesFragment.getInstance().syncFeeds();
 			}
 			else {
 				// Log.e("Instance",

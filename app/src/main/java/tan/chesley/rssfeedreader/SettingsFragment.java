@@ -5,7 +5,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
-import android.util.Log;
 
 
 public class SettingsFragment extends PreferenceFragment {
@@ -26,7 +25,6 @@ public class SettingsFragment extends PreferenceFragment {
 				ListPreference pref = (ListPreference) preference;
 				pref.setValue(newValue.toString());
 				pref.setSummary(pref.getEntry());
-				Log.e("SettingsFragment", newValue.toString());
 				return false;
 			}
 			

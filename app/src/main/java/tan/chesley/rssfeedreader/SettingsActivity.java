@@ -16,7 +16,7 @@ public class SettingsActivity extends Activity {
 					"android");
 		TextView title = (TextView) findViewById(titleId);
 		if (title != null) {
-			setTitle(R.string.feeds);
+			setTitle(R.string.settingsTitle);
 			title.setTextColor(getResources().getColor((R.color.AppPrimaryTextColor)));
 		}
 	}
