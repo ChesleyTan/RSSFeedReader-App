@@ -203,7 +203,7 @@ public class HeadlinesFragment extends ListFragment implements
             RSSDataBundle rdBundle = dataMap.values().iterator().next();
             headlineTextView.setText(rdBundle.getTitle());
             sourceTextView.setText(rdBundle.getSourceTitle());
-            dateTextView.setText(rdBundle.getFormattedDate());
+            dateTextView.setText(rdBundle.getUserPreferredDateFormat(getContext()));
             articleTextView.setText(rdBundle.getDescription());
             return convertView;
         }

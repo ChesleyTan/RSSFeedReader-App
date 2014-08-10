@@ -10,6 +10,7 @@ import android.preference.PreferenceFragment;
 public class SettingsFragment extends PreferenceFragment {
 	
 	private ListPreference sortFeedByListPreference;
+    private ListPreference feedDateFormatPreference;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,6 +30,17 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 			
 		});
+        feedDateFormatPreference = (ListPreference) findPreference("pref_feedDateFormat_type");
+        feedDateFormatPreference.setSummary(feedDateFormatPreference.getEntry());
+        feedDateFormatPreference.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange (Preference preference, Object newValue) {
+                ListPreference pref = (ListPreference) preference;
+                pref.setValue(newValue.toString());
+                pref.setSummary(pref.getEntry());
+                return false;
+            }
+        });
 	}
 	
 }

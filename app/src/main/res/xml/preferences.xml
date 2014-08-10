@@ -8,6 +8,13 @@
         android:entryValues="@array/pref_feedSortBy_values"
         android:key="pref_feedSortBy_type"
         android:title="@string/pref_feedSortBy_title" />
+    <ListPreference
+        android:defaultValue="@string/pref_feedDateFormat_default"
+        android:dialogTitle="@string/pref_feedDateFormat_title"
+        android:entries="@array/pref_feedDateFormat_entries"
+        android:entryValues="@array/pref_feedDateFormat_values"
+        android:key="pref_feedDateFormat_type"
+        android:title="@string/pref_feedDateFormat_title" />
 
     <Preference android:title="@string/pref_modify_sources" >
         <intent android:action="tan.chesley.rssfeedreader.ModifySources"/>

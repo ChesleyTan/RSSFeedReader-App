@@ -6,8 +6,11 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
 
 public class RSSDataBundle implements Parcelable{
 	private String title, description, link, source, sourceTitle; // Required descriptors
@@ -71,18 +74,18 @@ public class RSSDataBundle implements Parcelable{
 		// TODO account for case when the year is only two digits
 		int year = Integer.parseInt(pubDateFields[2]);
 		String monthStr = pubDateFields[1];
-		int month = monthStr.contains("Jan") ? 1 :
-					monthStr.contains("Feb") ? 2 :
-					monthStr.contains("Mar") ? 3 :
-					monthStr.contains("Apr") ? 4 :
-					monthStr.contains("May") ? 5 :
-					monthStr.contains("Jun") ? 6 :
-					monthStr.contains("Jul") ? 7 :
-					monthStr.contains("Aug") ? 8 :
-					monthStr.contains("Sep") ? 9 :
-					monthStr.contains("Oct") ? 10 :
-					monthStr.contains("Nov") ? 11 :
-					12;
+		int month = monthStr.contains("Jan") ? Calendar.JANUARY :
+					monthStr.contains("Feb") ? Calendar.FEBRUARY :
+					monthStr.contains("Mar") ? Calendar.MARCH :
+					monthStr.contains("Apr") ? Calendar.APRIL :
+					monthStr.contains("May") ? Calendar.MAY :
+					monthStr.contains("Jun") ? Calendar.JUNE :
+					monthStr.contains("Jul") ? Calendar.JULY :
+					monthStr.contains("Aug") ? Calendar.AUGUST :
+					monthStr.contains("Sep") ? Calendar.SEPTEMBER :
+					monthStr.contains("Oct") ? Calendar.OCTOBER :
+					monthStr.contains("Nov") ? Calendar.NOVEMBER :
+					Calendar.DECEMBER;
 		int day = Integer.parseInt(pubDateFields[0]);
 		String[] timeFields = pubDateFields[3].split(":");
 		int hour = Integer.parseInt(timeFields[0]);
@@ -101,7 +104,7 @@ public class RSSDataBundle implements Parcelable{
 		calendar.add(Calendar.MINUTE, minuteOffset);
 		return calendar;
 	}
-	public String getFormattedDate() {
+	public String getAbsoluteDate() {
 		Calendar calendar = getCalendar();
 		int hr = calendar.get(Calendar.HOUR_OF_DAY);
 		String hour = Integer.toString(hr);
@@ -136,7 +139,21 @@ public class RSSDataBundle implements Parcelable{
 		return  hour + ":" + minute + ":" + second + " " +
 				month + " " + day + " " + year;
 	}
-	
+
+    public String getRelativeDate() {
+        return DateUtils.getRelativeTimeSpanString(getCalendar().getTimeInMillis()).toString();
+    }
+
+    public String getUserPreferredDateFormat(Context context) {
+        int formatType = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString("pref_feedDateFormat_type", "1"));
+        if (formatType == 1) {
+            return getRelativeDate();
+        }
+        else {
+            return getAbsoluteDate();
+        }
+    }
+
 	@SuppressLint("Recycle")
 	public Parcel getParcel() {
 		Parcel parcel = Parcel.obtain();
