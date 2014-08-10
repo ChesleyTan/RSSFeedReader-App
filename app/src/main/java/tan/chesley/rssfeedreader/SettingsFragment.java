@@ -5,12 +5,14 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 
 
 public class SettingsFragment extends PreferenceFragment {
 	
 	private ListPreference sortFeedByListPreference;
     private ListPreference feedDateFormatPreference;
+    private NumberPickerDialogPreference maxArticleNumberPickerDialogPreference;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,8 @@ public class SettingsFragment extends PreferenceFragment {
                 return false;
             }
         });
+        maxArticleNumberPickerDialogPreference = (NumberPickerDialogPreference) findPreference("pref_id_maxArticleNumberDialogPicker");
+        maxArticleNumberPickerDialogPreference.setSummary(Integer.toString(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_MAX_ARTICLE_NUMBER, getResources().getInteger(R.integer.max_article_number_default))));
 	}
 	
 }

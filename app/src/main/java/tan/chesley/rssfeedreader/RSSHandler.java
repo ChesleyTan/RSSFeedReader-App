@@ -9,6 +9,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import tan.chesley.rssfeedreader.TaskFragment.GetRssFeedTask;
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class RSSHandler extends DefaultHandler {
@@ -22,6 +23,7 @@ public class RSSHandler extends DefaultHandler {
 	final long timeout; // timeout for parsing an individual feed
 	final GetRssFeedTask parent;
 	final String noDescriptionAvailableString;
+    final int maxArticleCount;
 	final String[] timezones = TimeZone.getAvailableIDs();
 	ArrayList<MyMap> data = new ArrayList<MyMap>();
 
@@ -38,6 +40,8 @@ public class RSSHandler extends DefaultHandler {
 		parent = task;
 		noDescriptionAvailableString = context.getResources().getString(
 				R.string.noDescriptionAvailable);
+        maxArticleCount = PreferenceManager.getDefaultSharedPreferences(context).getInt(SettingsActivity.KEY_PREF_MAX_ARTICLE_NUMBER,
+                          context.getResources().getInteger(R.integer.max_article_number_default));
 		timeout = TaskFragment.SYNC_TIMEOUT / numSources;
 	}
 
@@ -104,7 +108,7 @@ public class RSSHandler extends DefaultHandler {
 
 		// Parse tag and save data
 		if (reading) {
-			if (articleCount < HeadlinesFragment.RSS_ARTICLE_COUNT_MAX
+			if (articleCount <= maxArticleCount
 					&& state == stateUnknown) {
 				if (localName.equalsIgnoreCase("title")) {
 					state = stateTitle;
@@ -211,6 +215,12 @@ public class RSSHandler extends DefaultHandler {
 				//Log.e("New pubDate", "Bad input found. Skipping this item.");
 				return;
 			}
+            // dateStringFields[0] => Day of week
+            // dateStringFields[1] => Number of day
+            // dateStringFields[2] => Month
+            // dateStringFields[3] => Year
+            // dateStringFields[4] => hr:min:sec
+            // dateStringFields[5] => UTC offset or timezone
 			String pubDate = dateStringFields[1] + " " + dateStringFields[2]
 					+ " " + dateStringFields[3] + " " + dateStringFields[4];
 			// Recognize when timezone given is not in the form of an offset

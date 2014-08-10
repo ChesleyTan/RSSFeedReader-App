@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 public class SettingsActivity extends Activity {
+    public static final String KEY_PREF_MAX_ARTICLE_NUMBER = "tan.chesley.rssfeedreader.keyprefmaxarticlenumber";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

@@ -15,6 +15,7 @@
     <string name="pref_feedDateFormat_title">Article date format: </string>
     <string name="pref_feedDateFormat_default">1</string>
     <string name="pref_modify_sources">Modify sources</string>
+    <string name="pref_articleNumberPicker_title">Max number of articles per feed</string>
     <string name="editSource">Edit source</string>
     <string name="addSourceTitle">Add new source</string>
     <string name="save">Save</string>

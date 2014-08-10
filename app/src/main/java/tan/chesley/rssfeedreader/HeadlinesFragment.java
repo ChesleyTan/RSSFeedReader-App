@@ -35,7 +35,6 @@ public class HeadlinesFragment extends ListFragment implements
     public static final String ARTICLE_ID = "tan.chesley.rssfeedreader.articleid";
     public static final String TASK_FRAGMENT = "tan.chesley.rssfeedreader.taskfragment";
     public static final String SYNCING = "tan.chesley.rssfeedreader.syncing";
-    public static final int RSS_ARTICLE_COUNT_MAX = 20;
     public static final int ARTICLE_VIEW_INTENT = 0;
     public static ArrayList<MyMap> data = new ArrayList<MyMap>();
     private static HeadlinesFragment singleton;

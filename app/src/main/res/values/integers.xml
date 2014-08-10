@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="max_article_number_minimum">1</integer>
+    <integer name="max_article_number_default">20</integer>
+    <integer name="max_article_number_maximum">100</integer>
+</resources>
