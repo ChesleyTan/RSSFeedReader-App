@@ -1,6 +1,7 @@
 package tan.chesley.rssfeedreader;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -9,6 +10,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import tan.chesley.rssfeedreader.TaskFragment.GetRssFeedTask;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.media.audiofx.BassBoost;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -23,8 +26,12 @@ public class RSSHandler extends DefaultHandler {
 	final long timeout; // timeout for parsing an individual feed
 	final GetRssFeedTask parent;
 	final String noDescriptionAvailableString;
+    final int MILLISECONDS_IN_A_DAY = 86400000;
     final int maxArticleCount;
+    final boolean enforceArticleAgeLimit;
 	final String[] timezones = TimeZone.getAvailableIDs();
+
+    int articleAgeLimit; // age limit for the article in milliseconds from epoch
 	ArrayList<MyMap> data = new ArrayList<MyMap>();
 
 	int state = stateUnknown;
@@ -40,9 +47,14 @@ public class RSSHandler extends DefaultHandler {
 		parent = task;
 		noDescriptionAvailableString = context.getResources().getString(
 				R.string.noDescriptionAvailable);
-        maxArticleCount = PreferenceManager.getDefaultSharedPreferences(context).getInt(SettingsActivity.KEY_PREF_MAX_ARTICLE_NUMBER,
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        maxArticleCount = prefs.getInt(SettingsActivity.KEY_PREF_MAX_ARTICLE_NUMBER,
                           context.getResources().getInteger(R.integer.max_article_number_default));
-		timeout = TaskFragment.SYNC_TIMEOUT / numSources;
+        enforceArticleAgeLimit = prefs.getBoolean("pref_articleAgeLimitCheckBox", false);
+		if (enforceArticleAgeLimit) {
+            articleAgeLimit = MILLISECONDS_IN_A_DAY * prefs.getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, context.getResources().getInteger(R.integer.article_age_limit_default));
+        }
+        timeout = TaskFragment.SYNC_TIMEOUT / numSources;
 	}
 
 	public void reset() {
@@ -77,6 +89,7 @@ public class RSSHandler extends DefaultHandler {
 			throw new SAXException();
 		}
 		Log.e("Feed", "Ended feed stream.");
+        reset();
 	}
 
 	@Override
@@ -103,12 +116,11 @@ public class RSSHandler extends DefaultHandler {
 		// Skip to first article
 		if (!reading && localName.equalsIgnoreCase("item")) {
 			reading = true;
-			articleCount++;
 		}
 
 		// Parse tag and save data
-		if (reading) {
-			if (articleCount <= maxArticleCount
+		if (reading && !badInput) {
+			if (articleCount < maxArticleCount
 					&& state == stateUnknown) {
 				if (localName.equalsIgnoreCase("title")) {
 					state = stateTitle;
@@ -147,6 +159,7 @@ public class RSSHandler extends DefaultHandler {
 		}
 		if (localName.equalsIgnoreCase("item")) {
 			if (rdBundle != null && !badInput) {
+                articleCount++;
 				rdBundle.setSourceTitle(sourceTitle);
 				rdBundle.setSource(sourceURL);
 				MyMap datum = new MyMap();
@@ -210,6 +223,7 @@ public class RSSHandler extends DefaultHandler {
 			String dateString = makeString(ch, start, length);
 			String[] dateStringFields = dateString.split(" ");
 			// TODO more robustly recognize bad input
+            // TODO account for case when the year is only two digits
 			if (dateStringFields.length < 6) {
 				badInput = true;
 				//Log.e("New pubDate", "Bad input found. Skipping this item.");
@@ -261,14 +275,26 @@ public class RSSHandler extends DefaultHandler {
 						.toString(minutesOffset);
 				String sign = offset > 0 ? "+" : ""; // Negative offsets already
 														// have a sign
-				String timeZone = sign + hourOffsetStr + minutesOffsetStr;
+				dateStringFields[5] = sign + hourOffsetStr + minutesOffsetStr;
 				//Log.e("New pubDate", "Non-offset time zone detected. Using "
 				//		+ sign + hourOffsetStr + minutesOffsetStr + " instead.");
-				pubDate += " " + timeZone;
-			} else {
-				pubDate += " " + dateStringFields[5];
 			}
+			pubDate += " " + dateStringFields[5];
 			rdBundle.setPubDate(pubDate);
+            if (enforceArticleAgeLimit) {
+                long now = Calendar.getInstance().getTimeInMillis();
+                long articlePubDate = rdBundle.getCalendar().getTimeInMillis();
+                if (now - articlePubDate > articleAgeLimit) {
+                    badInput = true;
+                    Log.e("New pubDate", "Article exceeds age limit. Skipping.");
+                    return;
+                }
+                if (articlePubDate > now) {
+                    badInput = true;
+                    Log.e("New pubDate", "Invalid date given: Date is in the future!");
+                    return;
+                }
+            }
 			// Log.e("New pubDate", rdBundle.getPubDate());
 		}
 	}

@@ -11,8 +11,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 public class RSSDataBundle implements Parcelable{
+    public static final String NUMBERS = "0123456789";
 	private String title, description, link, source, sourceTitle; // Required descriptors
 	private String pubDate; // Optional descriptors
 	private final String stringUUID;
@@ -71,7 +73,6 @@ public class RSSDataBundle implements Parcelable{
 	public Calendar getCalendar() {
 		Calendar calendar = Calendar.getInstance();
 		String[] pubDateFields = pubDate.split(" ");
-		// TODO account for case when the year is only two digits
 		int year = Integer.parseInt(pubDateFields[2]);
 		String monthStr = pubDateFields[1];
 		int month = monthStr.contains("Jan") ? Calendar.JANUARY :
@@ -86,19 +87,19 @@ public class RSSDataBundle implements Parcelable{
 					monthStr.contains("Oct") ? Calendar.OCTOBER :
 					monthStr.contains("Nov") ? Calendar.NOVEMBER :
 					Calendar.DECEMBER;
-		int day = Integer.parseInt(pubDateFields[0]);
+		int day = safeParseInt(pubDateFields[0]);
 		String[] timeFields = pubDateFields[3].split(":");
-		int hour = Integer.parseInt(timeFields[0]);
-		int minute = Integer.parseInt(timeFields[1]);
-		int second = Integer.parseInt(timeFields[2]);
+		int hour = safeParseInt(timeFields[0]);
+		int minute = safeParseInt(timeFields[1]);
+		int second = safeParseInt(timeFields[2]);
 		calendar.set(year, month, day, hour, minute, second);
 		TimeZone here = TimeZone.getDefault();
 		int offset = here.getRawOffset();
 		if (here.inDaylightTime(new Date())) {
 			offset += here.getDSTSavings();
 		}
-		int hourOffset = pubDateFields[4].substring(0, 1).equals("+") ? -1 * Integer.parseInt(pubDateFields[4].substring(1, 3)) : Integer.parseInt(pubDateFields[4].substring(1, 3));
-		int minuteOffset = pubDateFields[4].substring(0, 1).equals("+") ? -1 * Integer.parseInt(pubDateFields[4].substring(3)) : Integer.parseInt(pubDateFields[4].substring(3));
+		int hourOffset = pubDateFields[4].substring(0, 1).equals("+") ? -1 * safeParseInt(pubDateFields[4].substring(1, 3)) : safeParseInt(pubDateFields[4].substring(1, 3));
+		int minuteOffset = pubDateFields[4].substring(0, 1).equals("+") ? -1 * safeParseInt(pubDateFields[4].substring(3)) : safeParseInt(pubDateFields[4].substring(3));
 		minuteOffset += offset / 1000 / 60;
 		calendar.add(Calendar.HOUR, hourOffset);
 		calendar.add(Calendar.MINUTE, minuteOffset);
@@ -152,6 +153,17 @@ public class RSSDataBundle implements Parcelable{
         else {
             return getAbsoluteDate();
         }
+    }
+
+    public int safeParseInt(String s) {
+        int result = 0;
+        for (int i = 0;i < s.length();i++) {
+            int indexAndValue = NUMBERS.indexOf(s.substring(i, i+1));
+            if (indexAndValue > -1) {
+                result = result * 10 + indexAndValue;
+            }
+        }
+        return result;
     }
 
 	@SuppressLint("Recycle")

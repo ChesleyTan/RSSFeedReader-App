@@ -1,6 +1,7 @@
 package tan.chesley.rssfeedreader;
 
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -13,6 +14,8 @@ public class SettingsFragment extends PreferenceFragment {
 	private ListPreference sortFeedByListPreference;
     private ListPreference feedDateFormatPreference;
     private NumberPickerDialogPreference maxArticleNumberPickerDialogPreference;
+    private CheckBoxPreference articleAgeLimitCheckBoxPreference;
+    private NumberPickerDialogPreference articleAgeLimitNumberPickerDialogPreference;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -43,8 +46,13 @@ public class SettingsFragment extends PreferenceFragment {
                 return false;
             }
         });
-        maxArticleNumberPickerDialogPreference = (NumberPickerDialogPreference) findPreference("pref_id_maxArticleNumberDialogPicker");
+        maxArticleNumberPickerDialogPreference = (NumberPickerDialogPreference) findPreference("pref_id_maxArticleNumberPickerDialog");
         maxArticleNumberPickerDialogPreference.setSummary(Integer.toString(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_MAX_ARTICLE_NUMBER, getResources().getInteger(R.integer.max_article_number_default))));
+	    articleAgeLimitCheckBoxPreference = (CheckBoxPreference) findPreference("pref_articleAgeLimitCheckBox");
+        articleAgeLimitNumberPickerDialogPreference = (NumberPickerDialogPreference) findPreference("pref_id_articleAgeLimitNumberPickerDialog");
+        if (articleAgeLimitCheckBoxPreference.isChecked()) {
+            articleAgeLimitNumberPickerDialogPreference.setSummary(Integer.toString(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, getResources().getInteger(R.integer.article_age_limit_default))));
+        }
 	}
 	
 }

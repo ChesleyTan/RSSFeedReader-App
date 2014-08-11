@@ -9,8 +9,9 @@
     <string name="keySourcesPreferencesFile">tan.chesley.rssfeedreader.keySourcesPreferencesFile</string>
     <string name="action_settings">Settings</string>
     <string name="action_update">Update</string>
+    <string name="action_import_export_sources">Import/Export sources</string>
     <string name="settingsTitle">Settings</string>
-    <string name="pref_feedSortBy_title">Sort feeds by: </string>
+    <string name="pref_feedSortBy_title">Sort articles by: </string>
     <string name="pref_feedSortBy_default">3</string>
     <string name="pref_feedDateFormat_title">Article date format: </string>
     <string name="pref_feedDateFormat_default">1</string>
@@ -30,4 +31,8 @@
     <string name="successfulExportToFile">Successfully exported sources to file:\n</string>
     <string name="successfulImportFromFile">Successfully imported sources from file:\n</string>
     <string name="invalidFileFormat">File format not recognized.</string>
+    <string name="pref_articleAgeLimitCheckBox_title">Limit the age of articles</string>
+    <string name="pref_articleAgeLimit_title">Article age limit (days): </string>
+    <string name="feed_settings">Feed settings</string>
+    <string name="article_settings">Article settings</string>
 </resources>

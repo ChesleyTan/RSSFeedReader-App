@@ -24,7 +24,7 @@ import android.widget.Toast;
 // Credits to Alex Lockwood for original model of a task fragment
 public class TaskFragment extends Fragment {
 
-	public static final long SYNC_TIMEOUT = 5000;
+	public static final long SYNC_TIMEOUT = 5000; // Timeout in milliseconds for syncing
 	public static final String TASK_COMPLETE = "tan.chesley.rssfeedreader.taskcomplete";
 
 	public static interface TaskCallbacks {

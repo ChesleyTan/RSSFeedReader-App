@@ -3,4 +3,7 @@
     <integer name="max_article_number_minimum">1</integer>
     <integer name="max_article_number_default">20</integer>
     <integer name="max_article_number_maximum">100</integer>
+    <integer name="article_age_limit_minimum">1</integer>
+    <integer name="article_age_limit_default">5</integer>
+    <integer name="article_age_limit_maximum">365</integer>
 </resources>

@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 public class SettingsActivity extends Activity {
     public static final String KEY_PREF_MAX_ARTICLE_NUMBER = "tan.chesley.rssfeedreader.keyprefmaxarticlenumber";
+    public static final String KEY_PREF_ARTICLE_AGE_LIMIT = "tan.chesley.rssfeedreader.keyprefarticleagelimit";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

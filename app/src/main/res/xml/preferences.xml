@@ -1,31 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <ListPreference
-        android:defaultValue="@string/pref_feedSortBy_default"
-        android:dialogTitle="@string/pref_feedSortBy_title"
-        android:entries="@array/pref_feedSortBy_entries"
-        android:entryValues="@array/pref_feedSortBy_values"
-        android:key="pref_feedSortBy_type"
-        android:title="@string/pref_feedSortBy_title"/>
-    <ListPreference
-        android:defaultValue="@string/pref_feedDateFormat_default"
-        android:dialogTitle="@string/pref_feedDateFormat_title"
-        android:entries="@array/pref_feedDateFormat_entries"
-        android:entryValues="@array/pref_feedDateFormat_values"
-        android:key="pref_feedDateFormat_type"
-        android:title="@string/pref_feedDateFormat_title"/>
+    <PreferenceCategory
+        android:title="@string/feed_settings">
+        <ListPreference
+            android:defaultValue="@string/pref_feedSortBy_default"
+            android:dialogTitle="@string/pref_feedSortBy_title"
+            android:entries="@array/pref_feedSortBy_entries"
+            android:entryValues="@array/pref_feedSortBy_values"
+            android:key="pref_feedSortBy_type"
+            android:title="@string/pref_feedSortBy_title"/>
+        <ListPreference
+            android:defaultValue="@string/pref_feedDateFormat_default"
+            android:dialogTitle="@string/pref_feedDateFormat_title"
+            android:entries="@array/pref_feedDateFormat_entries"
+            android:entryValues="@array/pref_feedDateFormat_values"
+            android:key="pref_feedDateFormat_type"
+            android:title="@string/pref_feedDateFormat_title"/>
 
-    <!-- android:key is used purely for identifying this Preference object;
- Setting is not actually stored at this key -->
-    <tan.chesley.rssfeedreader.NumberPickerDialogPreference
-        android:key="pref_id_maxArticleNumberDialogPicker"
-        android:title="@string/pref_articleNumberPicker_title">
-    </tan.chesley.rssfeedreader.NumberPickerDialogPreference>
+        <!-- android:key is used purely for identifying this Preference object;
+     Setting is not actually stored at this key -->
+        <tan.chesley.rssfeedreader.MaxArticlesNumberPickerDialog
+            android:key="pref_id_maxArticleNumberPickerDialog"
+            android:title="@string/pref_articleNumberPicker_title">
+        </tan.chesley.rssfeedreader.MaxArticlesNumberPickerDialog>
+    </PreferenceCategory>
 
-    <Preference android:title="@string/pref_modify_sources">
-        <intent android:action="tan.chesley.rssfeedreader.ModifySources"/>
-    </Preference>
+    <PreferenceCategory
+        android:title="@string/article_settings">
+        <CheckBoxPreference
+            android:key="pref_articleAgeLimitCheckBox"
+            android:title="@string/pref_articleAgeLimitCheckBox_title">
+        </CheckBoxPreference>
+
+        <!-- android:key is used purely for identifying this Preference object;
+     Setting is not actually stored at this key -->
+        <tan.chesley.rssfeedreader.ArticleAgeLimitNumberPickerDialog
+            android:dependency="pref_articleAgeLimitCheckBox"
+            android:key="pref_id_articleAgeLimitNumberPickerDialog"
+            android:title="@string/pref_articleAgeLimit_title">
+        </tan.chesley.rssfeedreader.ArticleAgeLimitNumberPickerDialog>
+
+        <Preference android:title="@string/pref_modify_sources">
+            <intent android:action="tan.chesley.rssfeedreader.ModifySources"/>
+        </Preference>
+    </PreferenceCategory>
 
 
 </PreferenceScreen>
