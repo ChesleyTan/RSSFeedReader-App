@@ -37,9 +37,9 @@ public class AddSourceDialogFragment extends DialogFragment{
         addSourceDialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view) {
-                SourcesManager sm = new SourcesManager(getActivity());
+                SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
                 // TODO validation and validation feedback text
-                sm.addSource(addSourceDialogEditText.getText().toString());
+                dbHelper.addSource(addSourceDialogEditText.getText().toString(), 1);
                 mCallback.onAddSourceCallback();
                 dialog.dismiss();
             }

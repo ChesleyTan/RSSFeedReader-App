@@ -14,9 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -43,6 +45,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         int titleId = getResources().getIdentifier("action_bar_title", "id",
                                                    "android");
         TextView title = (TextView) findViewById(titleId);
@@ -56,8 +59,8 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
             sources = savedInstanceState.getStringArrayList(TAG_SOURCES);
         }
         else {
-            SourcesManager sm = new SourcesManager(this);
-            sources = sm.getSourcesArrayList();
+            SourcesOpenHelper sourceDbHelper = new SourcesOpenHelper(this);
+            sources = sourceDbHelper.getSourcesArrayList();
         }
         showListView(false);
     }
@@ -88,18 +91,39 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
                 convertView = getLayoutInflater().inflate(
                     R.layout.sources_list_item, parent, false);
             }
-            TextView sourceTextView = (TextView) convertView.findViewById(R.id.sourceTextView);
+            final TextView sourceTextView = (TextView) convertView.findViewById(R.id.sourceTextView);
             TextView positionTextView = (TextView) convertView.findViewById(R.id.positionTextView);
-            sourceTextView.setText(sources.get(position));
+            ToggleButton disabledToggleButton = (ToggleButton) convertView.findViewById(R.id.disabledToggleButton);
+            SourcesOpenHelper dbHelper = new SourcesOpenHelper(context);
+            String source = sources.get(position);
+            // Check if the source is disabled and change its appearance as appropriate
+            if (!dbHelper.isEnabled(source)) {
+                sourceTextView.setTextColor(getResources().getColor(R.color.DisabledTextColor));
+                disabledToggleButton.setChecked(false);
+            }
+            sourceTextView.setText(source);
             positionTextView.setText(Integer.toString(position + 1)); // Add 1 for One-based indexing
+            disabledToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged (CompoundButton compoundButton, boolean b) {
+                    if (b) {
+                        sourceTextView.setTextColor(getResources().getColor(R.color.AppPrimaryTextColor));
+                    }
+                    else {
+                        sourceTextView.setTextColor(getResources().getColor(R.color.DisabledTextColor));
+                    }
+                    SourcesOpenHelper dbHelper = new SourcesOpenHelper(context);
+                    dbHelper.setEnabled(sourceTextView.getText().toString(), b);
+                }
+            });
             return convertView;
         }
     }
 
     public void showListView(boolean updateSources) {
         if (updateSources) {
-            SourcesManager sm = new SourcesManager(this);
-            sources = sm.getSourcesArrayList();
+            SourcesOpenHelper dbHelper = new SourcesOpenHelper(this);
+            sources = dbHelper.getSourcesArrayList();
         }
         getListView().setAdapter(new SourcesAdapter(this));
     }
@@ -146,7 +170,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
                 File file = new File(path, "feeds-export.txt");
                 try {
                     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                    String[] sources = new SourcesManager(this).getSources();
+                    String[] sources = new SourcesOpenHelper(this).getSources();
                     writer.write("tan.chesley.rssfeedreader.export\n");
                     for (String s : sources) {
                         writer.write(s + "\n");
@@ -177,10 +201,10 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
                     BufferedReader reader = new BufferedReader(new FileReader(file));
                     String line = reader.readLine();
                     if (line != null && line.equals("tan.chesley.rssfeedreader.export")) {
-                        SourcesManager sm = new SourcesManager(this);
-                        sm.clearAll();
+                        SourcesOpenHelper dbHelper = new SourcesOpenHelper(this);
+                        dbHelper.clearAllSources();
                         while ((line = reader.readLine()) != null) {
-                            sm.addSource(line);
+                            dbHelper.addSource(line, 1);
                         }
                         showToast(getResources().getString(R.string.successfulImportFromFile) + file.getAbsolutePath(), Toast.LENGTH_LONG);
                         // Reload ListView items

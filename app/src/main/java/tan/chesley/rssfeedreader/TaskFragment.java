@@ -48,7 +48,7 @@ public class TaskFragment extends Fragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		FEEDS = new SourcesManager(activity).getSources();
+		FEEDS = new SourcesOpenHelper(activity).getEnabledSources();
 		mCallbacks = (TaskCallbacks) ((RSSFeed) activity)
 				.getHeadlinesFragment();
 	}

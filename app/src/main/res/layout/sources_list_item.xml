@@ -12,7 +12,9 @@
         android:text="Source Placeholder"
         android:textColor="@color/AppPrimaryTextColor"
         android:ellipsize="end"
-        android:id="@+id/sourceTextView"/>
+        android:id="@+id/sourceTextView"
+        android:layout_toLeftOf="@+id/disabledToggleButton"
+        android:layout_toStartOf="@+id/disabledToggleButton"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -24,4 +26,20 @@
         android:id="@+id/positionTextView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"/>
+
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/disabledToggleButton"
+        android:textOff="@string/disabled"
+        android:textOn="@string/enabled"
+        style="@style/SourceToggleButton"
+        android:checked="true"
+        android:focusable="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/sourceTextView"/>
 </RelativeLayout>

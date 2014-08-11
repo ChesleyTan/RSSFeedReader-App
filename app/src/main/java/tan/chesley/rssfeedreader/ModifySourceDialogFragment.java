@@ -41,10 +41,10 @@ public class ModifySourceDialogFragment extends DialogFragment{
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view) {
-                SourcesManager sm = new SourcesManager(getActivity());
-                sm.removeSource(source);
+                SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
+                dbHelper.deleteSource(source);
                 // TODO validation and validation feedback text
-                sm.addSource(sourceEditText.getText().toString());
+                dbHelper.addSource(sourceEditText.getText().toString(), 1);
                 mCallback.onModifySourceCallback();
                 dialog.dismiss();
             }
@@ -52,8 +52,8 @@ public class ModifySourceDialogFragment extends DialogFragment{
         deleteButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View view) {
-                SourcesManager sm = new SourcesManager(getActivity());
-                sm.removeSource(source);
+                SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
+                dbHelper.deleteSource(source);
                 mCallback.onModifySourceCallback();
                 dialog.dismiss();
             }
