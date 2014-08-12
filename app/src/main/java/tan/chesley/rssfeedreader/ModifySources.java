@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -29,6 +30,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +44,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     private static final int TAG_EXPORT_FILE_RESULT_CODE = 397678; // "export" in phone number representation
     private final Context context = this;
     private ArrayList<String> sources;
+    private boolean isAutomaticChange;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -91,32 +95,48 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
                 convertView = getLayoutInflater().inflate(
                     R.layout.sources_list_item, parent, false);
             }
-            final TextView sourceTextView = (TextView) convertView.findViewById(R.id.sourceTextView);
+            TextView sourceTextView = (TextView) convertView.findViewById(R.id.sourceTextView);
             TextView positionTextView = (TextView) convertView.findViewById(R.id.positionTextView);
             ToggleButton disabledToggleButton = (ToggleButton) convertView.findViewById(R.id.disabledToggleButton);
+            disabledToggleButton.setOnCheckedChangeListener(new ToggleButtonOnCheckedChangeListener(sourceTextView));
             SourcesOpenHelper dbHelper = new SourcesOpenHelper(context);
-            String source = sources.get(position);
+            String source = getItem(position);
             // Check if the source is disabled and change its appearance as appropriate
             if (!dbHelper.isEnabled(source)) {
                 sourceTextView.setTextColor(getResources().getColor(R.color.DisabledTextColor));
+                isAutomaticChange = true;
                 disabledToggleButton.setChecked(false);
+                isAutomaticChange = false;
+            }
+            else {
+                sourceTextView.setTextColor(getResources().getColor(R.color.AppPrimaryTextColor));
+                isAutomaticChange = true;
+                disabledToggleButton.setChecked(true);
+                isAutomaticChange = false;
             }
             sourceTextView.setText(source);
             positionTextView.setText(Integer.toString(position + 1)); // Add 1 for One-based indexing
-            disabledToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged (CompoundButton compoundButton, boolean b) {
-                    if (b) {
-                        sourceTextView.setTextColor(getResources().getColor(R.color.AppPrimaryTextColor));
-                    }
-                    else {
-                        sourceTextView.setTextColor(getResources().getColor(R.color.DisabledTextColor));
-                    }
-                    SourcesOpenHelper dbHelper = new SourcesOpenHelper(context);
-                    dbHelper.setEnabled(sourceTextView.getText().toString(), b);
-                }
-            });
             return convertView;
+        }
+    }
+
+    public class ToggleButtonOnCheckedChangeListener implements CompoundButton.OnCheckedChangeListener {
+        private TextView sourceTextView;
+        public ToggleButtonOnCheckedChangeListener(TextView sourceTextView) {
+            this.sourceTextView = sourceTextView;
+        }
+        @Override
+        public void onCheckedChanged (CompoundButton compoundButton, boolean b) {
+            if (b) {
+                sourceTextView.setTextColor(getResources().getColor(R.color.AppPrimaryTextColor));
+            }
+            else {
+                sourceTextView.setTextColor(getResources().getColor(R.color.DisabledTextColor));
+            }
+            if (!isAutomaticChange) {
+                SourcesOpenHelper dbHelper = new SourcesOpenHelper(context);
+                dbHelper.setEnabled(sourceTextView.getText().toString(), b);
+            }
         }
     }
 
@@ -194,25 +214,37 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     protected void onActivityResult (int requestCode, int resultCode, Intent data) {
         if (requestCode == TAG_IMPORT_FILE_RESULT_CODE) {
             if (resultCode == RESULT_OK) {
-                String filePath = data.getData().getPath();
+                Uri uri = data.getData();
+                String filePath = uri.getPath();
                 Log.e("Import", "File chosen: " + filePath);
-                File file = new File(filePath);
                 try {
-                    BufferedReader reader = new BufferedReader(new FileReader(file));
+                    BufferedReader reader;
+                    if (uri.getScheme().equals("content")) {
+                        InputStream inputStream = getContentResolver().openInputStream(uri);
+                        reader = new BufferedReader(new InputStreamReader(inputStream));
+                    }
+                    else {
+                        File file = new File(filePath);
+                        reader = new BufferedReader(new FileReader(file));
+                    }
                     String line = reader.readLine();
                     if (line != null && line.equals("tan.chesley.rssfeedreader.export")) {
                         SourcesOpenHelper dbHelper = new SourcesOpenHelper(this);
-                        dbHelper.clearAllSources();
                         while ((line = reader.readLine()) != null) {
                             dbHelper.addSource(line, 1);
                         }
-                        showToast(getResources().getString(R.string.successfulImportFromFile) + file.getAbsolutePath(), Toast.LENGTH_LONG);
+                        showToast(getResources().getString(R.string.successfulImportFromFile) + filePath, Toast.LENGTH_LONG);
                         // Reload ListView items
                         showListView(true);
                     }
                     else {
+                        Log.e("File format not recognized: ", line);
+                        while ((line = reader.readLine()) != null) {
+                            Log.e("File format not recognized: ", line);
+                        }
                         showToast(getResources().getString(R.string.invalidFileFormat), Toast.LENGTH_LONG);
                     }
+                    reader.close();
                     // TODO validate sources that are imported
                 } catch (IOException e) {
                     showToast(getResources().getString(R.string.errorOccurredDuringRead), Toast.LENGTH_LONG);

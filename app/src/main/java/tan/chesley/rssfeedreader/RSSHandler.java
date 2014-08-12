@@ -41,6 +41,7 @@ public class RSSHandler extends DefaultHandler {
 	boolean reading = false;
 	String sourceTitle = null;
 	String sourceURL = null;
+    String linkPart = "";
 	boolean badInput = false;
 
 	public RSSHandler(GetRssFeedTask task, int numSources, Context context) {
@@ -65,6 +66,7 @@ public class RSSHandler extends DefaultHandler {
 		reading = false;
 		sourceTitle = null;
 		sourceURL = null;
+        linkPart = "";
 		badInput = false;
 	}
 
@@ -160,6 +162,7 @@ public class RSSHandler extends DefaultHandler {
 		if (localName.equalsIgnoreCase("item")) {
 			if (rdBundle != null && !badInput) {
                 articleCount++;
+                rdBundle.setLink(linkPart);
 				rdBundle.setSourceTitle(sourceTitle);
 				rdBundle.setSource(sourceURL);
 				MyMap datum = new MyMap();
@@ -168,6 +171,8 @@ public class RSSHandler extends DefaultHandler {
 			}
 			// Reset rdBundle to store next item's data
 			rdBundle = null;
+            // Reset variable to store link
+            linkPart = "";
 			// Reset the bad input flag
 			badInput = false;
 			// Stop reading until we get to the next item tag
@@ -212,9 +217,7 @@ public class RSSHandler extends DefaultHandler {
 			}
 		} else if (state == stateLink) {
 			initializeRdBundleIfNeeded();
-			if (rdBundle.getLink().equals("")) {
-				rdBundle.setLink(makeString(ch, start, length));
-			}
+            linkPart += makeString(ch, start, length);
 			// Log.e("New Link", rdBundle.getLink());
 		} else if (state == stateSourceTitle) {
 			sourceTitle = makeString(ch, start, length);
