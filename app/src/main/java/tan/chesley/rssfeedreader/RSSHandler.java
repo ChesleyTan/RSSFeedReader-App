@@ -41,6 +41,7 @@ public class RSSHandler extends DefaultHandler {
 	boolean reading = false;
 	String sourceTitle = null;
 	String sourceURL = null;
+    String articleTitlePart = "";
     String linkPart = "";
 	boolean badInput = false;
 
@@ -66,6 +67,7 @@ public class RSSHandler extends DefaultHandler {
 		reading = false;
 		sourceTitle = null;
 		sourceURL = null;
+        articleTitlePart = "";
         linkPart = "";
 		badInput = false;
 	}
@@ -162,7 +164,10 @@ public class RSSHandler extends DefaultHandler {
 		if (localName.equalsIgnoreCase("item")) {
 			if (rdBundle != null && !badInput) {
                 articleCount++;
+                rdBundle.setTitle(articleTitlePart);
+                // Log.e("New Headline", rdBundle.getTitle());
                 rdBundle.setLink(linkPart);
+                // Log.e("New Link", rdBundle.getLink());
 				rdBundle.setSourceTitle(sourceTitle);
 				rdBundle.setSource(sourceURL);
 				MyMap datum = new MyMap();
@@ -171,6 +176,8 @@ public class RSSHandler extends DefaultHandler {
 			}
 			// Reset rdBundle to store next item's data
 			rdBundle = null;
+            // Reset variable to store article title
+            articleTitlePart = "";
             // Reset variable to store link
             linkPart = "";
 			// Reset the bad input flag
@@ -198,10 +205,7 @@ public class RSSHandler extends DefaultHandler {
 		}
 		if (state == stateTitle) {
 			initializeRdBundleIfNeeded();
-			if (rdBundle.getTitle().equals("")) {
-				rdBundle.setTitle(makeString(ch, start, length));
-				// Log.e("New Headline", rdBundle.getTitle());
-			}
+            articleTitlePart += makeString(ch, start, length);
 		} else if (state == stateDescription) {
 			initializeRdBundleIfNeeded();
 			if (rdBundle.getDescription().equals("")) {
@@ -218,7 +222,6 @@ public class RSSHandler extends DefaultHandler {
 		} else if (state == stateLink) {
 			initializeRdBundleIfNeeded();
             linkPart += makeString(ch, start, length);
-			// Log.e("New Link", rdBundle.getLink());
 		} else if (state == stateSourceTitle) {
 			sourceTitle = makeString(ch, start, length);
 			// Log.e("New Source Title", sourceTitle);
