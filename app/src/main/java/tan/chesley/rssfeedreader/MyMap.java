@@ -43,7 +43,7 @@ public class MyMap extends HashMap<String, RSSDataBundle> implements Parcelable 
 		int size = in.readInt();
 		for (int i = 0; i < size; i++) {
 			String key = in.readString();
-			RSSDataBundle value = new RSSDataBundle();
+			RSSDataBundle value = new RSSDataBundle("");
 			value.restoreParcel(in);
 			put(key, value);
 		}

@@ -29,6 +29,11 @@
     <PreferenceCategory
         android:title="@string/article_settings">
         <CheckBoxPreference
+            android:key="pref_useFullDescriptionCheckBox"
+            android:title="@string/pref_useFullDescriptionCheckBox_title"
+            android:summary="@string/pref_useFullDescriptionCheckBox_summary">
+        </CheckBoxPreference>
+        <CheckBoxPreference
             android:key="pref_articleAgeLimitCheckBox"
             android:title="@string/pref_articleAgeLimitCheckBox_title">
         </CheckBoxPreference>

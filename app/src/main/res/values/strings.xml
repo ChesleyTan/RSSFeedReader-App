@@ -37,4 +37,6 @@
     <string name="article_settings">Article settings</string>
     <string name="disabled">Disabled</string>
     <string name="enabled">Enabled</string>
+    <string name="pref_useFullDescriptionCheckBox_title">Get full description</string>
+    <string name="pref_useFullDescriptionCheckBox_summary">Try to get full description for the article</string>
 </resources>

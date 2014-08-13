@@ -17,10 +17,15 @@ public class RSSDataBundle implements Parcelable{
     public static final String NUMBERS = "0123456789";
 	private String title, description, link, source, sourceTitle; // Required descriptors
 	private String pubDate; // Optional descriptors
-	private final String stringUUID;
+	private String stringUUID;
 
-	public RSSDataBundle() {
-		stringUUID = UUID.randomUUID().toString();
+	public RSSDataBundle(String stringUUID) {
+        if (stringUUID == null) {
+            this.stringUUID = UUID.randomUUID().toString();
+        }
+        else {
+            this.stringUUID = stringUUID;
+        }
 		title = description = link = source = sourceTitle = pubDate = "";
 	}
 	
@@ -180,6 +185,7 @@ public class RSSDataBundle implements Parcelable{
 		source = parcel.readString();
 		sourceTitle = parcel.readString();
 		pubDate = parcel.readString();
+        stringUUID = parcel.readString();
 		/*
 		Log.e("RSSDataBundle", "Read Title: " + title);
 		Log.e("RSSDataBundle", "Read Desc: " + description);
@@ -191,12 +197,12 @@ public class RSSDataBundle implements Parcelable{
 	}
 	
 	public int getParceledLength() {
-		return 6; // the total number of descriptors that are packaged in the parcel
+		return 7; // the total number of descriptors that are packaged in the parcel
 	}
 
 	public static final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {
 		public RSSDataBundle createFromParcel(Parcel in) {
-			RSSDataBundle newRdBundle = new RSSDataBundle();
+			RSSDataBundle newRdBundle = new RSSDataBundle("");
 			newRdBundle.restoreParcel(in);
 			return newRdBundle;
 		}
@@ -227,5 +233,6 @@ public class RSSDataBundle implements Parcelable{
 		arg0.writeString(source);
 		arg0.writeString(sourceTitle);
 		arg0.writeString(pubDate);
+        arg0.writeString(stringUUID);
 	}
 }
