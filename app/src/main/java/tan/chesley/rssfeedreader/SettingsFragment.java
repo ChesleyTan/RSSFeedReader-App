@@ -16,6 +16,7 @@ public class SettingsFragment extends PreferenceFragment {
     private NumberPickerDialogPreference maxArticleNumberPickerDialogPreference;
     private CheckBoxPreference articleAgeLimitCheckBoxPreference;
     private NumberPickerDialogPreference articleAgeLimitNumberPickerDialogPreference;
+    private NumberPickerDialogPreference syncTimeoutNumberPickerDialogPreference;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,8 @@ public class SettingsFragment extends PreferenceFragment {
         if (articleAgeLimitCheckBoxPreference.isChecked()) {
             articleAgeLimitNumberPickerDialogPreference.setSummary(Integer.toString(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, getResources().getInteger(R.integer.article_age_limit_default))));
         }
+        syncTimeoutNumberPickerDialogPreference = (NumberPickerDialogPreference) findPreference("pref_id_syncTimeoutNumberPickerDialog");
+        syncTimeoutNumberPickerDialogPreference.setSummary(Integer.toString(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT, getResources().getInteger(R.integer.sync_timeout_default))));
 	}
 	
 }

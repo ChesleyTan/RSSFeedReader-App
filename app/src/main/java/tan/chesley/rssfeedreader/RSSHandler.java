@@ -32,6 +32,7 @@ public class RSSHandler extends DefaultHandler {
     final boolean enforceArticleAgeLimit;
     final boolean useFullDescription;
     final int maxDescriptionParts;
+    final int maxSanitizationIterations;
     final String[] timezones = TimeZone.getAvailableIDs();
 
     int articleAgeLimit; // age limit for the article in milliseconds from epoch
@@ -47,11 +48,12 @@ public class RSSHandler extends DefaultHandler {
     String articleTitlePart = "";
     String articleDescriptionPart = "";
     int numDescriptionParts = 0;
+    int numSanitizationIterations = 0;
     boolean gotDescription = false;
     String linkPart = "";
     boolean badInput = false;
 
-    public RSSHandler (GetRssFeedTask task, int numSources, Context context) {
+    public RSSHandler (GetRssFeedTask task, int numSources, long syncTimeout, Context context) {
         parent = task;
         noDescriptionAvailableString = context.getResources().getString(
             R.string.noDescriptionAvailable);
@@ -62,14 +64,16 @@ public class RSSHandler extends DefaultHandler {
         useFullDescription = prefs.getBoolean("pref_useFullDescriptionCheckBox", false);
         if (useFullDescription) {
             maxDescriptionParts = 500;
+            maxSanitizationIterations = 100;
         }
         else {
-            maxDescriptionParts = 50;
+            maxDescriptionParts = 25;
+            maxSanitizationIterations = 20;
         }
         if (enforceArticleAgeLimit) {
             articleAgeLimit = MILLISECONDS_IN_A_DAY * prefs.getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, context.getResources().getInteger(R.integer.article_age_limit_default));
         }
-        timeout = TaskFragment.SYNC_TIMEOUT / numSources;
+        timeout = syncTimeout / numSources;
     }
 
     public void reset () {
@@ -83,6 +87,7 @@ public class RSSHandler extends DefaultHandler {
         articleTitlePart = "";
         articleDescriptionPart = "";
         numDescriptionParts = 0;
+        numSanitizationIterations = 0;
         gotDescription = false;
         linkPart = "";
         badInput = false;
@@ -127,16 +132,6 @@ public class RSSHandler extends DefaultHandler {
                   "Individual source feed syncing timeout reached.");
             throw new SAXException();
         }
-        // Check if we need to get the source title
-        if (!reading && qName.equalsIgnoreCase("title")
-            && sourceTitle == null) {
-            state = stateSourceTitle;
-        }
-
-        // Skip to first article
-        if (!reading && qName.equalsIgnoreCase("item")) {
-            reading = true;
-        }
 
         // Parse tag and save data
         if (reading && !badInput) {
@@ -165,6 +160,18 @@ public class RSSHandler extends DefaultHandler {
                 throw new SAXException();
             }
         }
+
+        if (!reading) {
+            // Check if we need to get the source title
+            if (sourceTitle == null && qName.equalsIgnoreCase("title")) {
+                state = stateSourceTitle;
+            }
+            // Skip to first article
+            else if (!reading && qName.equalsIgnoreCase("item")) {
+                articleCount++;
+                reading = true;
+            }
+        }
     }
 
     @Override
@@ -184,7 +191,6 @@ public class RSSHandler extends DefaultHandler {
         }
         if (qName.equalsIgnoreCase("item")) {
             if (rdBundle != null && !badInput) {
-                articleCount++;
                 rdBundle.setTitle(articleTitlePart);
                 // Log.e("New Headline", rdBundle.getTitle());
                 if (!gotDescription) {
@@ -207,6 +213,7 @@ public class RSSHandler extends DefaultHandler {
             // Reset variables to store article description
             articleDescriptionPart = "";
             numDescriptionParts = 0;
+            numSanitizationIterations = 0;
             gotDescription = false;
             // Reset variable to store link
             linkPart = "";
@@ -238,9 +245,9 @@ public class RSSHandler extends DefaultHandler {
             articleTitlePart += makeString(ch, start, length, true);
         }
         else if (state == stateDescription && !gotDescription) {
-            initializeRdBundleIfNeeded();
             if (numDescriptionParts > maxDescriptionParts) {
-                //Log.e("RSSHandler", "Max number of description parts reached. Using default description.");
+                initializeRdBundleIfNeeded();
+                Log.e("RSSHandler", "Max number of description parts reached. Using default description.");
                 rdBundle.setDescription(noDescriptionAvailableString);
                 gotDescription = true;
             }
@@ -250,7 +257,6 @@ public class RSSHandler extends DefaultHandler {
             }
         }
         else if (state == stateLink) {
-            initializeRdBundleIfNeeded();
             linkPart += makeString(ch, start, length, true);
         }
         else if (state == stateSourceTitle) {
@@ -352,19 +358,42 @@ public class RSSHandler extends DefaultHandler {
 
     public void clearTagsAndSetDescription (String s) {
         int startIndex, endIndex;
-        while ((startIndex = s.indexOf("<")) > -1 && (endIndex = s.indexOf(">")) > -1 && startIndex < endIndex) {
+        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("<")) > -1 && (endIndex = s.indexOf(">")) > -1 && startIndex < endIndex) {
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
+            numSanitizationIterations++;
         }
-        s = s.replace("&quot;", "\"")
-             .replace("&amp;", "&")
-             .replace("&apos;", "'")
-             .replace("&lt;", "<")
-             .replace("&gt;", ">");
-        while ((startIndex = s.indexOf("&")) > -1 && (endIndex = s.indexOf(";")) > -1 && startIndex < endIndex) {
+        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&quot;")) > -1) {
+            s = s.substring(0, startIndex) + "\"" + s.substring(startIndex + 1);
+            numSanitizationIterations++;
+        }
+        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&amp;")) > -1) {
+            s = s.substring(0, startIndex) + "&" + s.substring(startIndex + 1);
+            numSanitizationIterations++;
+        }
+        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&apos;")) > -1) {
+            s = s.substring(0, startIndex) + "'" + s.substring(startIndex + 1);
+            numSanitizationIterations++;
+        }
+        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&lt;")) > -1) {
+            s = s.substring(0, startIndex) + "<" + s.substring(startIndex + 1);
+            numSanitizationIterations++;
+        }
+        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&gt;")) > -1) {
+            s = s.substring(0, startIndex) + ">" + s.substring(startIndex + 1);
+            numSanitizationIterations++;
+        }
+        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&")) > -1 && (endIndex = s.indexOf(";")) > -1 && startIndex < endIndex) {
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
+            numSanitizationIterations++;
         }
-        s = s.trim().replaceAll("\\s+", " ");
-        rdBundle.setDescription(s);
+        if (numSanitizationIterations < maxSanitizationIterations) {
+            s = s.trim().replaceAll("\\s+", " ");
+            rdBundle.setDescription(s);
+        }
+        else {
+            Log.e("RSSHandler", "Max number of sanitization iterations reached. Using default description.");
+            rdBundle.setDescription(noDescriptionAvailableString);
+        }
         gotDescription = true;
     }
 

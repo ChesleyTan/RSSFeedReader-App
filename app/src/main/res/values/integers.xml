@@ -6,4 +6,7 @@
     <integer name="article_age_limit_minimum">1</integer>
     <integer name="article_age_limit_default">5</integer>
     <integer name="article_age_limit_maximum">365</integer>
+    <integer name="sync_timeout_minimum">1</integer>
+    <integer name="sync_timeout_default">5</integer>
+    <integer name="sync_timeout_maximum">10</integer>
 </resources>

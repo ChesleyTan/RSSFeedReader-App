@@ -41,6 +41,7 @@ public class HeadlinesFragment extends ListFragment implements
     private HeadlinesAdapter adapter;
     private TaskFragment mTaskFragment;
     private boolean syncing = false;
+    private boolean resumingFromArticleViewActivity = false;
     private ProgressBar syncProgressBar;
     private LinearLayout syncProgressBarContainer;
 
@@ -69,11 +70,17 @@ public class HeadlinesFragment extends ListFragment implements
         if (savedInstanceState != null) {
             syncing = savedInstanceState.getBoolean(SYNCING);
         }
-        if (savedInstanceState == null && data != null) {
-            // Log.e("HeadlinesFragment", "Restoring view.");
+        //Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
+    }
+
+    @Override
+    public void onResume () {
+        super.onResume();
+        if (!resumingFromArticleViewActivity && data != null) {
             updateFeedView();
         }
-        // Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
+        resumingFromArticleViewActivity = false;
+        //Log.e("HeadlinesFragment", "Instance: Calling onResume method.");
     }
 
     @Override
@@ -222,6 +229,7 @@ public class HeadlinesFragment extends ListFragment implements
     public void onActivityResult (int requestCode, int resultCode, Intent data) {
         // Receive current article index from ArticleView activity
         if (requestCode == ARTICLE_VIEW_INTENT) {
+            resumingFromArticleViewActivity = true;
             Assert.assertNotNull(data);
             getListView().setSelection(
                 data.getIntExtra(ArticleView.ARTICLE_SELECTED_KEY, 0));

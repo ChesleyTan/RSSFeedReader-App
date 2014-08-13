@@ -18,13 +18,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Fragment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 // Credits to Alex Lockwood for original model of a task fragment
 public class TaskFragment extends Fragment {
 
-	public static final long SYNC_TIMEOUT = 5000; // Timeout in milliseconds for syncing
+	public long SYNC_TIMEOUT; // Timeout in milliseconds for syncing
 	public static final String TASK_COMPLETE = "tan.chesley.rssfeedreader.taskcomplete";
 
 	public static interface TaskCallbacks {
@@ -44,7 +45,7 @@ public class TaskFragment extends Fragment {
 	private InputStream feedStream;
 	private boolean aborted = false;
 	private boolean taskCompleted = false;
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -57,7 +58,8 @@ public class TaskFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);
-		if (savedInstanceState != null) {
+        SYNC_TIMEOUT = 1000 * PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT, getResources().getInteger(R.integer.sync_timeout_default));
+        if (savedInstanceState != null) {
 			taskCompleted = savedInstanceState.getBoolean(TASK_COMPLETE);
 		}
 		else {
@@ -135,7 +137,7 @@ public class TaskFragment extends Fragment {
 						.newInstance();
 				SAXParser mySAXParser = mySAXParserFactory.newSAXParser();
 				XMLReader myXMLReader = mySAXParser.getXMLReader();
-				myRSSHandler = new RSSHandler(this, FEEDS.length, getActivity());
+				myRSSHandler = new RSSHandler(this, FEEDS.length, SYNC_TIMEOUT, getActivity());
 				myXMLReader.setContentHandler(myRSSHandler);
 				InputSource myInputSource;
 				URL url;
