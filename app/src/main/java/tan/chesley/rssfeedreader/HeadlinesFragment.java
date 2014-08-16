@@ -50,6 +50,7 @@ public class HeadlinesFragment extends ListFragment implements
     private boolean resumingFromArticleViewActivity = false;
     private ProgressBar syncProgressBar;
     private LinearLayout syncProgressBarContainer;
+    private Toast toast;
 
     public HeadlinesFragment () {
         singleton = this;
@@ -114,7 +115,7 @@ public class HeadlinesFragment extends ListFragment implements
                 for (RSSDataBundle rdBundle : tmp) {
                     data.add(rdBundle);
                 }
-                //Log.e("Instance", "Restored Instance State.");
+                // Log.e("Instance", "Restored Instance State.");
                 updateFeedView();
             }
         }
@@ -278,7 +279,10 @@ public class HeadlinesFragment extends ListFragment implements
     }
 
     public void showToast (String s, int toastDurationFlag) {
-        Toast toast = Toast.makeText(getActivity(), s,
+        if (toast != null) {
+            toast.cancel();
+        }
+        toast = Toast.makeText(getActivity(), s,
                                      toastDurationFlag);
         TextView toastTextView = (TextView) toast.getView().findViewById(
             android.R.id.message);

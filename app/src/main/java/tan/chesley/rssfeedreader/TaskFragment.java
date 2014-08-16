@@ -212,7 +212,7 @@ public class TaskFragment extends Fragment {
 			super.onProgressUpdate(values);
 			if (System.currentTimeMillis() - startTime > longRequestTime) {
 				if (!isCancelled()) {
-					if (mCallbacks != null) {
+					if (mCallbacks != null && !taskCompleted) {
 						mCallbacks.onProgressUpdate();
 					}
 				}

@@ -206,7 +206,7 @@ public class RSSHandler extends DefaultHandler {
                 if (!gotDescription) {
                     clearTagsAndSetDescription(articleDescriptionPart);
                 }
-                Log.e("Number of description parts", Integer.toString(numDescriptionParts));
+                // Log.e("Number of description parts", Integer.toString(numDescriptionParts));
                 // Log.e("New Description", rdBundle.getDescription());
                 rdBundle.setLink(linkPart);
                 // Log.e("New Link", rdBundle.getLink());
@@ -253,7 +253,7 @@ public class RSSHandler extends DefaultHandler {
         else if (state == stateDescription && !gotDescription) {
             if (numDescriptionParts > maxDescriptionParts) {
                 initializeRdBundleIfNeeded();
-                Log.e("RSSHandler", "Max number of description parts reached. Using default description.");
+                // Log.e("RSSHandler", "Max number of description parts reached. Using default description.");
                 rdBundle.setDescription(noDescriptionAvailableString);
                 gotDescription = true;
             }
@@ -407,7 +407,7 @@ public class RSSHandler extends DefaultHandler {
             rdBundle.setDescription(s);
         }
         else {
-            Log.e("RSSHandler", "Max number of sanitization iterations reached. Using default description.");
+            // Log.e("RSSHandler", "Max number of sanitization iterations reached. Using default description.");
             rdBundle.setDescription(noDescriptionAvailableString);
         }
         gotDescription = true;

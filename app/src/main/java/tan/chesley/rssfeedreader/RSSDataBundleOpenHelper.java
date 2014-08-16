@@ -2,6 +2,7 @@ package tan.chesley.rssfeedreader;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
@@ -81,8 +82,9 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     public void addBundle(RSSDataBundle rdBundle) {
         SQLiteDatabase db = getWritableDatabase();
         if (isUnique(db, rdBundle.getTitle())) {
-            db.execSQL(String.format("INSERT INTO %s VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s);",
-                                     RSS_DATA_TABLE_NAME, rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate(), rdBundle.getAge()));
+            db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s);",
+                                     RSS_DATA_TABLE_NAME, rdBundle.getAge()),
+                       new String[] {rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate()});
         }
         else {
             Log.e("RSSDataBundleOpenHelper", "Duplicate entry found. Skipping.");
@@ -94,8 +96,9 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         for (RSSDataBundle rdBundle : rdBundles) {
             if (isUnique(db, rdBundle.getTitle())) {
-                db.execSQL(String.format("INSERT INTO %s VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s);",
-                                         RSS_DATA_TABLE_NAME, rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate(), rdBundle.getAge()));
+                db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s);",
+                                         RSS_DATA_TABLE_NAME, rdBundle.getAge()),
+                           new String[] {rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate()});
             }
             else {
                 Log.e("RSSDataBundleOpenHelper", "Duplicate entry found. Skipping.");
@@ -104,8 +107,17 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     }
 
     public boolean isUnique(SQLiteDatabase db, String title) {
-        Cursor cursor = db.rawQuery(String.format("SELECT %s FROM %s WHERE %s = \"%s\"", KEY_TITLE, RSS_DATA_TABLE_NAME, KEY_TITLE, title), null);
-        boolean retBool = cursor.getCount() < 1;
+        boolean retBool = true;
+        title = title.replace("\\s", "");
+        Cursor cursor = db.rawQuery(String.format("SELECT %s FROM %s", KEY_TITLE, RSS_DATA_TABLE_NAME), null);
+        cursor.moveToFirst();
+        int index = 0;
+        while (!cursor.isAfterLast()) {
+            if (title.equals(cursor.getString(0).replace("\\s", ""))) {
+                retBool = false;
+            }
+            cursor.moveToNext();
+        }
         cursor.close();
         return retBool;
     }
