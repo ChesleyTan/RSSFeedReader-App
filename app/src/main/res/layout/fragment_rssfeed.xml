@@ -17,7 +17,9 @@
         android:scrollbarFadeDuration="700"
         android:scrollbarDefaultDelayBeforeFade="0"
         android:fadeScrollbars="true"
-        android:scrollbarThumbVertical="@drawable/scrollbar" >
+        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:fastScrollEnabled="true"
+        android:fastScrollAlwaysVisible="false">
     </ListView>
 
     <LinearLayout
