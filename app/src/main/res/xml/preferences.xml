@@ -17,28 +17,6 @@
             android:entryValues="@array/pref_feedDateFormat_values"
             android:key="pref_feedDateFormat_type"
             android:title="@string/pref_feedDateFormat_title"/>
-
-        <!-- android:key is used purely for identifying this Preference object;
-     Setting is not actually stored at this key -->
-        <tan.chesley.rssfeedreader.MaxArticlesNumberPickerDialog
-            android:key="pref_id_maxArticleNumberPickerDialog"
-            android:title="@string/pref_articleNumberPicker_title">
-        </tan.chesley.rssfeedreader.MaxArticlesNumberPickerDialog>
-
-        <tan.chesley.rssfeedreader.SyncTimeoutNumberPickerDialog
-            android:key="pref_id_syncTimeoutNumberPickerDialog"
-            android:title="@string/pref_syncTimeoutNumberPicker_title">
-        </tan.chesley.rssfeedreader.SyncTimeoutNumberPickerDialog>
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/syncing_settings">
-        <CheckBoxPreference
-            android:key="pref_useFullDescriptionCheckBox"
-            android:title="@string/pref_useFullDescriptionCheckBox_title"
-            android:defaultValue="false"
-            android:summary="@string/pref_useFullDescriptionCheckBox_summary">
-        </CheckBoxPreference>
         <CheckBoxPreference
             android:key="pref_articleAgeLimitCheckBox"
             android:title="@string/pref_articleAgeLimitCheckBox_title"
@@ -52,6 +30,29 @@
             android:key="pref_id_articleAgeLimitNumberPickerDialog"
             android:title="@string/pref_articleAgeLimit_title">
         </tan.chesley.rssfeedreader.ArticleAgeLimitNumberPickerDialog>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/syncing_settings">
+        <CheckBoxPreference
+            android:key="pref_useFullDescriptionCheckBox"
+            android:title="@string/pref_useFullDescriptionCheckBox_title"
+            android:defaultValue="false"
+            android:summary="@string/pref_useFullDescriptionCheckBox_summary">
+        </CheckBoxPreference>
+
+        <!-- android:key is used purely for identifying this Preference object;
+Setting is not actually stored at this key -->
+        <tan.chesley.rssfeedreader.MaxArticlesNumberPickerDialog
+            android:key="pref_id_maxArticleNumberPickerDialog"
+            android:title="@string/pref_articleNumberPicker_title">
+        </tan.chesley.rssfeedreader.MaxArticlesNumberPickerDialog>
+
+        <tan.chesley.rssfeedreader.SyncTimeoutNumberPickerDialog
+            android:key="pref_id_syncTimeoutNumberPickerDialog"
+            android:title="@string/pref_syncTimeoutNumberPicker_title">
+        </tan.chesley.rssfeedreader.SyncTimeoutNumberPickerDialog>
 
         <Preference android:title="@string/pref_modify_sources">
             <intent android:action="tan.chesley.rssfeedreader.ModifySources"/>
