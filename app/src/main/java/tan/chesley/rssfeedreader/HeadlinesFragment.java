@@ -257,9 +257,14 @@ public class HeadlinesFragment extends ListFragment implements
         return data;
     }
 
-    public void setRssData (final ArrayList<MyMap> in) {
+    public void setRssData (final ArrayList<MyMap> in, boolean appendToExistingData) {
         // Called by TaskFragment to update the RSS data fetched by RSSHandler
-        data.addAll(in);
+        if (appendToExistingData) {
+            data.addAll(in);
+        }
+        else {
+            data = in;
+        }
         Runnable databaseData = new Runnable() {
             @Override
             public void run () {

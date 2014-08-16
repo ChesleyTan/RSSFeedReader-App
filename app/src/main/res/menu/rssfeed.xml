@@ -16,4 +16,10 @@
         android:title="@string/action_settings"
         android:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/action_clear"
+        android:title="@string/clearArticles"
+        android:showAsAction="never"
+        />
+
 </menu>

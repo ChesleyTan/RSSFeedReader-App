@@ -228,7 +228,7 @@ public class TaskFragment extends Fragment {
 				Log.e("TaskFragment", "Data delivery failed... mCallbacks was null!");
 				return;
 			}
-			((HeadlinesFragment) mCallbacks).setRssData(myRSSHandler.getData());
+			((HeadlinesFragment) mCallbacks).setRssData(myRSSHandler.getData(), true);
 			taskCompleted = true;
 		}
 	}

@@ -40,4 +40,5 @@
     <string name="pref_useFullDescriptionCheckBox_title">Get full description</string>
     <string name="pref_useFullDescriptionCheckBox_summary">Try to get full description for the article</string>
     <string name="pref_syncTimeoutNumberPicker_title">Syncing timeout (seconds): </string>
+    <string name="clearArticles">Clear articles</string>
 </resources>

@@ -10,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
+
 public class RSSFeed extends Activity {
 
 	public RSSFeed() {
@@ -67,6 +69,15 @@ public class RSSFeed extends Activity {
 			}
 			return true;
 		}
+        else if (id == R.id.action_clear) {
+            if (HeadlinesFragment.getInstance() != null) {
+                RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getApplicationContext());
+                dbHelper.clearAllData();
+                HeadlinesFragment.getInstance().setRssData(new ArrayList<MyMap>(), false);
+                HeadlinesFragment.getInstance().updateFeedView();
+            }
+            return true;
+        }
 		return super.onOptionsItemSelected(item);
 	}
 
