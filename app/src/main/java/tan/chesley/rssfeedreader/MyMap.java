@@ -55,4 +55,10 @@ public class MyMap extends HashMap<String, RSSDataBundle> implements Parcelable 
 		return map;
 	}
 
+    public static MyMap createFromRSSDataBundle(RSSDataBundle rdBundle) {
+        MyMap map = new MyMap();
+        map.put(rdBundle.getTitle(), rdBundle);
+        return map;
+    }
+
 }

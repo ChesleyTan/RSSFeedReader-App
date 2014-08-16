@@ -12,6 +12,7 @@ import tan.chesley.rssfeedreader.TaskFragment.GetRssFeedTask;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.audiofx.BassBoost;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -34,6 +35,7 @@ public class RSSHandler extends DefaultHandler {
     final int maxDescriptionParts;
     final int maxSanitizationIterations;
     final String[] timezones = TimeZone.getAvailableIDs();
+    final RSSDataBundleOpenHelper dbHelper;
 
     int articleAgeLimit; // age limit for the article in milliseconds from epoch
     ArrayList<MyMap> data = new ArrayList<MyMap>();
@@ -55,6 +57,7 @@ public class RSSHandler extends DefaultHandler {
 
     public RSSHandler (GetRssFeedTask task, int numSources, long syncTimeout, Context context) {
         parent = task;
+        dbHelper = new RSSDataBundleOpenHelper(context);
         noDescriptionAvailableString = context.getResources().getString(
             R.string.noDescriptionAvailable);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -132,11 +135,10 @@ public class RSSHandler extends DefaultHandler {
                   "Individual source feed syncing timeout reached.");
             throw new SAXException();
         }
-
+        state = stateUnknown;
         // Parse tag and save data
         if (reading && !badInput) {
-            if (articleCount < maxArticleCount
-                && state == stateUnknown) {
+            if (articleCount < maxArticleCount) {
                 if (qName.equalsIgnoreCase("title")) {
                     state = stateTitle;
                 }
@@ -189,6 +191,12 @@ public class RSSHandler extends DefaultHandler {
                   "Individual source feed syncing timeout reached.");
             throw new SAXException();
         }
+        if (state == stateTitle) {
+            if (!dbHelper.isUnique(dbHelper.getReadableDatabase(), articleTitlePart)) {
+                badInput = true;
+                Log.e("RSSHandler", "Article already databased. Skipping.");
+            }
+        }
         if (qName.equalsIgnoreCase("item")) {
             if (rdBundle != null && !badInput) {
                 rdBundle.setTitle(articleTitlePart);
@@ -222,7 +230,6 @@ public class RSSHandler extends DefaultHandler {
             // Stop reading until we get to the next item tag
             reading = false;
         }
-        state = stateUnknown;
     }
 
     @Override
@@ -241,7 +248,6 @@ public class RSSHandler extends DefaultHandler {
             throw new SAXException();
         }
         if (state == stateTitle) {
-            initializeRdBundleIfNeeded();
             articleTitlePart += makeString(ch, start, length, true);
         }
         else if (state == stateDescription && !gotDescription) {
@@ -264,6 +270,7 @@ public class RSSHandler extends DefaultHandler {
             // Log.e("New Source Title", sourceTitle);
         }
         else if (state == statePubDate) {
+            initializeRdBundleIfNeeded();
             String dateString = makeString(ch, start, length, true);
             String[] dateStringFields = dateString.split(" ");
             // TODO more robustly recognize bad input

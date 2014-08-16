@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -34,12 +35,14 @@ public class HeadlinesFragment extends ListFragment implements
     public static final String PARSED_FEED_DATA = "tan.chesley.rssfeedreader.parsedfeeddata";
     public static final String ARTICLE_ID = "tan.chesley.rssfeedreader.articleid";
     public static final String TASK_FRAGMENT = "tan.chesley.rssfeedreader.taskfragment";
+    public static final String RESTORED_DATA_FROM_DB = "tan.chesley.rssfeedreader.restoreddata";
     public static final String SYNCING = "tan.chesley.rssfeedreader.syncing";
     public static final int ARTICLE_VIEW_INTENT = 0;
     public static ArrayList<MyMap> data = new ArrayList<MyMap>();
     private static HeadlinesFragment singleton;
     private HeadlinesAdapter adapter;
     private TaskFragment mTaskFragment;
+    private boolean restoredDataFromDB = false;
     private boolean syncing = false;
     private boolean resumingFromArticleViewActivity = false;
     private ProgressBar syncProgressBar;
@@ -68,8 +71,10 @@ public class HeadlinesFragment extends ListFragment implements
         }
 
         if (savedInstanceState != null) {
+            restoredDataFromDB = savedInstanceState.getBoolean(RESTORED_DATA_FROM_DB);
             syncing = savedInstanceState.getBoolean(SYNCING);
         }
+
         //Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
     }
 
@@ -112,6 +117,14 @@ public class HeadlinesFragment extends ListFragment implements
                 updateFeedView();
             }
         }
+        if (!restoredDataFromDB && data.size() == 0) {
+            restoredDataFromDB = true;
+            for (RSSDataBundle rdBundle : new RSSDataBundleOpenHelper(getActivity()).getBundles()) {
+                data.add(MyMap.createFromRSSDataBundle(rdBundle));
+            }
+            updateFeedView();
+            Log.e("HeadlinesFragment", "Restored databased data.");
+        }
         return view;
     }
 
@@ -128,6 +141,7 @@ public class HeadlinesFragment extends ListFragment implements
         super.onSaveInstanceState(outState);
         // Log.e("HeadlinesFragment", "Saving instance state.");
         outState.putParcelableArrayList(PARSED_FEED_DATA, clone(data));
+        outState.putBoolean(RESTORED_DATA_FROM_DB, restoredDataFromDB);
         outState.putBoolean(SYNCING, syncing);
     }
 
@@ -240,9 +254,21 @@ public class HeadlinesFragment extends ListFragment implements
         return data;
     }
 
-    public void setRssData (ArrayList<MyMap> in) {
+    public void setRssData (final ArrayList<MyMap> in) {
         // Called by TaskFragment to update the RSS data fetched by RSSHandler
-        data = in;
+        data.addAll(in);
+        Runnable databaseData = new Runnable() {
+            @Override
+            public void run () {
+                RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getActivity());
+                for (MyMap map : in) {
+                    dbHelper.addBundle(map.values().iterator().next());
+                }
+            }
+        };
+        Thread databaseDataThread = new Thread(databaseData);
+        databaseDataThread.start();
+
     }
 
     public void showToast (String s, int toastDurationFlag) {
