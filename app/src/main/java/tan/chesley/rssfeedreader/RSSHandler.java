@@ -19,6 +19,7 @@ import android.util.Log;
 
 public class RSSHandler extends DefaultHandler {
 
+    static final int MILLISECONDS_IN_A_DAY = 86400000;
     final int stateUnknown = 0;
     final int stateTitle = 1;
     final int stateDescription = 2;
@@ -28,7 +29,6 @@ public class RSSHandler extends DefaultHandler {
     final long timeout; // timeout for parsing an individual feed
     final GetRssFeedTask parent;
     final String noDescriptionAvailableString;
-    final int MILLISECONDS_IN_A_DAY = 86400000;
     final int maxArticleCount;
     final boolean enforceArticleAgeLimit;
     final boolean useFullDescription;

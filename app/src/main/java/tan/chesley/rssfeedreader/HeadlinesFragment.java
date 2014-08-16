@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -28,6 +29,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class HeadlinesFragment extends ListFragment implements
                                                     TaskFragment.TaskCallbacks {
@@ -174,6 +176,7 @@ public class HeadlinesFragment extends ListFragment implements
         int sortType = Integer.parseInt(PreferenceManager
                                             .getDefaultSharedPreferences(getActivity()).getString(
                 "pref_feedSortBy_type", "0"));
+        filterOutdated(data);
         sortHeadlinesBy(sortType, data);
         updateListAdapter();
     }
@@ -280,6 +283,26 @@ public class HeadlinesFragment extends ListFragment implements
             R.color.AppPrimaryTextColor));
         toast.getView().getBackground().setAlpha(180);
         toast.show();
+    }
+
+    public ArrayList<MyMap> filterOutdated(ArrayList<MyMap> list) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean enforceAgeLimit = prefs.getBoolean("pref_articleAgeLimitCheckBox", false);
+        if (enforceAgeLimit) {
+            long articleAgeLimit = RSSHandler.MILLISECONDS_IN_A_DAY * prefs.getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, getResources().getInteger(R.integer.article_age_limit_default));
+            Iterator<MyMap> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                long now = System.currentTimeMillis();
+                long articlePubDate = iterator.next().values().iterator().next().getCalendar().getTimeInMillis();
+                if (now - articlePubDate > articleAgeLimit) {
+                    iterator.remove();
+                }
+                else if (articlePubDate > now) {
+                    iterator.remove();
+                }
+            }
+        }
+        return list;
     }
 
     public static ArrayList<MyMap> sortHeadlinesBy (final int sortCriteria,

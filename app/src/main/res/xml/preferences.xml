@@ -32,7 +32,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/article_settings">
+        android:title="@string/syncing_settings">
         <CheckBoxPreference
             android:key="pref_useFullDescriptionCheckBox"
             android:title="@string/pref_useFullDescriptionCheckBox_title"

@@ -34,7 +34,7 @@
     <string name="pref_articleAgeLimitCheckBox_title">Limit the age of articles</string>
     <string name="pref_articleAgeLimit_title">Article age limit (days): </string>
     <string name="feed_settings">Feed settings</string>
-    <string name="article_settings">Article settings</string>
+    <string name="syncing_settings">Syncing settings</string>
     <string name="disabled">Disabled</string>
     <string name="enabled">Enabled</string>
     <string name="pref_useFullDescriptionCheckBox_title">Get full description</string>
