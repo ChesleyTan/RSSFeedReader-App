@@ -18,6 +18,7 @@ public class RSSDataBundle implements Parcelable{
 	private String title, description, link, source, sourceTitle; // Required descriptors
 	private String pubDate; // Optional descriptors
 	private String stringUUID;
+    private long age;
 
 	public RSSDataBundle(String stringUUID) {
         if (stringUUID == null) {
@@ -75,6 +76,16 @@ public class RSSDataBundle implements Parcelable{
 		this.pubDate = pubDate;
 		return this;
 	}
+    public long getAge() {
+        if (age == 0) {
+            age = getCalendar().getTimeInMillis();
+        }
+        return age;
+    }
+    public RSSDataBundle setAge(long age) {
+        this.age = age;
+        return this;
+    }
 	public Calendar getCalendar() {
 		Calendar calendar = Calendar.getInstance();
 		String[] pubDateFields = pubDate.split(" ");
@@ -186,6 +197,7 @@ public class RSSDataBundle implements Parcelable{
 		sourceTitle = parcel.readString();
 		pubDate = parcel.readString();
         stringUUID = parcel.readString();
+        age = parcel.readLong();
 		/*
 		Log.e("RSSDataBundle", "Read Title: " + title);
 		Log.e("RSSDataBundle", "Read Desc: " + description);
@@ -197,7 +209,7 @@ public class RSSDataBundle implements Parcelable{
 	}
 	
 	public int getParceledLength() {
-		return 7; // the total number of descriptors that are packaged in the parcel
+		return 8; // the total number of descriptors that are packaged in the parcel
 	}
 
 	public static final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {
@@ -234,5 +246,6 @@ public class RSSDataBundle implements Parcelable{
 		arg0.writeString(sourceTitle);
 		arg0.writeString(pubDate);
         arg0.writeString(stringUUID);
+        arg0.writeLong(age);
 	}
 }

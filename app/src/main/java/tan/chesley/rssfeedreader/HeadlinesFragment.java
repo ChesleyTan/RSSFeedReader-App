@@ -293,7 +293,7 @@ public class HeadlinesFragment extends ListFragment implements
             Iterator<MyMap> iterator = list.iterator();
             while (iterator.hasNext()) {
                 long now = System.currentTimeMillis();
-                long articlePubDate = iterator.next().values().iterator().next().getCalendar().getTimeInMillis();
+                long articlePubDate = iterator.next().values().iterator().next().getAge();
                 if (now - articlePubDate > articleAgeLimit) {
                     iterator.remove();
                 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String RSS_DATA_TABLE_NAME = "rssdata";
     private static final String KEY_UUID = "uuid";
     private static final String KEY_TITLE = "title";
@@ -20,6 +20,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     private static final String KEY_SOURCE = "source";
     private static final String KEY_SOURCE_TITLE = "sourceTitle";
     private static final String KEY_PUB_DATE = "pubDate";
+    private static final String KEY_AGE = "age";
 
     private static final String RSS_DATA_TABLE_CREATE = "CREATE TABLE IF NOT EXISTS " +
         RSS_DATA_TABLE_NAME + " (" +
@@ -29,7 +30,8 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         KEY_LINK + " TEXT, " +
         KEY_SOURCE + " TEXT, " +
         KEY_SOURCE_TITLE + " TEXT, " +
-        KEY_PUB_DATE + " TEXT" +
+        KEY_PUB_DATE + " TEXT, " +
+        KEY_AGE + " INTEGER" +
         ");";
 
     private static final String NEW_RSS_DATA_TABLE_CREATE = "CREATE TABLE IF NOT EXISTS " +
@@ -40,7 +42,8 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         KEY_LINK + " TEXT, " +
         KEY_SOURCE + " TEXT, " +
         KEY_SOURCE_TITLE + " TEXT, " +
-        KEY_PUB_DATE + " TEXT" +
+        KEY_PUB_DATE + " TEXT, " +
+        KEY_AGE + " INTEGER" +
         ");";
 
     public RSSDataBundleOpenHelper(Context context) {
@@ -78,8 +81,8 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     public void addBundle(RSSDataBundle rdBundle) {
         SQLiteDatabase db = getWritableDatabase();
         if (isUnique(db, rdBundle.getTitle())) {
-            db.execSQL(String.format("INSERT INTO %s VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");",
-                                     RSS_DATA_TABLE_NAME, rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate()));
+            db.execSQL(String.format("INSERT INTO %s VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s);",
+                                     RSS_DATA_TABLE_NAME, rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate(), rdBundle.getAge()));
         }
         else {
             Log.e("RSSDataBundleOpenHelper", "Duplicate entry found. Skipping.");
@@ -90,9 +93,9 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     public void addBundles(ArrayList<RSSDataBundle> rdBundles) {
         SQLiteDatabase db = getWritableDatabase();
         for (RSSDataBundle rdBundle : rdBundles) {
-            if (isUnique(db, rdBundle.getId())) {
-                db.execSQL(String.format("INSERT INTO %s VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");",
-                                         RSS_DATA_TABLE_NAME, rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate()));
+            if (isUnique(db, rdBundle.getTitle())) {
+                db.execSQL(String.format("INSERT INTO %s VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s);",
+                                         RSS_DATA_TABLE_NAME, rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate(), rdBundle.getAge()));
             }
             else {
                 Log.e("RSSDataBundleOpenHelper", "Duplicate entry found. Skipping.");
@@ -119,6 +122,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
             rdBundle.setSource(cursor.getString(4));
             rdBundle.setSourceTitle(cursor.getString(5));
             rdBundle.setPubDate(cursor.getString(6));
+            rdBundle.setAge(cursor.getLong(7));
             bundles.add(rdBundle);
             cursor.moveToNext();
         }

@@ -333,8 +333,8 @@ public class RSSHandler extends DefaultHandler {
             pubDate += " " + dateStringFields[5];
             rdBundle.setPubDate(pubDate);
             if (enforceArticleAgeLimit) {
+                long articlePubDate = rdBundle.getAge();
                 long now = Calendar.getInstance().getTimeInMillis();
-                long articlePubDate = rdBundle.getCalendar().getTimeInMillis();
                 if (now - articlePubDate > articleAgeLimit) {
                     badInput = true;
                     Log.e("New pubDate", "Article exceeds age limit. Skipping.");
