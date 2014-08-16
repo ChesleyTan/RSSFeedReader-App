@@ -15,24 +15,24 @@ import android.widget.TextView;
 public class ArticleViewFragment extends Fragment {
 
 	private static final String RSSDATABUNDLE = "tan.chesley.rssfeedreader.rssdatabundle";
-	private static final String ARTICLE_HEADLINE = "tan.chesley.rssfeedreader.articleheadline";
 	private static final String HEADLINE = "tan.chesley.rssfeedreader.headline";
 	private static final String ARTICLE = "tan.chesley.rssfeedreader.article";
 	private static final String LINK = "tan.chesley.rssfeedreader.link";
 	private static final String SOURCE = "tan.chesley.rssfeedreader.source";
+    private static final String DATE = "tan.chesley.rssfeedreader.date";
 	private String myHeadline = "";
 	private String myArticle = "";
 	private String myLink = "";
 	private String mySource = "";
+    private String myDate = "";
 	private TextView articleTextView;
 	private TextView titleTextView;
 	private TextView sourceTextView;
+    private TextView dateTextView;
 	private Button openInBrowserButton;
 
-	public static ArticleViewFragment newArticleViewFragment(String headline,
-			RSSDataBundle rdBundle) {
+	public static ArticleViewFragment newArticleViewFragment(RSSDataBundle rdBundle) {
 		Bundle bundle = new Bundle();
-		bundle.putString(ARTICLE_HEADLINE, headline);
 		bundle.putParcelable(RSSDATABUNDLE, rdBundle);
 		Assert.assertNotNull(rdBundle);
 		ArticleViewFragment fragment = new ArticleViewFragment();
@@ -44,18 +44,20 @@ public class ArticleViewFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (getArguments() != null) {
-			myHeadline = getArguments().getString(ARTICLE_HEADLINE);
 			RSSDataBundle rdBundle = ((RSSDataBundle) getArguments()
 					.getParcelable(RSSDATABUNDLE));
+            myHeadline = rdBundle.getTitle();
 			myArticle = rdBundle.getDescription();
 			myLink = rdBundle.getLink();
 			mySource = rdBundle.getSourceTitle();
+            myDate = rdBundle.getUserPreferredDateFormat(getActivity());
 		}
 		if (savedInstanceState != null) {
 			myHeadline = savedInstanceState.getString(HEADLINE);
 			myArticle = savedInstanceState.getString(ARTICLE);
 			myLink = savedInstanceState.getString(LINK);
 			mySource = savedInstanceState.getString(SOURCE);
+            myDate = savedInstanceState.getString(DATE);
 		}
 	}
 
@@ -70,6 +72,8 @@ public class ArticleViewFragment extends Fragment {
 		titleTextView.setText(myHeadline);
 		sourceTextView = (TextView) theView.findViewById(R.id.sourceTextView);
 		sourceTextView.setText(mySource);
+        dateTextView = (TextView) theView.findViewById(R.id.dateTextView);
+        dateTextView.setText(myDate);
 		openInBrowserButton = (Button) theView
 				.findViewById(R.id.openInBrowserButton);
 		openInBrowserButton
@@ -85,6 +89,7 @@ public class ArticleViewFragment extends Fragment {
 		outState.putString(ARTICLE, myArticle);
 		outState.putString(LINK, myLink);
 		outState.putString(SOURCE, mySource);
+        outState.putString(DATE, myDate);
 	}
 
 	public class ArticleViewOpenInBrowserButtonClickListener implements

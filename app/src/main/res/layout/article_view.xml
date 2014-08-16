@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
     android:id="@+id/articleViewContainer"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:scrollbarFadeDuration="700"
-        android:scrollbarDefaultDelayBeforeFade="0"
         android:fadeScrollbars="true"
-        android:scrollbarThumbVertical="@drawable/scrollbar" >
+        android:fillViewport="true"
+        android:scrollbarDefaultDelayBeforeFade="0"
+        android:scrollbarFadeDuration="700"
+        android:scrollbarThumbVertical="@drawable/scrollbar">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/titleTextView"
@@ -30,25 +31,43 @@
                 android:text="Headline Placeholder"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/AppPrimaryTextColor"
-                android:textSize="32sp" />
+                android:textSize="32sp"/>
 
-            <TextView
-                android:id="@+id/sourceTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="Source Placeholder"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="#888888" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-           	<View
-           	    style="@style/HorizontalLine"
-           	    android:layout_marginLeft="10dp"
-           	    android:layout_marginRight="10dp"
-           	    android:alpha="0.1"
-           	    android:background="#999999" />
-            
+                <TextView
+                    android:id="@+id/sourceTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="Source Placeholder"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#888888"/>
+
+                <TextView
+                    android:id="@+id/dateTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:text="Date Placeholder"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#888888"/>
+
+            </RelativeLayout>
+
+            <View
+                style="@style/HorizontalLine"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:alpha="0.1"
+                android:background="#999999"/>
+
             <TextView
                 android:id="@+id/articleTextView"
                 android:layout_width="match_parent"
@@ -56,7 +75,7 @@
                 android:padding="10dp"
                 android:text="Article Placeholder"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="#BBBBBB" />
+                android:textColor="#BBBBBB"/>
         </LinearLayout>
     </ScrollView>
 
@@ -65,6 +84,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/openInBrowser"
-        android:textColor="@color/button_text_color" />
+        android:textColor="@color/button_text_color"/>
 
 </LinearLayout>

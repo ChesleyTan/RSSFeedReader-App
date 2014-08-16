@@ -105,7 +105,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
 
     public boolean isUnique(SQLiteDatabase db, String title) {
         Cursor cursor = db.rawQuery(String.format("SELECT %s FROM %s WHERE %s = \"%s\"", KEY_TITLE, RSS_DATA_TABLE_NAME, KEY_TITLE, title), null);
-        boolean retBool = cursor.getCount() <= 1;
+        boolean retBool = cursor.getCount() < 1;
         cursor.close();
         return retBool;
     }

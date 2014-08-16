@@ -71,8 +71,7 @@ public class RSSFeed extends Activity {
 		}
         else if (id == R.id.action_clear) {
             if (HeadlinesFragment.getInstance() != null) {
-                RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getApplicationContext());
-                dbHelper.clearAllData();
+                new RSSDataBundleOpenHelper(getApplicationContext()).clearAllData();
                 HeadlinesFragment.getInstance().setRssData(new ArrayList<RSSDataBundle>(), false);
                 HeadlinesFragment.getInstance().updateFeedView();
             }

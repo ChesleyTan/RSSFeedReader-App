@@ -78,9 +78,7 @@ public class ArticleView extends FragmentActivity {
 
 					@Override
 					public Fragment getItem(int arg0) {
-						RSSDataBundle rdBundle = rssData.get(arg0);
-						return ArticleViewFragment.newArticleViewFragment(
-								rdBundle.getTitle(), rdBundle);
+						return ArticleViewFragment.newArticleViewFragment(rssData.get(arg0));
 					}
 
 					@Override

@@ -107,14 +107,14 @@ public class HeadlinesFragment extends ListFragment implements
             ArrayList<RSSDataBundle> tmp = savedInstanceState
                 .getParcelableArrayList(PARSED_FEED_DATA);
             if (tmp == null) {
-                Log.e("Instance", "Instance: no saved data found.");
+                //Log.e("Instance", "Instance: no saved data found.");
             }
             else {
                 data.clear();
                 for (RSSDataBundle rdBundle : tmp) {
                     data.add(rdBundle);
                 }
-                Log.e("Instance", "Restored Instance State.");
+                //Log.e("Instance", "Restored Instance State.");
                 updateFeedView();
             }
         }

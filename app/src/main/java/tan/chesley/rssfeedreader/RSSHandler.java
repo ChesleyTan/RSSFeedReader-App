@@ -324,11 +324,20 @@ public class RSSHandler extends DefaultHandler {
                     .toString(hourOffset);
                 String minutesOffsetStr = minutesOffset == 0 ? "00" : Integer
                     .toString(minutesOffset);
-                String sign = offset > 0 ? "+" : ""; // Negative offsets already
+                String sign = offset >= 0 ? "+" : ""; // Negative offsets already
                 // have a sign
                 dateStringFields[5] = sign + hourOffsetStr + minutesOffsetStr;
                 //Log.e("New pubDate", "Non-offset time zone detected. Using "
                 //		+ sign + hourOffsetStr + minutesOffsetStr + " instead.");
+            }
+            if (dateStringFields[5].length() == 4){
+                if (RSSDataBundle.NUMBERS.contains(dateStringFields[5].substring(0,1))) {
+                    dateStringFields[5] = "+" + dateStringFields[5];
+                }
+                else {
+                    badInput = true;
+                    return;
+                }
             }
             pubDate += " " + dateStringFields[5];
             rdBundle.setPubDate(pubDate);
