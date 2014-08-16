@@ -73,7 +73,7 @@ public class RSSFeed extends Activity {
             if (HeadlinesFragment.getInstance() != null) {
                 RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getApplicationContext());
                 dbHelper.clearAllData();
-                HeadlinesFragment.getInstance().setRssData(new ArrayList<MyMap>(), false);
+                HeadlinesFragment.getInstance().setRssData(new ArrayList<RSSDataBundle>(), false);
                 HeadlinesFragment.getInstance().updateFeedView();
             }
             return true;

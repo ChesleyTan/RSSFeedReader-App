@@ -38,7 +38,7 @@ public class RSSHandler extends DefaultHandler {
     final RSSDataBundleOpenHelper dbHelper;
 
     int articleAgeLimit; // age limit for the article in milliseconds from epoch
-    ArrayList<MyMap> data = new ArrayList<MyMap>();
+    ArrayList<RSSDataBundle> data = new ArrayList<RSSDataBundle>();
 
     int state = stateUnknown;
     int articleCount = 0;
@@ -151,9 +151,11 @@ public class RSSHandler extends DefaultHandler {
                 else if (qName.equalsIgnoreCase("pubDate")) {
                     state = statePubDate;
                 }
+                /*
                 else {
-                    // Log.e("Unknown tag name", qName);
+                    Log.e("Unknown tag name", qName);
                 }
+                */
             }
             else { // Stop when we have reached the max number of articles to
                 // read
@@ -210,9 +212,7 @@ public class RSSHandler extends DefaultHandler {
                 // Log.e("New Link", rdBundle.getLink());
                 rdBundle.setSourceTitle(sourceTitle);
                 rdBundle.setSource(sourceURL);
-                MyMap datum = new MyMap();
-                datum.put(rdBundle.getTitle(), rdBundle);
-                data.add(datum);
+                data.add(rdBundle);
             }
             // Reset rdBundle to store next item's data
             rdBundle = null;
@@ -404,7 +404,7 @@ public class RSSHandler extends DefaultHandler {
         gotDescription = true;
     }
 
-    public ArrayList<MyMap> getData () {
+    public ArrayList<RSSDataBundle> getData () {
         return data;
     }
 

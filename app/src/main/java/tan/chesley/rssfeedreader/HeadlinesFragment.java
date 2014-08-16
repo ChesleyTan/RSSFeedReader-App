@@ -1,5 +1,6 @@
 package tan.chesley.rssfeedreader;
 
+import android.app.ActionBar;
 import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.content.Context;
@@ -40,7 +41,7 @@ public class HeadlinesFragment extends ListFragment implements
     public static final String RESTORED_DATA_FROM_DB = "tan.chesley.rssfeedreader.restoreddata";
     public static final String SYNCING = "tan.chesley.rssfeedreader.syncing";
     public static final int ARTICLE_VIEW_INTENT = 0;
-    public static ArrayList<MyMap> data = new ArrayList<MyMap>();
+    public static ArrayList<RSSDataBundle> data = new ArrayList<RSSDataBundle>();
     private static HeadlinesFragment singleton;
     private HeadlinesAdapter adapter;
     private TaskFragment mTaskFragment;
@@ -63,6 +64,7 @@ public class HeadlinesFragment extends ListFragment implements
         super.onCreate(savedInstanceState);
         singleton = this;
 
+        getActivity().getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
         int titleId = getResources().getIdentifier("action_bar_title", "id",
                                                    "android");
         TextView title = (TextView) getActivity().findViewById(titleId);
@@ -102,18 +104,15 @@ public class HeadlinesFragment extends ListFragment implements
         Assert.assertNotNull(syncProgressBar);
         Assert.assertNotNull(syncProgressBarContainer);
         if (savedInstanceState != null) {
-            ArrayList<MyMap> tmp = savedInstanceState
+            ArrayList<RSSDataBundle> tmp = savedInstanceState
                 .getParcelableArrayList(PARSED_FEED_DATA);
             if (tmp == null) {
                 Log.e("Instance", "Instance: no saved data found.");
             }
             else {
-                // restored ArrayList actually contains HashMaps rather than
-                // MyMaps which can lead to a ClassCastException later on if
-                // the HashMaps are not manually converted to MyMaps
                 data.clear();
-                for (HashMap<String, RSSDataBundle> m : tmp) {
-                    data.add(MyMap.createFromHashMap(m));
+                for (RSSDataBundle rdBundle : tmp) {
+                    data.add(rdBundle);
                 }
                 Log.e("Instance", "Restored Instance State.");
                 updateFeedView();
@@ -122,7 +121,7 @@ public class HeadlinesFragment extends ListFragment implements
         if (!restoredDataFromDB && data.size() == 0) {
             restoredDataFromDB = true;
             for (RSSDataBundle rdBundle : new RSSDataBundleOpenHelper(getActivity()).getBundles()) {
-                data.add(MyMap.createFromRSSDataBundle(rdBundle));
+                data.add(rdBundle);
             }
             updateFeedView();
             Log.e("HeadlinesFragment", "Restored databased data.");
@@ -190,21 +189,21 @@ public class HeadlinesFragment extends ListFragment implements
             // If adapter already exists, update its data and notify it of
             // changes
             adapter.clear();
-            for (MyMap m : data) {
-                adapter.add(m);
+            for (RSSDataBundle rdBundle : data) {
+                adapter.add(rdBundle);
             }
             adapter.notifyDataSetChanged();
         }
     }
 
-    private class HeadlinesAdapter extends ArrayAdapter<MyMap> {
+    private class HeadlinesAdapter extends ArrayAdapter<RSSDataBundle> {
 
         public static final int SORT_BY_NONE = 0;
         public static final int SORT_BY_TITLE = 1;
         public static final int SORT_BY_SOURCE = 2;
         public static final int SORT_BY_DATE = 3;
 
-        public HeadlinesAdapter (ArrayList<MyMap> myData) {
+        public HeadlinesAdapter (ArrayList<RSSDataBundle> myData) {
             super(getActivity(), R.layout.feed_list_item, myData);
         }
 
@@ -214,7 +213,7 @@ public class HeadlinesFragment extends ListFragment implements
                 convertView = getActivity().getLayoutInflater().inflate(
                     R.layout.feed_list_item, parent, false);
             }
-            HashMap<String, RSSDataBundle> dataMap = getItem(position);
+            RSSDataBundle rdBundle = getItem(position);
             TextView headlineTextView = (TextView) convertView
                 .findViewById(android.R.id.text1);
             TextView articleTextView = (TextView) convertView
@@ -223,7 +222,6 @@ public class HeadlinesFragment extends ListFragment implements
                 .findViewById(R.id.sourceTextView);
             TextView dateTextView = (TextView) convertView
                 .findViewById(R.id.dateTextView);
-            RSSDataBundle rdBundle = dataMap.values().iterator().next();
             headlineTextView.setText(rdBundle.getTitle());
             sourceTextView.setText(rdBundle.getSourceTitle());
             dateTextView.setText(rdBundle.getUserPreferredDateFormat(getContext()));
@@ -234,11 +232,11 @@ public class HeadlinesFragment extends ListFragment implements
 
     @Override
     public void onListItemClick (ListView l, View v, int position, long id) {
-        HashMap<String, RSSDataBundle> map = adapter.getItem(position);
+        RSSDataBundle rdBundle = adapter.getItem(position);
         // Start new ArticleView activity, passing to it the id of the clicked
         // article
         Intent intent = new Intent(getActivity(), ArticleView.class);
-        intent.putExtra(ARTICLE_ID, map.values().iterator().next().getId());
+        intent.putExtra(ARTICLE_ID, rdBundle.getId());
         startActivityForResult(intent, ARTICLE_VIEW_INTENT);
     }
 
@@ -253,11 +251,11 @@ public class HeadlinesFragment extends ListFragment implements
         }
     }
 
-    public ArrayList<MyMap> getRssData () {
+    public ArrayList<RSSDataBundle> getRssData () {
         return data;
     }
 
-    public void setRssData (final ArrayList<MyMap> in, boolean appendToExistingData) {
+    public void setRssData (final ArrayList<RSSDataBundle> in, boolean appendToExistingData) {
         // Called by TaskFragment to update the RSS data fetched by RSSHandler
         if (appendToExistingData) {
             data.addAll(in);
@@ -269,8 +267,8 @@ public class HeadlinesFragment extends ListFragment implements
             @Override
             public void run () {
                 RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getActivity());
-                for (MyMap map : in) {
-                    dbHelper.addBundle(map.values().iterator().next());
+                for (RSSDataBundle rdBundle : in) {
+                    dbHelper.addBundle(rdBundle);
                 }
             }
         };
@@ -290,15 +288,15 @@ public class HeadlinesFragment extends ListFragment implements
         toast.show();
     }
 
-    public ArrayList<MyMap> filterOutdated(ArrayList<MyMap> list) {
+    public ArrayList<RSSDataBundle> filterOutdated(ArrayList<RSSDataBundle> list) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         boolean enforceAgeLimit = prefs.getBoolean("pref_articleAgeLimitCheckBox", false);
         if (enforceAgeLimit) {
             long articleAgeLimit = RSSHandler.MILLISECONDS_IN_A_DAY * prefs.getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, getResources().getInteger(R.integer.article_age_limit_default));
-            Iterator<MyMap> iterator = list.iterator();
+            Iterator<RSSDataBundle> iterator = list.iterator();
             while (iterator.hasNext()) {
                 long now = System.currentTimeMillis();
-                long articlePubDate = iterator.next().values().iterator().next().getAge();
+                long articlePubDate = iterator.next().getAge();
                 if (now - articlePubDate > articleAgeLimit) {
                     iterator.remove();
                 }
@@ -310,30 +308,24 @@ public class HeadlinesFragment extends ListFragment implements
         return list;
     }
 
-    public static ArrayList<MyMap> sortHeadlinesBy (final int sortCriteria,
-                                                    ArrayList<MyMap> list) {
-        Collections.sort(list, new Comparator<MyMap>() {
+    public static ArrayList<RSSDataBundle> sortHeadlinesBy (final int sortCriteria,
+                                                    ArrayList<RSSDataBundle> list) {
+        Collections.sort(list, new Comparator<RSSDataBundle>() {
 
-            public int compare (MyMap first, MyMap second) {
+            public int compare (RSSDataBundle first, RSSDataBundle second) {
                 if (sortCriteria == HeadlinesAdapter.SORT_BY_SOURCE) {
-                    String firstTitle = first.values().iterator().next()
-                                             .getSource();
-                    String secondTitle = second.values().iterator().next()
-                                               .getSource();
+                    String firstTitle = first.getSource();
+                    String secondTitle = second.getSource();
                     return firstTitle.compareTo(secondTitle);
                 }
                 else if (sortCriteria == HeadlinesAdapter.SORT_BY_TITLE) {
-                    String firstTitle = first.values().iterator().next()
-                                             .getTitle();
-                    String secondTitle = second.values().iterator().next()
-                                               .getTitle();
+                    String firstTitle = first.getTitle();
+                    String secondTitle = second.getTitle();
                     return firstTitle.compareTo(secondTitle);
                 }
                 else if (sortCriteria == HeadlinesAdapter.SORT_BY_DATE) {
-                    Calendar firstCalendar = first.values().iterator().next()
-                                                  .getCalendar();
-                    Calendar secondCalendar = second.values().iterator().next()
-                                                    .getCalendar();
+                    Calendar firstCalendar = first.getCalendar();
+                    Calendar secondCalendar = second.getCalendar();
                     return -1 * firstCalendar.compareTo(secondCalendar);
                 }
                 return 0;
@@ -390,10 +382,10 @@ public class HeadlinesFragment extends ListFragment implements
                .addToBackStack(null).commit();
     }
 
-    private ArrayList<MyMap> clone (ArrayList<MyMap> a) {
-        ArrayList<MyMap> newList = new ArrayList<MyMap>();
-        for (MyMap m : a) {
-            newList.add(m);
+    private ArrayList<RSSDataBundle> clone (ArrayList<RSSDataBundle> a) {
+        ArrayList<RSSDataBundle> newList = new ArrayList<RSSDataBundle>();
+        for (RSSDataBundle rdBundle : a) {
+            newList.add(rdBundle);
         }
         return newList;
     }

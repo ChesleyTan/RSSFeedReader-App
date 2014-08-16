@@ -1,5 +1,6 @@
 package tan.chesley.rssfeedreader;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,7 +22,7 @@ public class ArticleView extends FragmentActivity {
 	public static final String ARTICLE_SELECTED_KEY = "tan.chesley.rssfeedreader.articleselected";
 	public static final String RSS_DATA_KEY = "tan.chesley.rssfeedreader.rssdata";
 	private ViewPager theViewPager;
-	private ArrayList<MyMap> rssData;
+	private ArrayList<RSSDataBundle> rssData;
 	private ArticleViewPagerChangeListener viewPagerPageChangeListener;
 	private FragmentStatePagerAdapter viewPagerAdapter;
 	private TextView title;
@@ -31,8 +32,7 @@ public class ArticleView extends FragmentActivity {
 
 		@Override
 		public void onPageSelected(int arg0) {
-			String headline = ((HashMap<String, RSSDataBundle>) rssData
-					.get(arg0)).keySet().iterator().next();
+			String headline = rssData.get(arg0).getTitle();
 			setTitle(headline);
 			if (title != null) {
 				title.scrollTo(0, 0);
@@ -78,9 +78,7 @@ public class ArticleView extends FragmentActivity {
 
 					@Override
 					public Fragment getItem(int arg0) {
-						HashMap<String, RSSDataBundle> data = rssData.get(arg0);
-						RSSDataBundle rdBundle = data.values().iterator()
-								.next();
+						RSSDataBundle rdBundle = rssData.get(arg0);
 						return ArticleViewFragment.newArticleViewFragment(
 								rdBundle.getTitle(), rdBundle);
 					}
@@ -94,8 +92,8 @@ public class ArticleView extends FragmentActivity {
 		String uuid = getIntent().getStringExtra(HeadlinesFragment.ARTICLE_ID);
 
 		for (int i = 0; i < rssData.size(); i++) {
-			HashMap<String, RSSDataBundle> map = rssData.get(i);
-			if (map.values().iterator().next().getId().equals(uuid)) {
+			RSSDataBundle rdBundle = rssData.get(i);
+			if (rdBundle.getId().equals(uuid)) {
 				theViewPager.setCurrentItem(i);
 				// Explicitly call the page change listener to set
 				// the action bar title appropriately
@@ -104,7 +102,7 @@ public class ArticleView extends FragmentActivity {
 			}
 		}
 
-
+        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
 		int	titleId = getResources().getIdentifier("action_bar_title", "id",
 					"android");
 		title = (TextView) findViewById(titleId);

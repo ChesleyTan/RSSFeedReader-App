@@ -1,5 +1,6 @@
 package tan.chesley.rssfeedreader;
 
+import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +51,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
         int titleId = getResources().getIdentifier("action_bar_title", "id",
                                                    "android");
         TextView title = (TextView) findViewById(titleId);

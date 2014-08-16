@@ -1,5 +1,6 @@
 package tan.chesley.rssfeedreader;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ public class SettingsActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
 
+        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
 		int	titleId = getResources().getIdentifier("action_bar_title", "id",
 					"android");
 		TextView title = (TextView) findViewById(titleId);
