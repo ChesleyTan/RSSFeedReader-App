@@ -20,6 +20,7 @@ import android.util.Log;
 public class RSSHandler extends DefaultHandler {
 
     static final int MILLISECONDS_IN_A_DAY = 86400000;
+    static final String SPECIAL_CHARACTERS = " <>&;";
     final int stateUnknown = 0;
     final int stateTitle = 1;
     final int stateDescription = 2;
@@ -213,6 +214,7 @@ public class RSSHandler extends DefaultHandler {
                 rdBundle.setSourceTitle(sourceTitle);
                 rdBundle.setSource(sourceURL);
                 data.add(rdBundle);
+                dbHelper.addBundle(rdBundle);
             }
             // Reset rdBundle to store next item's data
             rdBundle = null;
@@ -259,7 +261,7 @@ public class RSSHandler extends DefaultHandler {
             }
             else {
                 numDescriptionParts++;
-                articleDescriptionPart += makeString(ch, start, length, false);
+                articleDescriptionPart += padString(makeString(ch, start, length, false));
             }
         }
         else if (state == stateLink) {
@@ -273,8 +275,6 @@ public class RSSHandler extends DefaultHandler {
             initializeRdBundleIfNeeded();
             String dateString = makeString(ch, start, length, true);
             String[] dateStringFields = dateString.split(" ");
-            // TODO more robustly recognize bad input
-            // TODO account for case when the year is only two digits
             if (dateStringFields.length < 6) {
                 badInput = true;
                 //Log.e("New pubDate", "Bad input found. Skipping this item.");
@@ -288,6 +288,11 @@ public class RSSHandler extends DefaultHandler {
             // dateStringFields[5] => UTC offset or timezone
             String pubDate = dateStringFields[1] + " " + dateStringFields[2]
                 + " " + dateStringFields[3] + " " + dateStringFields[4];
+            // TODO correct for case when the year is only two digits
+            if (dateStringFields[3].length() != 4) {
+                badInput = true;
+                return;
+            }
             // Recognize when timezone given is not in the form of an offset
             // from UTC
             if (!dateStringFields[5].contains("0")
@@ -339,6 +344,10 @@ public class RSSHandler extends DefaultHandler {
                     return;
                 }
             }
+            if (dateStringFields[5].length() != 5) {
+                badInput = true;
+                return;
+            }
             pubDate += " " + dateStringFields[5];
             rdBundle.setPubDate(pubDate);
             if (enforceArticleAgeLimit) {
@@ -372,9 +381,23 @@ public class RSSHandler extends DefaultHandler {
         }
     }
 
+    public String padString(String s) {
+        int l = s.length();
+        if (l > 1) {
+            if (!SPECIAL_CHARACTERS.contains(s.substring(0, 1))) {
+                s = " " + s;
+            }
+            if (!SPECIAL_CHARACTERS.contains(s.substring(l - 1))) {
+                s += " ";
+            }
+        }
+        return s;
+    }
+
     public void clearTagsAndSetDescription (String s) {
         int startIndex, endIndex;
         while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("<")) > -1 && (endIndex = s.indexOf(">")) > -1 && startIndex < endIndex) {
+            //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
             numSanitizationIterations++;
         }
@@ -399,6 +422,7 @@ public class RSSHandler extends DefaultHandler {
             numSanitizationIterations++;
         }
         while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&")) > -1 && (endIndex = s.indexOf(";")) > -1 && startIndex < endIndex) {
+            //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
             numSanitizationIterations++;
         }

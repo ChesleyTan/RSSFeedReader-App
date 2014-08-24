@@ -18,6 +18,7 @@ public class RSSDataBundle implements Parcelable{
 	private String title, description, link, source, sourceTitle; // Required descriptors
 	private String pubDate; // Optional descriptors
 	private String stringUUID;
+    private boolean read;
     private long age;
 
 	public RSSDataBundle(String stringUUID) {
@@ -85,6 +86,17 @@ public class RSSDataBundle implements Parcelable{
     public RSSDataBundle setAge(long age) {
         this.age = age;
         return this;
+    }
+    public boolean isRead() {
+        return read;
+    }
+    public void setRead(boolean bool) {
+        read = bool;
+    }
+    // NOTE: This method must be called when the data in the RSSDataBundle is changed after
+    // initialization to update the data inside the database
+    public void notifyDatabaseDataChanged(Context context) {
+        new RSSDataBundleOpenHelper(context).updateData(this);
     }
 	public Calendar getCalendar() {
 		Calendar calendar = Calendar.getInstance();

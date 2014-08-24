@@ -77,6 +77,18 @@ public class RSSFeed extends Activity {
             }
             return true;
         }
+        else if (id == R.id.action_mark_all_read) {
+            if (HeadlinesFragment.getInstance() != null) {
+                for (RSSDataBundle rdBundle : HeadlinesFragment.getInstance().getRssData()) {
+                    if (!rdBundle.isRead()) {
+                        rdBundle.setRead(true);
+                        rdBundle.notifyDatabaseDataChanged(getApplicationContext());
+                    }
+                }
+                HeadlinesFragment.getInstance().notifyDataSetChanged();
+            }
+            return true;
+        }
 		return super.onOptionsItemSelected(item);
 	}
 

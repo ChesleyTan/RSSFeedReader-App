@@ -6,7 +6,6 @@ import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -29,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 
 public class HeadlinesFragment extends ListFragment implements
@@ -86,6 +83,7 @@ public class HeadlinesFragment extends ListFragment implements
     @Override
     public void onResume () {
         super.onResume();
+        // If resuming from preference activity, update the ListView
         if (!resumingFromArticleViewActivity && data != null) {
             updateFeedView();
         }
@@ -227,6 +225,13 @@ public class HeadlinesFragment extends ListFragment implements
             sourceTextView.setText(rdBundle.getSourceTitle());
             dateTextView.setText(rdBundle.getUserPreferredDateFormat(getContext()));
             articleTextView.setText(rdBundle.getDescription());
+            // Toggle the color indicator to signify if read/unread
+            if (!rdBundle.isRead()) {
+                convertView.findViewById(R.id.colorIndicator).setVisibility(View.VISIBLE);
+            }
+            else {
+                convertView.findViewById(R.id.colorIndicator).setVisibility(View.GONE);
+            }
             return convertView;
         }
     }
@@ -247,6 +252,8 @@ public class HeadlinesFragment extends ListFragment implements
         if (requestCode == ARTICLE_VIEW_INTENT) {
             resumingFromArticleViewActivity = true;
             Assert.assertNotNull(data);
+            // Force redraw of the ListView to update the Views for read/unread articles
+            adapter.notifyDataSetChanged();
             getListView().setSelection(
                 data.getIntExtra(ArticleView.ARTICLE_SELECTED_KEY, 0));
         }
@@ -264,6 +271,7 @@ public class HeadlinesFragment extends ListFragment implements
         else {
             data = in;
         }
+        /*
         Runnable databaseData = new Runnable() {
             @Override
             public void run () {
@@ -275,6 +283,7 @@ public class HeadlinesFragment extends ListFragment implements
         };
         Thread databaseDataThread = new Thread(databaseData);
         databaseDataThread.start();
+        */
 
     }
 
@@ -392,5 +401,11 @@ public class HeadlinesFragment extends ListFragment implements
             newList.add(rdBundle);
         }
         return newList;
+    }
+
+    public void notifyDataSetChanged() {
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 }

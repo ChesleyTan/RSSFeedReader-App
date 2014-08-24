@@ -37,7 +37,10 @@
         <!-- <item name="android:actionBarStyle"></item> -->
     </style>
 
-    <style name="SettingsActivity" parent="AppTheme"></style>
+    <style name="SettingsActivity" parent="AppTheme">
+        <item name="android:scrollbarThumbVertical">@drawable/scrollbar</item>
+    </style>
+
     <style name="ModifySources" parent="AppTheme"></style>
 
     <style name="HorizontalLine">

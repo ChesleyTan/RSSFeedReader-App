@@ -15,16 +15,7 @@ import android.widget.TextView;
 public class ArticleViewFragment extends Fragment {
 
 	private static final String RSSDATABUNDLE = "tan.chesley.rssfeedreader.rssdatabundle";
-	private static final String HEADLINE = "tan.chesley.rssfeedreader.headline";
-	private static final String ARTICLE = "tan.chesley.rssfeedreader.article";
-	private static final String LINK = "tan.chesley.rssfeedreader.link";
-	private static final String SOURCE = "tan.chesley.rssfeedreader.source";
-    private static final String DATE = "tan.chesley.rssfeedreader.date";
-	private String myHeadline = "";
-	private String myArticle = "";
-	private String myLink = "";
-	private String mySource = "";
-    private String myDate = "";
+    private RSSDataBundle rdBundle;
 	private TextView articleTextView;
 	private TextView titleTextView;
 	private TextView sourceTextView;
@@ -44,20 +35,11 @@ public class ArticleViewFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (getArguments() != null) {
-			RSSDataBundle rdBundle = ((RSSDataBundle) getArguments()
+			rdBundle = ((RSSDataBundle) getArguments()
 					.getParcelable(RSSDATABUNDLE));
-            myHeadline = rdBundle.getTitle();
-			myArticle = rdBundle.getDescription();
-			myLink = rdBundle.getLink();
-			mySource = rdBundle.getSourceTitle();
-            myDate = rdBundle.getUserPreferredDateFormat(getActivity());
 		}
 		if (savedInstanceState != null) {
-			myHeadline = savedInstanceState.getString(HEADLINE);
-			myArticle = savedInstanceState.getString(ARTICLE);
-			myLink = savedInstanceState.getString(LINK);
-			mySource = savedInstanceState.getString(SOURCE);
-            myDate = savedInstanceState.getString(DATE);
+            rdBundle = (RSSDataBundle) savedInstanceState.getParcelable(RSSDATABUNDLE);
 		}
 	}
 
@@ -67,13 +49,13 @@ public class ArticleViewFragment extends Fragment {
 		View theView = inflater
 				.inflate(R.layout.article_view, container, false);
 		articleTextView = (TextView) theView.findViewById(R.id.articleTextView);
-		articleTextView.setText(myArticle);
+		articleTextView.setText(rdBundle.getDescription());
 		titleTextView = (TextView) theView.findViewById(R.id.titleTextView);
-		titleTextView.setText(myHeadline);
+		titleTextView.setText(rdBundle.getTitle());
 		sourceTextView = (TextView) theView.findViewById(R.id.sourceTextView);
-		sourceTextView.setText(mySource);
+		sourceTextView.setText(rdBundle.getSourceTitle());
         dateTextView = (TextView) theView.findViewById(R.id.dateTextView);
-        dateTextView.setText(myDate);
+        dateTextView.setText(rdBundle.getUserPreferredDateFormat(getActivity()));
 		openInBrowserButton = (Button) theView
 				.findViewById(R.id.openInBrowserButton);
 		openInBrowserButton
@@ -85,11 +67,7 @@ public class ArticleViewFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putString(HEADLINE, myHeadline);
-		outState.putString(ARTICLE, myArticle);
-		outState.putString(LINK, myLink);
-		outState.putString(SOURCE, mySource);
-        outState.putString(DATE, myDate);
+        outState.putParcelable(RSSDATABUNDLE, rdBundle);
 	}
 
 	public class ArticleViewOpenInBrowserButtonClickListener implements
@@ -97,7 +75,7 @@ public class ArticleViewFragment extends Fragment {
 
 		@Override
 		public void onClick(View arg0) {
-			String url = myLink;
+			String url = rdBundle.getLink();
 			if (!url.startsWith("http://") && !url.startsWith("https://")) {
 				url = "http://" + url;
 				Log.e("URL", "URL modified to " + url);

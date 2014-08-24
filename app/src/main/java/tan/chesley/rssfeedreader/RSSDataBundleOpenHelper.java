@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String RSS_DATA_TABLE_NAME = "rssdata";
     private static final String KEY_UUID = "uuid";
     private static final String KEY_TITLE = "title";
@@ -22,6 +22,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     private static final String KEY_SOURCE_TITLE = "sourceTitle";
     private static final String KEY_PUB_DATE = "pubDate";
     private static final String KEY_AGE = "age";
+    private static final String KEY_READ = "read";
 
     private static final String RSS_DATA_TABLE_CREATE = "CREATE TABLE IF NOT EXISTS " +
         RSS_DATA_TABLE_NAME + " (" +
@@ -32,7 +33,8 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         KEY_SOURCE + " TEXT, " +
         KEY_SOURCE_TITLE + " TEXT, " +
         KEY_PUB_DATE + " TEXT, " +
-        KEY_AGE + " INTEGER" +
+        KEY_AGE + " INTEGER, " +
+        KEY_READ + " INTEGER" +
         ");";
 
     private static final String NEW_RSS_DATA_TABLE_CREATE = "CREATE TABLE IF NOT EXISTS " +
@@ -44,7 +46,8 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         KEY_SOURCE + " TEXT, " +
         KEY_SOURCE_TITLE + " TEXT, " +
         KEY_PUB_DATE + " TEXT, " +
-        KEY_AGE + " INTEGER" +
+        KEY_AGE + " INTEGER, " +
+        KEY_READ + " INTEGER" +
         ");";
 
     public RSSDataBundleOpenHelper(Context context) {
@@ -82,13 +85,22 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     public void addBundle(RSSDataBundle rdBundle) {
         SQLiteDatabase db = getWritableDatabase();
         if (isUnique(db, rdBundle.getTitle())) {
-            db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s);",
-                                     RSS_DATA_TABLE_NAME, rdBundle.getAge()),
-                       new String[] {rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate()});
+            db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s, %s);",
+                                     RSS_DATA_TABLE_NAME, rdBundle.getAge(), rdBundle.isRead() ? 1 : 0),
+                       new String[] {
+                           rdBundle.getId(),
+                           rdBundle.getTitle(),
+                           rdBundle.getDescription(),
+                           rdBundle.getLink(),
+                           rdBundle.getSource(),
+                           rdBundle.getSourceTitle(),
+                           rdBundle.getPubDate()
+                       });
         }
         else {
             Log.e("RSSDataBundleOpenHelper", "Duplicate entry found. Skipping.");
         }
+        db.close();
     }
 
 
@@ -96,25 +108,35 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         for (RSSDataBundle rdBundle : rdBundles) {
             if (isUnique(db, rdBundle.getTitle())) {
-                db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s);",
-                                         RSS_DATA_TABLE_NAME, rdBundle.getAge()),
-                           new String[] {rdBundle.getId(), rdBundle.getTitle(), rdBundle.getDescription(), rdBundle.getLink(), rdBundle.getSource(), rdBundle.getSourceTitle(), rdBundle.getPubDate()});
+                db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s, %s);",
+                                         RSS_DATA_TABLE_NAME, rdBundle.getAge(), rdBundle.isRead() ? 1 : 0),
+                           new String[] {
+                               rdBundle.getId(),
+                               rdBundle.getTitle(),
+                               rdBundle.getDescription(),
+                               rdBundle.getLink(),
+                               rdBundle.getSource(),
+                               rdBundle.getSourceTitle(),
+                               rdBundle.getPubDate()
+                           });
             }
             else {
                 Log.e("RSSDataBundleOpenHelper", "Duplicate entry found. Skipping.");
             }
         }
+        db.close();
     }
 
     public boolean isUnique(SQLiteDatabase db, String title) {
         boolean retBool = true;
-        title = title.replace("\\s", "");
+        title = title.replaceAll("\\s", "");
         Cursor cursor = db.rawQuery(String.format("SELECT %s FROM %s", KEY_TITLE, RSS_DATA_TABLE_NAME), null);
         cursor.moveToFirst();
         int index = 0;
         while (!cursor.isAfterLast()) {
-            if (title.equals(cursor.getString(0).replace("\\s", ""))) {
+            if (title.equals(cursor.getString(0).replaceAll("\\s", ""))) {
                 retBool = false;
+                break;
             }
             cursor.moveToNext();
         }
@@ -135,6 +157,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
             rdBundle.setSourceTitle(cursor.getString(5));
             rdBundle.setPubDate(cursor.getString(6));
             rdBundle.setAge(cursor.getLong(7));
+            rdBundle.setRead(cursor.getInt(8) != 0);
             bundles.add(rdBundle);
             cursor.moveToNext();
         }
@@ -144,5 +167,30 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
 
     public void clearAllData() {
         getWritableDatabase().execSQL("DELETE FROM " + RSS_DATA_TABLE_NAME + ";");
+    }
+
+    public void updateData(RSSDataBundle rdBundle) {
+        Log.e("Updating database data for article: ", rdBundle.getTitle());
+        getWritableDatabase().execSQL(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?;",
+                                                    RSS_DATA_TABLE_NAME,
+                                                    KEY_TITLE,
+                                                    KEY_DESCRIPTION,
+                                                    KEY_LINK,
+                                                    KEY_SOURCE,
+                                                    KEY_SOURCE_TITLE,
+                                                    KEY_PUB_DATE,
+                                                    KEY_AGE,
+                                                    KEY_READ,
+                                                    KEY_UUID), new String[] {
+                                                                            rdBundle.getTitle(),
+                                                                            rdBundle.getDescription(),
+                                                                            rdBundle.getLink(),
+                                                                            rdBundle.getSource(),
+                                                                            rdBundle.getSourceTitle(),
+                                                                            rdBundle.getPubDate(),
+                                                                            Long.toString(rdBundle.getAge()),
+                                                                            rdBundle.isRead() ? "1" : "0",
+                                                                            rdBundle.getId()
+                                                                            });
     }
 }

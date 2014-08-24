@@ -7,6 +7,9 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 
 public class SettingsFragment extends PreferenceFragment {
@@ -57,5 +60,11 @@ public class SettingsFragment extends PreferenceFragment {
         syncTimeoutNumberPickerDialogPreference = (NumberPickerDialogPreference) findPreference("pref_id_syncTimeoutNumberPickerDialog");
         syncTimeoutNumberPickerDialogPreference.setSummary(Integer.toString(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT, getResources().getInteger(R.integer.sync_timeout_default))));
 	}
-	
+
+    @Override
+    public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        view.findViewById(android.R.id.list).setPadding(0, 0, 0, 0);
+        return view;
+    }
 }

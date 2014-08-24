@@ -51,7 +51,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
+        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
         int titleId = getResources().getIdentifier("action_bar_title", "id",
                                                    "android");
         TextView title = (TextView) findViewById(titleId);

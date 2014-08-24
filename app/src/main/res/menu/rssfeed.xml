@@ -22,4 +22,9 @@
         android:showAsAction="never"
         />
 
+    <item
+        android:id="@+id/action_mark_all_read"
+        android:title="@string/markAllRead"
+        android:showAsAction="never" />
+
 </menu>

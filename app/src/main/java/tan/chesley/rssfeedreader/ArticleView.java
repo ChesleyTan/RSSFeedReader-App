@@ -32,8 +32,13 @@ public class ArticleView extends FragmentActivity {
 
 		@Override
 		public void onPageSelected(int arg0) {
-			String headline = rssData.get(arg0).getTitle();
-			setTitle(headline);
+            RSSDataBundle rdBundle = rssData.get(arg0);
+			setTitle(rdBundle.getTitle());
+            // Mark article as read
+            if (!rdBundle.isRead()) {
+                rdBundle.setRead(true);
+                rdBundle.notifyDatabaseDataChanged(getApplicationContext());
+            }
 			if (title != null) {
 				title.scrollTo(0, 0);
 			}
@@ -62,12 +67,6 @@ public class ArticleView extends FragmentActivity {
 		theViewPager = new ViewPager(this);
 		theViewPager.setId(R.id.viewPager);
 		setContentView(theViewPager);
-
-        try {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
 
 		theViewPager
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
@@ -100,7 +99,7 @@ public class ArticleView extends FragmentActivity {
 			}
 		}
 
-        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
+        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
 		int	titleId = getResources().getIdentifier("action_bar_title", "id",
 					"android");
 		title = (TextView) findViewById(titleId);
