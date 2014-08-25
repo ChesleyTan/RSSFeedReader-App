@@ -8,13 +8,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -47,6 +55,8 @@ public class HeadlinesFragment extends ListFragment implements
     private boolean resumingFromArticleViewActivity = false;
     private ProgressBar syncProgressBar;
     private LinearLayout syncProgressBarContainer;
+    private LinearLayout action_goToPreviousUnread;
+    private LinearLayout action_goToNextUnread;
     private Toast toast;
 
     public HeadlinesFragment () {
@@ -84,8 +94,9 @@ public class HeadlinesFragment extends ListFragment implements
     public void onResume () {
         super.onResume();
         // If resuming from preference activity, update the ListView
-        if (!resumingFromArticleViewActivity && data != null) {
+        if (!syncing && !resumingFromArticleViewActivity && data != null) {
             updateFeedView();
+            toggleBottomActionBar();
         }
         resumingFromArticleViewActivity = false;
         //Log.e("HeadlinesFragment", "Instance: Calling onResume method.");
@@ -100,8 +111,12 @@ public class HeadlinesFragment extends ListFragment implements
         syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
         syncProgressBarContainer = (LinearLayout) view
             .findViewById(R.id.progressBarContainer);
-        Assert.assertNotNull(syncProgressBar);
-        Assert.assertNotNull(syncProgressBarContainer);
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_bottomActionBarCheckBox", true)) {
+            attachBottomActionBarListeners(view);
+        }
+        else {
+            view.findViewById(R.id.bottomActionBar).setVisibility(View.GONE);
+        }
         if (savedInstanceState != null) {
             ArrayList<RSSDataBundle> tmp = savedInstanceState
                 .getParcelableArrayList(PARSED_FEED_DATA);
@@ -131,6 +146,8 @@ public class HeadlinesFragment extends ListFragment implements
     @Override
     public void onStart () {
         super.onStart();
+        // Allow ListView to receive events originating from a child view
+        registerForContextMenu(getListView());
         if (syncing) {
             toggleProgressBar();
         }
@@ -239,11 +256,45 @@ public class HeadlinesFragment extends ListFragment implements
     @Override
     public void onListItemClick (ListView l, View v, int position, long id) {
         RSSDataBundle rdBundle = adapter.getItem(position);
-        // Start new ArticleView activity, passing to it the id of the clicked
-        // article
+        // Start new ArticleView activity, passing to it the id of the clicked article
         Intent intent = new Intent(getActivity(), ArticleView.class);
         intent.putExtra(ARTICLE_ID, rdBundle.getId());
         startActivityForResult(intent, ARTICLE_VIEW_INTENT);
+    }
+
+    @Override
+    public void onCreateContextMenu (ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        int listViewIndex = ((AdapterView.AdapterContextMenuInfo) menuInfo).position;
+        menu.setHeaderTitle(((RSSDataBundle)getListView().getItemAtPosition(listViewIndex)).getTitle());
+        String[] contextMenuItems = getResources().getStringArray(R.array.feed_list_item_context_menu);
+        for (int i = 0;i < contextMenuItems.length;i++) {
+            menu.add(Menu.NONE, i, i, contextMenuItems[i]);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected (MenuItem item) {
+        // Get position of the item
+        int listViewIndex = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
+        int contextMenuIndex = item.getItemId();
+        // If the user chose "mark as read"
+        if (contextMenuIndex == 0) {
+            RSSDataBundle rdBundle = (RSSDataBundle) getListAdapter().getItem(listViewIndex);
+            // Mark the article as read
+            RSSDataBundle.markAsRead(getActivity(), rdBundle);
+            // Redraw the ListView
+            adapter.notifyDataSetChanged();
+        }
+        // If the user chooses "Open in browser"
+        if (contextMenuIndex == 1) {
+            RSSDataBundle rdBundle = (RSSDataBundle) getListAdapter().getItem(listViewIndex);
+            // Mark the article as read
+            RSSDataBundle.markAsRead(getActivity(), rdBundle);
+            String url = rdBundle.getLink();
+            // Log.e("URL Open", "URL: " + url);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+        return true;
     }
 
     @Override
@@ -271,20 +322,6 @@ public class HeadlinesFragment extends ListFragment implements
         else {
             data = in;
         }
-        /*
-        Runnable databaseData = new Runnable() {
-            @Override
-            public void run () {
-                RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getActivity());
-                for (RSSDataBundle rdBundle : in) {
-                    dbHelper.addBundle(rdBundle);
-                }
-            }
-        };
-        Thread databaseDataThread = new Thread(databaseData);
-        databaseDataThread.start();
-        */
-
     }
 
     public void showToast (String s, int toastDurationFlag) {
@@ -347,18 +384,69 @@ public class HeadlinesFragment extends ListFragment implements
         return list;
     }
 
-    public void toggleProgressBar () {
+    public void toggleProgressBar() {
+        Log.e("Toggle", "ProgressBar");
         if (syncProgressBar.getVisibility() == View.GONE && syncing) {
             syncProgressBarContainer.setVisibility(View.VISIBLE);
             syncProgressBar.setVisibility(View.VISIBLE);
             getListView().setVisibility(View.GONE);
+            getActivity().findViewById(R.id.bottomActionBar).setVisibility(View.GONE);
         }
         else if (syncProgressBar.getVisibility() == View.VISIBLE
             && !syncing) {
             syncProgressBarContainer.setVisibility(View.GONE);
             syncProgressBar.setVisibility(View.GONE);
             getListView().setVisibility(View.VISIBLE);
+            if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_bottomActionBarCheckBox", true)) {
+                getActivity().findViewById(R.id.bottomActionBar).setVisibility(View.VISIBLE);
+            }
         }
+    }
+
+    public void toggleBottomActionBar() {
+        View bottomActionBar = getActivity().findViewById(R.id.bottomActionBar);
+        if (bottomActionBar.getVisibility() == View.GONE && PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_bottomActionBarCheckBox", true)) {
+            attachBottomActionBarListeners(getView());
+            bottomActionBar.setVisibility(View.VISIBLE);
+        }
+        else if (bottomActionBar.getVisibility() == View.VISIBLE && !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_bottomActionBarCheckBox", true)) {
+            bottomActionBar.setVisibility(View.GONE);
+        }
+    }
+
+    public void attachBottomActionBarListeners(View view) {
+        action_goToPreviousUnread = (LinearLayout) view.findViewById(R.id.action_previous_unread);
+        action_goToNextUnread = (LinearLayout) view.findViewById(R.id.action_next_unread);
+        action_goToPreviousUnread.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick (View view) {
+                goToPreviousUnread();
+            }
+        });
+        action_goToNextUnread.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick (View view) {
+                goToNextUnread();
+            }
+        });
+        action_goToPreviousUnread.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick (View view) {
+                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.goToPreviousUnread), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.BOTTOM | Gravity.LEFT, 0, getResources().getDimensionPixelOffset(R.dimen.bottom_action_bar_height));
+                toast.show();
+                return true;
+            }
+        });
+        action_goToNextUnread.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick (View view) {
+                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.goToNextUnread), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.BOTTOM | Gravity.RIGHT, 0, getResources().getDimensionPixelOffset(R.dimen.bottom_action_bar_height));
+                toast.show();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -403,9 +491,68 @@ public class HeadlinesFragment extends ListFragment implements
         return newList;
     }
 
-    public void notifyDataSetChanged() {
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
+    /* Methods triggered by menu items */
+
+    public void clearAllData() {
+        new RSSDataBundleOpenHelper(getActivity()).clearAllData();
+        data = new ArrayList<RSSDataBundle>();
+        updateFeedView();
+    }
+
+    public void markAllRead() {
+        for (RSSDataBundle rdBundle : data) {
+            RSSDataBundle.markAsRead(getActivity(), rdBundle);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    public void goToNextUnread() {
+        int currentIndex = getListView().getFirstVisiblePosition();
+        View v = getListView().getChildAt(0);
+        int offset = (v == null) ? 0 : v.getTop();
+        int itemHeight = (v == null) ? 0 : v.getMeasuredHeight();
+        // Case when ListView.getFirstVisiblePosition() returns an incorrect position
+        // (occurs when the return value is one position above the actual first visible position)
+        if (-1 * itemHeight == offset) {
+            currentIndex++;
+        }
+        boolean foundNext = false;
+        // Scroll ListView to next unread article
+        for (int i = currentIndex + 1;i < data.size();i++) {
+            if (!data.get(i).isRead()) {
+                //getListView().smoothScrollToPosition(i, 0);
+                getListView().setSelection(i);
+                foundNext = true;
+                break;
+            }
+        }
+        if (!foundNext) {
+            showToast(getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
+        }
+    }
+
+    public void goToPreviousUnread() {
+        int currentIndex = getListView().getFirstVisiblePosition();
+        View v = getListView().getChildAt(0);
+        int offset = (v == null) ? 0 : v.getTop();
+        int itemHeight = (v == null) ? 0 : v.getMeasuredHeight();
+        // Case when ListView.getFirstVisiblePosition() returns an incorrect position
+        // (occurs when the return value is one position above the actual first visible position)
+        if (-1 * itemHeight == offset) {
+            currentIndex++;
+        }
+        boolean foundPrevious = false;
+        // Scroll ListView to next unread article
+        for (int i = currentIndex - 1;i >= 0;i--) {
+            if (!data.get(i).isRead()) {
+                //getListView().smoothScrollToPosition(i, 0);
+                getListView().setSelection(i);
+                foundPrevious = true;
+                break;
+            }
+        }
+        if (!foundPrevious) {
+            showToast(getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
         }
     }
 }

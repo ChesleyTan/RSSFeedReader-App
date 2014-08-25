@@ -22,7 +22,6 @@ public class RSSFeed extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        // TODO is this setContentView necessary?
 		setContentView(R.layout.activity_rssfeed);
 		FragmentManager fragMan = getFragmentManager();
 		Fragment theFragment = fragMan.findFragmentById(R.id.container);
@@ -71,21 +70,13 @@ public class RSSFeed extends Activity {
 		}
         else if (id == R.id.action_clear) {
             if (HeadlinesFragment.getInstance() != null) {
-                new RSSDataBundleOpenHelper(getApplicationContext()).clearAllData();
-                HeadlinesFragment.getInstance().setRssData(new ArrayList<RSSDataBundle>(), false);
-                HeadlinesFragment.getInstance().updateFeedView();
+                HeadlinesFragment.getInstance().clearAllData();
             }
             return true;
         }
         else if (id == R.id.action_mark_all_read) {
             if (HeadlinesFragment.getInstance() != null) {
-                for (RSSDataBundle rdBundle : HeadlinesFragment.getInstance().getRssData()) {
-                    if (!rdBundle.isRead()) {
-                        rdBundle.setRead(true);
-                        rdBundle.notifyDatabaseDataChanged(getApplicationContext());
-                    }
-                }
-                HeadlinesFragment.getInstance().notifyDataSetChanged();
+                HeadlinesFragment.getInstance().markAllRead();
             }
             return true;
         }

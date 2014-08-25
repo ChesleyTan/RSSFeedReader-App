@@ -1,10 +1,11 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
     android:id="@+id/headlinesLinearLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="tan.chesley.rssfeedreader.HeadlinesFragment" >
+    tools:context="tan.chesley.rssfeedreader.HeadlinesFragment">
 
     <ListView
         android:id="@android:id/list"
@@ -13,14 +14,64 @@
         android:layout_weight="1"
         android:divider="@null"
         android:dividerHeight="0dp"
-        android:fadingEdge="none"
-        android:scrollbarFadeDuration="700"
-        android:scrollbarDefaultDelayBeforeFade="0"
         android:fadeScrollbars="true"
-        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:fadingEdge="none"
+        android:fastScrollAlwaysVisible="false"
         android:fastScrollEnabled="true"
-        android:fastScrollAlwaysVisible="false">
+        android:scrollbarDefaultDelayBeforeFade="0"
+        android:scrollbarFadeDuration="700"
+        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:smoothScrollbar="false">
     </ListView>
+
+    <RelativeLayout
+        android:id="@+id/bottomActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_action_bar_height"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/bottomActionBarKeyline"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/bottom_action_bar_keyline_height"
+            android:background="@drawable/ab_transparent_dark_holo"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
+
+            <LinearLayout
+                android:id="@+id/action_previous_unread"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                style="@android:style/Widget.Holo.ActionButton">
+                <ImageButton
+                    android:clickable="false"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_action_previous_item"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/action_next_unread"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                style="@android:style/Widget.Holo.ActionButton">
+                <ImageButton
+                    android:clickable="false"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_action_next_item"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/progressBarContainer"
@@ -28,7 +79,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/syncProgressBar"
@@ -36,7 +87,7 @@
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginBottom="50dp"
-            android:visibility="gone" />
+            android:visibility="gone"/>
     </LinearLayout>
 
 </LinearLayout>

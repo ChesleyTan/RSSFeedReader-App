@@ -19,5 +19,9 @@
         <item name="1">1</item>
         <item name="2">2</item>
     </string-array>
+    <string-array name="feed_list_item_context_menu">
+        <item name="0">Mark as read</item>
+        <item name="1">Open in browser</item>
+    </string-array>
 
 </resources>

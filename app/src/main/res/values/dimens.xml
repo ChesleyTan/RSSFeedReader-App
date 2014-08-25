@@ -6,4 +6,6 @@
 	<dimen name="feed_list_item_title_size">26sp</dimen>
 	<dimen name="feed_list_item_description_size">14sp</dimen>
 	<dimen name="feed_list_item_source_size">10sp</dimen>
+    <dimen name="bottom_action_bar_height">48dp</dimen>
+    <dimen name="bottom_action_bar_keyline_height">24dp</dimen> <!-- Should be half of action bar height -->
 </resources>

@@ -241,9 +241,6 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
                     }
                     else {
                         Log.e("File format not recognized: ", line);
-                        while ((line = reader.readLine()) != null) {
-                            Log.e("File format not recognized: ", line);
-                        }
                         showToast(getResources().getString(R.string.invalidFileFormat), Toast.LENGTH_LONG);
                     }
                     reader.close();

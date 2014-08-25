@@ -76,10 +76,6 @@ public class ArticleViewFragment extends Fragment {
 		@Override
 		public void onClick(View arg0) {
 			String url = rdBundle.getLink();
-			if (!url.startsWith("http://") && !url.startsWith("https://")) {
-				url = "http://" + url;
-				Log.e("URL", "URL modified to " + url);
-			}
 			// Log.e("URL Open", "URL: " + url);
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 		}

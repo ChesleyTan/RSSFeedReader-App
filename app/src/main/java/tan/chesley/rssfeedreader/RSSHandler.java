@@ -209,6 +209,10 @@ public class RSSHandler extends DefaultHandler {
                 }
                 // Log.e("Number of description parts", Integer.toString(numDescriptionParts));
                 // Log.e("New Description", rdBundle.getDescription());
+                if (!linkPart.startsWith("http://") && !linkPart.startsWith("https://")) {
+                    linkPart = "http://" + linkPart;
+                    Log.e("URL", "URL modified to " + linkPart);
+                }
                 rdBundle.setLink(linkPart);
                 // Log.e("New Link", rdBundle.getLink());
                 rdBundle.setSourceTitle(sourceTitle);

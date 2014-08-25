@@ -18,9 +18,9 @@
             android:key="pref_feedDateFormat_type"
             android:title="@string/pref_feedDateFormat_title"/>
         <CheckBoxPreference
+            android:defaultValue="false"
             android:key="pref_articleAgeLimitCheckBox"
-            android:title="@string/pref_articleAgeLimitCheckBox_title"
-            android:defaultValue="false">
+            android:title="@string/pref_articleAgeLimitCheckBox_title">
         </CheckBoxPreference>
 
         <!-- android:key is used purely for identifying this Preference object;
@@ -36,10 +36,10 @@
     <PreferenceCategory
         android:title="@string/syncing_settings">
         <CheckBoxPreference
-            android:key="pref_useFullDescriptionCheckBox"
-            android:title="@string/pref_useFullDescriptionCheckBox_title"
             android:defaultValue="false"
-            android:summary="@string/pref_useFullDescriptionCheckBox_summary">
+            android:key="pref_useFullDescriptionCheckBox"
+            android:summary="@string/pref_useFullDescriptionCheckBox_summary"
+            android:title="@string/pref_useFullDescriptionCheckBox_title">
         </CheckBoxPreference>
 
         <!-- android:key is used purely for identifying this Preference object;
@@ -57,6 +57,15 @@ Setting is not actually stored at this key -->
         <Preference android:title="@string/pref_modify_sources">
             <intent android:action="tan.chesley.rssfeedreader.ModifySources"/>
         </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/other_settings">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_bottomActionBarCheckBox"
+            android:title="@string/pref_enableBottomActionBarTitle">
+        </CheckBoxPreference>
     </PreferenceCategory>
 
 

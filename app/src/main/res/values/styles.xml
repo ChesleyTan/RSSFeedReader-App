@@ -17,7 +17,7 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
-
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <style name="Widget.Styled.ActionBar" parent="android:Widget.Holo.ActionBar">

@@ -260,4 +260,11 @@ public class RSSDataBundle implements Parcelable{
         arg0.writeString(stringUUID);
         arg0.writeLong(age);
 	}
+
+    public static void markAsRead(Context context, RSSDataBundle rdBundle) {
+       if (!rdBundle.isRead()) {
+            rdBundle.setRead(true);
+            rdBundle.notifyDatabaseDataChanged(context);
+       }
+    }
 }

@@ -132,7 +132,6 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         title = title.replaceAll("\\s", "");
         Cursor cursor = db.rawQuery(String.format("SELECT %s FROM %s", KEY_TITLE, RSS_DATA_TABLE_NAME), null);
         cursor.moveToFirst();
-        int index = 0;
         while (!cursor.isAfterLast()) {
             if (title.equals(cursor.getString(0).replaceAll("\\s", ""))) {
                 retBool = false;
@@ -145,8 +144,9 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     }
 
     public ArrayList<RSSDataBundle> getBundles() {
+        SQLiteDatabase db = getReadableDatabase();
         ArrayList<RSSDataBundle> bundles = new ArrayList<RSSDataBundle>();
-        Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + RSS_DATA_TABLE_NAME, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + RSS_DATA_TABLE_NAME, null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             RSSDataBundle rdBundle = new RSSDataBundle(cursor.getString(0));
@@ -162,16 +162,20 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
             cursor.moveToNext();
         }
         cursor.close();
+        db.close();
         return bundles;
     }
 
     public void clearAllData() {
-        getWritableDatabase().execSQL("DELETE FROM " + RSS_DATA_TABLE_NAME + ";");
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + RSS_DATA_TABLE_NAME + ";");
+        db.close();
     }
 
     public void updateData(RSSDataBundle rdBundle) {
+        SQLiteDatabase db = getWritableDatabase();
         Log.e("Updating database data for article: ", rdBundle.getTitle());
-        getWritableDatabase().execSQL(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?;",
+        db.execSQL(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?;",
                                                     RSS_DATA_TABLE_NAME,
                                                     KEY_TITLE,
                                                     KEY_DESCRIPTION,
@@ -192,5 +196,6 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
                                                                             rdBundle.isRead() ? "1" : "0",
                                                                             rdBundle.getId()
                                                                             });
+        db.close();
     }
 }

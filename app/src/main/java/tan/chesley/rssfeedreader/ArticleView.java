@@ -35,10 +35,7 @@ public class ArticleView extends FragmentActivity {
             RSSDataBundle rdBundle = rssData.get(arg0);
 			setTitle(rdBundle.getTitle());
             // Mark article as read
-            if (!rdBundle.isRead()) {
-                rdBundle.setRead(true);
-                rdBundle.notifyDatabaseDataChanged(getApplicationContext());
-            }
+            RSSDataBundle.markAsRead(getApplicationContext(), rdBundle);
 			if (title != null) {
 				title.scrollTo(0, 0);
 			}

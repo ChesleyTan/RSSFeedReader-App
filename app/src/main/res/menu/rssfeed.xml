@@ -6,25 +6,26 @@
     <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="0"
         android:title="@string/action_update"
         android:showAsAction="always" />
     
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="150"
         android:title="@string/action_settings"
-        android:showAsAction="ifRoom"/>
+        android:showAsAction="always"/>
 
     <item
         android:id="@+id/action_clear"
         android:title="@string/clearArticles"
-        android:showAsAction="never"
+        android:showAsAction="collapseActionView"
         />
 
     <item
         android:id="@+id/action_mark_all_read"
         android:title="@string/markAllRead"
-        android:showAsAction="never" />
+        android:showAsAction="collapseActionView" />
 
 </menu>
