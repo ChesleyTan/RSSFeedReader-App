@@ -210,6 +210,9 @@ public class RSSDataBundle implements Parcelable{
 		pubDate = parcel.readString();
         stringUUID = parcel.readString();
         age = parcel.readLong();
+        boolean[] boolArr = new boolean[1];
+		parcel.readBooleanArray(boolArr);
+        read = boolArr[0];
 		/*
 		Log.e("RSSDataBundle", "Read Title: " + title);
 		Log.e("RSSDataBundle", "Read Desc: " + description);
@@ -221,7 +224,7 @@ public class RSSDataBundle implements Parcelable{
 	}
 	
 	public int getParceledLength() {
-		return 8; // the total number of descriptors that are packaged in the parcel
+		return 9; // the total number of descriptors that are packaged in the parcel
 	}
 
 	public static final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {
@@ -259,6 +262,9 @@ public class RSSDataBundle implements Parcelable{
 		arg0.writeString(pubDate);
         arg0.writeString(stringUUID);
         arg0.writeLong(age);
+        boolean[] boolArr = new boolean[1];
+        boolArr[0] = read;
+        arg0.writeBooleanArray(boolArr);
 	}
 
     public static void markAsRead(Context context, RSSDataBundle rdBundle) {

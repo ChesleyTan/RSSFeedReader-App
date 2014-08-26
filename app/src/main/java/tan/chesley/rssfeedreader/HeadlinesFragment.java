@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -146,6 +147,13 @@ public class HeadlinesFragment extends ListFragment implements
     @Override
     public void onStart () {
         super.onStart();
+
+        // Fade-in animation
+        AlphaAnimation animation = new AlphaAnimation(0.0f, 1.0f);
+        animation.setFillAfter(true);
+        animation.setDuration(500);
+        getActivity().findViewById(android.R.id.content).startAnimation(animation);
+
         // Allow ListView to receive events originating from a child view
         registerForContextMenu(getListView());
         if (syncing) {
@@ -385,7 +393,6 @@ public class HeadlinesFragment extends ListFragment implements
     }
 
     public void toggleProgressBar() {
-        Log.e("Toggle", "ProgressBar");
         if (syncProgressBar.getVisibility() == View.GONE && syncing) {
             syncProgressBarContainer.setVisibility(View.VISIBLE);
             syncProgressBar.setVisibility(View.VISIBLE);

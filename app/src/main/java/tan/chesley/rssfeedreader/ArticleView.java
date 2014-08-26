@@ -15,13 +15,12 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ArticleView extends FragmentActivity {
 
 	public static final String ARTICLE_SELECTED_KEY = "tan.chesley.rssfeedreader.articleselected";
 	public static final String RSS_DATA_KEY = "tan.chesley.rssfeedreader.rssdata";
-	private ViewPager theViewPager;
+	private ViewPager viewPager;
 	private ArrayList<RSSDataBundle> rssData;
 	private ArticleViewPagerChangeListener viewPagerPageChangeListener;
 	private FragmentStatePagerAdapter viewPagerAdapter;
@@ -61,34 +60,35 @@ public class ArticleView extends FragmentActivity {
 		else {
 			rssData = savedInstanceState.getParcelableArrayList(RSS_DATA_KEY);
 		}
-		theViewPager = new ViewPager(this);
-		theViewPager.setId(R.id.viewPager);
-		setContentView(theViewPager);
+        viewPager = new ViewPager(this);
+		viewPager.setId(R.id.viewPager);
+		setContentView(viewPager);
 
-		theViewPager
+		viewPager
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
 		FragmentManager fragMan = getSupportFragmentManager();
-		theViewPager
+		viewPager
 				.setAdapter(viewPagerAdapter = new FragmentStatePagerAdapter(
-						fragMan) {
+                    fragMan) {
 
-					@Override
-					public Fragment getItem(int arg0) {
-						return ArticleViewFragment.newArticleViewFragment(rssData.get(arg0));
-					}
+                    @Override
+                    public Fragment getItem (int arg0) {
+                        return ArticleViewFragment.newArticleViewFragment(rssData.get(arg0));
+                    }
 
-					@Override
-					public int getCount() {
-						return rssData.size();
-					}
+                    @Override
+                    public int getCount () {
+                        return rssData.size();
+                    }
 
-				});
+                });
+        viewPager.setPageTransformer(true, new DepthPageTransformer());
 		String uuid = getIntent().getStringExtra(HeadlinesFragment.ARTICLE_ID);
 
 		for (int i = 0; i < rssData.size(); i++) {
 			RSSDataBundle rdBundle = rssData.get(i);
 			if (rdBundle.getId().equals(uuid)) {
-				theViewPager.setCurrentItem(i);
+				viewPager.setCurrentItem(i);
 				// Explicitly call the page change listener to set
 				// the action bar title appropriately
 				viewPagerPageChangeListener.onPageSelected(i);
@@ -135,7 +135,7 @@ public class ArticleView extends FragmentActivity {
 	@Override
 	public void finish() {
 		Intent intent = new Intent();
-		intent.putExtra(ARTICLE_SELECTED_KEY, theViewPager.getCurrentItem());
+		intent.putExtra(ARTICLE_SELECTED_KEY, viewPager.getCurrentItem());
 		setResult(Activity.RESULT_OK, intent);
 		//Log.e("ArticleView", "Activity Finished.");
 		super.finish();
