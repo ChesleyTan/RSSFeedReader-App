@@ -20,6 +20,7 @@ public class SettingsFragment extends PreferenceFragment {
     private CheckBoxPreference articleAgeLimitCheckBoxPreference;
     private NumberPickerDialogPreference articleAgeLimitNumberPickerDialogPreference;
     private NumberPickerDialogPreference syncTimeoutNumberPickerDialogPreference;
+    private NumberPickerDialogPreference maxDatabaseSizeNumberPickerDialogPreference;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -59,11 +60,14 @@ public class SettingsFragment extends PreferenceFragment {
         }
         syncTimeoutNumberPickerDialogPreference = (NumberPickerDialogPreference) findPreference("pref_id_syncTimeoutNumberPickerDialog");
         syncTimeoutNumberPickerDialogPreference.setSummary(Integer.toString(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT, getResources().getInteger(R.integer.sync_timeout_default))));
-	}
+	    maxDatabaseSizeNumberPickerDialogPreference = (NumberPickerDialogPreference) findPreference("pref_id_maxDatabaseSizeNumberPickerDialog");
+        maxDatabaseSizeNumberPickerDialogPreference.setSummary(Integer.toString(PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_MAX_DATABASE_SIZE, getResources().getInteger(R.integer.max_database_size_default))));
+    }
 
     @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+        // Remove default padding on the preferences
         view.findViewById(android.R.id.list).setPadding(0, 0, 0, 0);
         return view;
     }

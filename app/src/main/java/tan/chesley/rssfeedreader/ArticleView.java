@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FixedFragmentStatePagerAdapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -68,7 +69,7 @@ public class ArticleView extends FragmentActivity {
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
 		FragmentManager fragMan = getSupportFragmentManager();
 		viewPager
-				.setAdapter(viewPagerAdapter = new FragmentStatePagerAdapter(
+				.setAdapter(viewPagerAdapter = new FixedFragmentStatePagerAdapter(
                     fragMan) {
 
                     @Override

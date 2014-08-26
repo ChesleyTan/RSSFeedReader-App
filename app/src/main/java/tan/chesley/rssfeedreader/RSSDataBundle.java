@@ -210,9 +210,7 @@ public class RSSDataBundle implements Parcelable{
 		pubDate = parcel.readString();
         stringUUID = parcel.readString();
         age = parcel.readLong();
-        boolean[] boolArr = new boolean[1];
-		parcel.readBooleanArray(boolArr);
-        read = boolArr[0];
+        read = parcel.readInt() == 1;
 		/*
 		Log.e("RSSDataBundle", "Read Title: " + title);
 		Log.e("RSSDataBundle", "Read Desc: " + description);
@@ -262,9 +260,7 @@ public class RSSDataBundle implements Parcelable{
 		arg0.writeString(pubDate);
         arg0.writeString(stringUUID);
         arg0.writeLong(age);
-        boolean[] boolArr = new boolean[1];
-        boolArr[0] = read;
-        arg0.writeBooleanArray(boolArr);
+        arg0.writeInt(read ? 1 : 0);
 	}
 
     public static void markAsRead(Context context, RSSDataBundle rdBundle) {

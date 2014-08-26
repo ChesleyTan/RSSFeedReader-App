@@ -47,4 +47,6 @@
     <string name="other_settings">Other settings</string>
     <string name="pref_enableBottomActionBarTitle">Enable bottom action bar</string>
     <string name="noUnreadArticlesFound">No unread articles found.</string>
+    <string name="pref_maxDatabaseSize_title">Max number of articles stored</string>
+    <string name="storageSettings">Storage settings</string>
 </resources>

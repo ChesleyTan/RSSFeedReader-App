@@ -60,6 +60,14 @@ Setting is not actually stored at this key -->
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="@string/storageSettings">
+        <tan.chesley.rssfeedreader.MaxDatabaseSizeNumberPickerDialog
+            android:key="pref_id_maxDatabaseSizeNumberPickerDialog"
+            android:title="@string/pref_maxDatabaseSize_title">
+        </tan.chesley.rssfeedreader.MaxDatabaseSizeNumberPickerDialog>
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/other_settings">
         <CheckBoxPreference
             android:defaultValue="true"

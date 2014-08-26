@@ -96,6 +96,8 @@ public class HeadlinesFragment extends ListFragment implements
         super.onResume();
         // If resuming from preference activity, update the ListView
         if (!syncing && !resumingFromArticleViewActivity && data != null) {
+            int maxDbSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_MAX_DATABASE_SIZE, getResources().getInteger(R.integer.max_database_size_default));
+            new RSSDataBundleOpenHelper(getActivity()).constrainDatabaseSize(maxDbSize);
             updateFeedView();
             toggleBottomActionBar();
         }

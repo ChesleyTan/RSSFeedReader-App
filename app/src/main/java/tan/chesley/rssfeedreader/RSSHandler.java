@@ -158,8 +158,7 @@ public class RSSHandler extends DefaultHandler {
                 }
                 */
             }
-            else { // Stop when we have reached the max number of articles to
-                // read
+            else { // Stop when we have reached the max number of articles to read
                 reset();
                 endDocument();
                 throw new SAXException();

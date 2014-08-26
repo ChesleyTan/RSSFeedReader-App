@@ -1,6 +1,7 @@
 package tan.chesley.rssfeedreader;
 
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 
 /*
@@ -25,7 +26,6 @@ public class DepthPageTransformer implements ViewPager.PageTransformer {
         if (position < -1) { // [-Infinity,-1)
             // This page is way off-screen to the left.
             view.setAlpha(0);
-
         }
         else if (position <= 0) { // [-1,0]
             // Use the default slide transition when moving to the left page
@@ -34,6 +34,12 @@ public class DepthPageTransformer implements ViewPager.PageTransformer {
             view.setScaleX(1);
             view.setScaleY(1);
 
+            // Prevent old views from stealing touches
+            if (position >= -0.01) {
+                view.bringToFront();
+                view.getParent().requestLayout();
+                ((View) view.getParent()).invalidate();
+            }
         }
         else if (position <= 1) { // (0,1]
             // Fade the page out.
