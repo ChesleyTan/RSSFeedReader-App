@@ -77,7 +77,12 @@ public class RSSHandler extends DefaultHandler {
         if (enforceArticleAgeLimit) {
             articleAgeLimit = MILLISECONDS_IN_A_DAY * prefs.getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, context.getResources().getInteger(R.integer.article_age_limit_default));
         }
-        timeout = syncTimeout / numSources;
+        if (numSources == 0) {
+            timeout = 0;
+        }
+        else {
+            timeout = syncTimeout / numSources;
+        }
     }
 
     public void reset () {

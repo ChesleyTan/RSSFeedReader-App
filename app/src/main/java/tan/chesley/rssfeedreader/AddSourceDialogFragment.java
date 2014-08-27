@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,7 +40,12 @@ public class AddSourceDialogFragment extends DialogFragment{
             public void onClick (View view) {
                 SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
                 // TODO validation and validation feedback text
-                dbHelper.addSource(addSourceDialogEditText.getText().toString(), 1);
+                String s = addSourceDialogEditText.getText().toString();
+                if (!s.startsWith("http://") && !s.startsWith("https://")) {
+                    s = "http://" + s;
+                    Log.e("URL", "URL modified to " + s);
+                }
+                dbHelper.addSource(s, SourcesOpenHelper.ENABLED);
                 mCallback.onAddSourceCallback();
                 dialog.dismiss();
             }

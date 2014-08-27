@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SourcesOpenHelper extends SQLiteOpenHelper{
+    public static final int ENABLED = 1;
+    public static final int DISABLED = 0;
     private static final int DATABASE_VERSION = 5;
     private static final String SOURCES_TABLE_NAME = "sources";
     private static final String KEY_SOURCE = "source";

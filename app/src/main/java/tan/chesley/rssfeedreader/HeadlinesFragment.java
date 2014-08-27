@@ -516,6 +516,9 @@ public class HeadlinesFragment extends ListFragment implements
     }
 
     public void goToNextUnread() {
+        if (data.size() == 0) {
+            return;
+        }
         int currentIndex = getListView().getFirstVisiblePosition();
         View v = getListView().getChildAt(0);
         int offset = (v == null) ? 0 : v.getTop();
@@ -541,6 +544,9 @@ public class HeadlinesFragment extends ListFragment implements
     }
 
     public void goToPreviousUnread() {
+        if (data.size() == 0) {
+            return;
+        }
         int currentIndex = getListView().getFirstVisiblePosition();
         View v = getListView().getChildAt(0);
         int offset = (v == null) ? 0 : v.getTop();
