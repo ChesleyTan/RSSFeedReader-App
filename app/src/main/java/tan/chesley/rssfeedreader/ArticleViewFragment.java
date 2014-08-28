@@ -46,7 +46,7 @@ public class ArticleViewFragment extends Fragment {
 		View theView = inflater
 				.inflate(R.layout.article_view, container, false);
 		articleTextView = (TextView) theView.findViewById(R.id.articleTextView);
-		articleTextView.setText(rdBundle.getDescription());
+		articleTextView.setText(rdBundle.getDescription(getActivity()));
 		titleTextView = (TextView) theView.findViewById(R.id.titleTextView);
 		titleTextView.setText(rdBundle.getTitle());
 		sourceTextView = (TextView) theView.findViewById(R.id.sourceTextView);

@@ -1,10 +1,5 @@
 package tan.chesley.rssfeedreader;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.UUID;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Parcel;
@@ -12,7 +7,11 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.format.DateUtils;
-import android.util.Log;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.UUID;
 
 public class RSSDataBundle implements Parcelable{
     public static final String NUMBERS = "0123456789";
@@ -21,6 +20,7 @@ public class RSSDataBundle implements Parcelable{
 	private String stringUUID;
     private boolean read;
     private long age;
+    private boolean descriptionSanitized;
 
 	public RSSDataBundle(String stringUUID) {
         if (stringUUID == null) {
@@ -43,9 +43,13 @@ public class RSSDataBundle implements Parcelable{
 		this.title = title;
 		return this;
 	}
-	public String getDescription() {
-		return description;
+	public String getDescription(Context context) {
+		return descriptionSanitized ? description : RSSHandler.sanitizeDescription(context, this);
 	}
+    // This method does not attempt to sanitize the description
+    public String getRawDescription() {
+        return description;
+    }
 	public RSSDataBundle setDescription(String description) {
 		this.description = description;
 		return this;
@@ -94,14 +98,21 @@ public class RSSDataBundle implements Parcelable{
     public void setRead(boolean bool) {
         read = bool;
     }
+    public boolean isDescriptionSanitized() { return descriptionSanitized; }
+    public void setDescriptionSanitized(boolean bool) { descriptionSanitized = bool; }
+
+    // NOTE: One or more of these methods must be called when the data in the RSSDataBundle is changed after
+    // initialization to update the data inside the database
     public void notifyDatabaseDataChanged(Context context) {
         new RSSDataBundleOpenHelper(context).updateData(this);
     }
-    // NOTE: This method must be called when the data in the RSSDataBundle is changed after
-    // initialization to update the data inside the database
     public void notifyDatabaseReadChanged(Context context) {
         new RSSDataBundleOpenHelper(context).updateRead(this);
     }
+    public void notifyDatabaseDescriptionSanitizedChanged(Context context) {
+        new RSSDataBundleOpenHelper(context).updateDescriptionSanitized(this);
+    }
+
 	public Calendar getCalendar() {
 		Calendar calendar = Calendar.getInstance();
 		String[] pubDateFields = pubDate.split(" ");
@@ -215,6 +226,7 @@ public class RSSDataBundle implements Parcelable{
         stringUUID = parcel.readString();
         age = parcel.readLong();
         read = parcel.readInt() == 1;
+        descriptionSanitized = parcel.readInt() == 1;
 		/*
 		Log.e("RSSDataBundle", "Read Title: " + title);
 		Log.e("RSSDataBundle", "Read Desc: " + description);
@@ -226,7 +238,7 @@ public class RSSDataBundle implements Parcelable{
 	}
 	
 	public int getParceledLength() {
-		return 9; // the total number of descriptors that are packaged in the parcel
+		return 10; // the total number of descriptors that are packaged in the parcel
 	}
 
 	public static final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {
@@ -265,6 +277,7 @@ public class RSSDataBundle implements Parcelable{
         arg0.writeString(stringUUID);
         arg0.writeLong(age);
         arg0.writeInt(read ? 1 : 0);
+        arg0.writeInt(descriptionSanitized ? 1 : 0);
 	}
 
     public static void markAsRead(Context context, RSSDataBundle rdBundle) {
@@ -272,6 +285,13 @@ public class RSSDataBundle implements Parcelable{
             rdBundle.setRead(true);
             rdBundle.notifyDatabaseReadChanged(context);
        }
+    }
+
+    public static void markAsDescriptionSanitized(Context context, RSSDataBundle rdBundle) {
+        if (!rdBundle.isDescriptionSanitized()) {
+            rdBundle.setDescriptionSanitized(true);
+            rdBundle.notifyDatabaseDescriptionSanitizedChanged(context);
+        }
     }
 
     public static String getFormattedTextFromHtml(String s) {

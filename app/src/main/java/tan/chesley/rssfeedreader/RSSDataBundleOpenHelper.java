@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String RSS_DATA_TABLE_NAME = "rssdata";
     private static final String KEY_UUID = "uuid";
     private static final String KEY_TITLE = "title";
@@ -23,6 +23,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     private static final String KEY_PUB_DATE = "pubDate";
     private static final String KEY_AGE = "age";
     private static final String KEY_READ = "read";
+    private static final String KEY_DESCRIPTION_SANITIZED = "descriptionSanitized";
 
     private static final String RSS_DATA_TABLE_CREATE = "CREATE TABLE IF NOT EXISTS " +
         RSS_DATA_TABLE_NAME + " (" +
@@ -34,7 +35,8 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         KEY_SOURCE_TITLE + " TEXT, " +
         KEY_PUB_DATE + " TEXT, " +
         KEY_AGE + " INTEGER, " +
-        KEY_READ + " INTEGER" +
+        KEY_READ + " INTEGER, " +
+        KEY_DESCRIPTION_SANITIZED + " INTEGER" +
         ");";
 
     private static final String NEW_RSS_DATA_TABLE_CREATE = "CREATE TABLE IF NOT EXISTS " +
@@ -47,7 +49,8 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         KEY_SOURCE_TITLE + " TEXT, " +
         KEY_PUB_DATE + " TEXT, " +
         KEY_AGE + " INTEGER, " +
-        KEY_READ + " INTEGER" +
+        KEY_READ + " INTEGER, " +
+        KEY_DESCRIPTION_SANITIZED + " INTEGER" +
         ");";
 
     public RSSDataBundleOpenHelper(Context context) {
@@ -85,12 +88,15 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     public void addBundle(RSSDataBundle rdBundle) {
         SQLiteDatabase db = getWritableDatabase();
         if (isUnique(db, rdBundle.getTitle())) {
-            db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s, %s);",
-                                     RSS_DATA_TABLE_NAME, rdBundle.getAge(), rdBundle.isRead() ? 1 : 0),
+            db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s, %s, %s);",
+                                     RSS_DATA_TABLE_NAME,
+                                     rdBundle.getAge(),
+                                     rdBundle.isRead() ? 1 : 0,
+                                     rdBundle.isDescriptionSanitized() ? 1 : 0),
                        new String[] {
                            rdBundle.getId(),
                            rdBundle.getTitle(),
-                           rdBundle.getDescription(),
+                           rdBundle.getRawDescription(),
                            rdBundle.getLink(),
                            rdBundle.getSource(),
                            rdBundle.getSourceTitle(),
@@ -108,12 +114,15 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         for (RSSDataBundle rdBundle : rdBundles) {
             if (isUnique(db, rdBundle.getTitle())) {
-                db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s, %s);",
-                                         RSS_DATA_TABLE_NAME, rdBundle.getAge(), rdBundle.isRead() ? 1 : 0),
+                db.execSQL(String.format("INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?, %s, %s, %s);",
+                                         RSS_DATA_TABLE_NAME,
+                                         rdBundle.getAge(),
+                                         rdBundle.isRead() ? 1 : 0,
+                                         rdBundle.isDescriptionSanitized() ? 1 : 0),
                            new String[] {
                                rdBundle.getId(),
                                rdBundle.getTitle(),
-                               rdBundle.getDescription(),
+                               rdBundle.getRawDescription(),
                                rdBundle.getLink(),
                                rdBundle.getSource(),
                                rdBundle.getSourceTitle(),
@@ -158,6 +167,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
             rdBundle.setPubDate(cursor.getString(6));
             rdBundle.setAge(cursor.getLong(7));
             rdBundle.setRead(cursor.getInt(8) != 0);
+            rdBundle.setDescriptionSanitized(cursor.getInt(9) != 0);
             bundles.add(rdBundle);
             cursor.moveToNext();
         }
@@ -175,7 +185,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
     public void updateData(RSSDataBundle rdBundle) {
         SQLiteDatabase db = getWritableDatabase();
         Log.e("Updating database data for article: ", rdBundle.getTitle());
-        db.execSQL(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?;",
+        db.execSQL(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?;",
                                                     RSS_DATA_TABLE_NAME,
                                                     KEY_TITLE,
                                                     KEY_DESCRIPTION,
@@ -185,15 +195,17 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
                                                     KEY_PUB_DATE,
                                                     KEY_AGE,
                                                     KEY_READ,
+                                                    KEY_DESCRIPTION_SANITIZED,
                                                     KEY_UUID), new String[] {
                                                                             rdBundle.getTitle(),
-                                                                            rdBundle.getDescription(),
+                                                                            rdBundle.getRawDescription(),
                                                                             rdBundle.getLink(),
                                                                             rdBundle.getSource(),
                                                                             rdBundle.getSourceTitle(),
                                                                             rdBundle.getPubDate(),
                                                                             Long.toString(rdBundle.getAge()),
                                                                             rdBundle.isRead() ? "1" : "0",
+                                                                            rdBundle.isDescriptionSanitized() ? "1" : "0",
                                                                             rdBundle.getId()
                                                                             });
         db.close();
@@ -209,6 +221,21 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
                                                           rdBundle.isRead() ? "1" : "0",
                                                           rdBundle.getId()
                                             });
+        db.close();
+    }
+
+    public void updateDescriptionSanitized(RSSDataBundle rdBundle) {
+        SQLiteDatabase db = getWritableDatabase();
+        Log.e("Updating description sanitized for article: ", rdBundle.getTitle());
+        db.execSQL(String.format("UPDATE %s SET %s=?, %s=? WHERE %s=?;",
+                                 RSS_DATA_TABLE_NAME,
+                                 KEY_DESCRIPTION,
+                                 KEY_DESCRIPTION_SANITIZED,
+                                 KEY_UUID), new String[] {
+            rdBundle.getRawDescription(),
+            rdBundle.isDescriptionSanitized() ? "1" : "0",
+            rdBundle.getId()
+        });
         db.close();
     }
 

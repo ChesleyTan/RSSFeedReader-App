@@ -1,21 +1,19 @@
 package tan.chesley.rssfeedreader;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import tan.chesley.rssfeedreader.TaskFragment.GetRssFeedTask;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
-import android.media.audiofx.BassBoost;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class RSSHandler extends DefaultHandler {
 
@@ -29,12 +27,12 @@ public class RSSHandler extends DefaultHandler {
     final int statePubDate = 5;
     final long timeout; // timeout for parsing an individual feed
     final GetRssFeedTask parent;
+    final Context context;
     final String noDescriptionAvailableString;
     final int maxArticleCount;
     final boolean enforceArticleAgeLimit;
     final boolean useFullDescription;
     final int maxDescriptionParts;
-    final int maxSanitizationIterations;
     final String[] timezones = TimeZone.getAvailableIDs();
     final RSSDataBundleOpenHelper dbHelper;
 
@@ -51,13 +49,13 @@ public class RSSHandler extends DefaultHandler {
     String articleTitlePart = "";
     String articleDescriptionPart = "";
     int numDescriptionParts = 0;
-    int numSanitizationIterations = 0;
     boolean gotDescription = false;
     String linkPart = "";
     boolean badInput = false;
 
     public RSSHandler (GetRssFeedTask task, int numSources, long syncTimeout, Context context) {
         parent = task;
+        this.context = context;
         dbHelper = new RSSDataBundleOpenHelper(context);
         noDescriptionAvailableString = context.getResources().getString(
             R.string.noDescriptionAvailable);
@@ -68,11 +66,9 @@ public class RSSHandler extends DefaultHandler {
         useFullDescription = prefs.getBoolean("pref_useFullDescriptionCheckBox", false);
         if (useFullDescription) {
             maxDescriptionParts = 1000;
-            maxSanitizationIterations = 200;
         }
         else {
             maxDescriptionParts = 25;
-            maxSanitizationIterations = 20;
         }
         if (enforceArticleAgeLimit) {
             articleAgeLimit = MILLISECONDS_IN_A_DAY * prefs.getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, context.getResources().getInteger(R.integer.article_age_limit_default));
@@ -96,7 +92,6 @@ public class RSSHandler extends DefaultHandler {
         articleTitlePart = "";
         articleDescriptionPart = "";
         numDescriptionParts = 0;
-        numSanitizationIterations = 0;
         gotDescription = false;
         linkPart = "";
         badInput = false;
@@ -209,7 +204,16 @@ public class RSSHandler extends DefaultHandler {
                 rdBundle.setTitle(articleTitlePart);
                 // Log.e("New Headline", rdBundle.getTitle());
                 if (!gotDescription) {
-                    clearTagsAndSetDescription(articleDescriptionPart);
+                    rdBundle.setDescription(articleDescriptionPart);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run () {
+                            if (context != null) {
+                                RSSHandler.sanitizeDescription(context, rdBundle);
+                            }
+                        }
+                    }).start();
+                    gotDescription = true;
                 }
                 // Log.e("Number of description parts", Integer.toString(numDescriptionParts));
                 // Log.e("New Description", rdBundle.getDescription());
@@ -231,7 +235,6 @@ public class RSSHandler extends DefaultHandler {
             // Reset variables to store article description
             articleDescriptionPart = "";
             numDescriptionParts = 0;
-            numSanitizationIterations = 0;
             gotDescription = false;
             // Reset variable to store link
             linkPart = "";
@@ -402,7 +405,18 @@ public class RSSHandler extends DefaultHandler {
         return s;
     }
 
-    public void clearTagsAndSetDescription (String s) {
+    public static String sanitizeDescription(Context context, RSSDataBundle rdBundle) {
+        String noDescriptionAvailableString = context.getResources().getString(
+            R.string.noDescriptionAvailable);
+        int maxSanitizationIterations, numSanitizationIterations = 0;
+        boolean useFullDescription = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_useFullDescriptionCheckBox", false);
+        if (useFullDescription) {
+            maxSanitizationIterations = 200;
+        }
+        else {
+            maxSanitizationIterations = 20;
+        }
+        String s = rdBundle.getRawDescription();
         int startIndex, endIndex;
         while (numSanitizationIterations < maxSanitizationIterations && ((startIndex = s.indexOf("<a")) > -1 || (startIndex = s.indexOf("</a")) > -1) && (endIndex = s.indexOf(">", startIndex)) > -1) {
             //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
@@ -429,7 +443,8 @@ public class RSSHandler extends DefaultHandler {
             Log.e("RSSHandler", "Max number of sanitization iterations reached. Using default description.");
             rdBundle.setDescription(noDescriptionAvailableString);
         }
-        gotDescription = true;
+        RSSDataBundle.markAsDescriptionSanitized(context, rdBundle);
+        return rdBundle.getRawDescription();
     }
 
     public ArrayList<RSSDataBundle> getData () {

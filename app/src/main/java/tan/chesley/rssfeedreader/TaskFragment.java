@@ -1,5 +1,18 @@
 package tan.chesley.rssfeedreader;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -8,19 +21,6 @@ import java.net.URL;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.app.Fragment;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.Toast;
 
 // Credits to Alex Lockwood for original model of a task fragment
 public class TaskFragment extends Fragment {
@@ -253,5 +253,6 @@ public class TaskFragment extends Fragment {
             ((HeadlinesFragment) mCallbacks).setRssData(myRSSHandler.getData(), true);
             taskCompleted = true;
         }
+
     }
 }

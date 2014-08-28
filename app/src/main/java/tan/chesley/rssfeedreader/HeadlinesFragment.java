@@ -249,7 +249,7 @@ public class HeadlinesFragment extends ListFragment implements
             headlineTextView.setText(rdBundle.getTitle());
             sourceTextView.setText(rdBundle.getSourceTitle());
             dateTextView.setText(rdBundle.getUserPreferredDateFormat(getContext()));
-            articleTextView.setText(rdBundle.getDescription());
+            articleTextView.setText(rdBundle.getDescription(getContext()));
             // Toggle the color indicator to signify if read/unread
             if (!rdBundle.isRead()) {
                 convertView.findViewById(R.id.colorIndicator).setVisibility(View.VISIBLE);
