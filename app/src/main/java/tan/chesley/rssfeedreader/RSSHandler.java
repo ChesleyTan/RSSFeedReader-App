@@ -67,8 +67,8 @@ public class RSSHandler extends DefaultHandler {
         enforceArticleAgeLimit = prefs.getBoolean("pref_articleAgeLimitCheckBox", false);
         useFullDescription = prefs.getBoolean("pref_useFullDescriptionCheckBox", false);
         if (useFullDescription) {
-            maxDescriptionParts = 500;
-            maxSanitizationIterations = 100;
+            maxDescriptionParts = 1000;
+            maxSanitizationIterations = 200;
         }
         else {
             maxDescriptionParts = 25;
@@ -263,13 +263,13 @@ public class RSSHandler extends DefaultHandler {
         else if (state == stateDescription && !gotDescription) {
             if (numDescriptionParts > maxDescriptionParts) {
                 initializeRdBundleIfNeeded();
-                // Log.e("RSSHandler", "Max number of description parts reached. Using default description.");
+                Log.e("RSSHandler", "Max number of description parts reached. Using default description.");
                 rdBundle.setDescription(noDescriptionAvailableString);
                 gotDescription = true;
             }
             else {
                 numDescriptionParts++;
-                articleDescriptionPart += padString(makeString(ch, start, length, false));
+                articleDescriptionPart += makeString(ch, start, length, false);
             }
         }
         else if (state == stateLink) {
@@ -404,42 +404,29 @@ public class RSSHandler extends DefaultHandler {
 
     public void clearTagsAndSetDescription (String s) {
         int startIndex, endIndex;
-        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("<")) > -1 && (endIndex = s.indexOf(">")) > -1 && startIndex < endIndex) {
+        while (numSanitizationIterations < maxSanitizationIterations && ((startIndex = s.indexOf("<a")) > -1 || (startIndex = s.indexOf("</a")) > -1) && (endIndex = s.indexOf(">", startIndex)) > -1) {
             //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
             numSanitizationIterations++;
         }
-        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&quot;")) > -1) {
-            s = s.substring(0, startIndex) + "\"" + s.substring(startIndex + 1);
-            numSanitizationIterations++;
-        }
-        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&amp;")) > -1) {
-            s = s.substring(0, startIndex) + "&" + s.substring(startIndex + 1);
-            numSanitizationIterations++;
-        }
-        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&apos;")) > -1) {
-            s = s.substring(0, startIndex) + "'" + s.substring(startIndex + 1);
-            numSanitizationIterations++;
-        }
-        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&lt;")) > -1) {
-            s = s.substring(0, startIndex) + "<" + s.substring(startIndex + 1);
-            numSanitizationIterations++;
-        }
-        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&gt;")) > -1) {
-            s = s.substring(0, startIndex) + ">" + s.substring(startIndex + 1);
-            numSanitizationIterations++;
-        }
-        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("&")) > -1 && (endIndex = s.indexOf(";")) > -1 && startIndex < endIndex) {
+        while (numSanitizationIterations < maxSanitizationIterations && ((startIndex = s.indexOf("<img")) > -1 || (startIndex = s.indexOf("</img")) > -1) && (endIndex = s.indexOf(">", startIndex)) > -1) {
             //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
+            numSanitizationIterations++;
+        }
+        int newStartIndex = 0;
+        while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("<br", newStartIndex)) > -1 && (endIndex = s.indexOf(">", startIndex)) > -1) {
+            //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
+            s = s.substring(0, startIndex) + "<br/><br/>" + s.substring(endIndex + 1);
+            newStartIndex = startIndex + 10; // 10 is to offset the length of the new newlines that were added
             numSanitizationIterations++;
         }
         if (numSanitizationIterations < maxSanitizationIterations) {
             s = s.trim().replaceAll("\\s+", " ");
-            rdBundle.setDescription(s);
+            rdBundle.setDescription(RSSDataBundle.getFormattedTextFromHtml(s));
         }
         else {
-            // Log.e("RSSHandler", "Max number of sanitization iterations reached. Using default description.");
+            Log.e("RSSHandler", "Max number of sanitization iterations reached. Using default description.");
             rdBundle.setDescription(noDescriptionAvailableString);
         }
         gotDescription = true;

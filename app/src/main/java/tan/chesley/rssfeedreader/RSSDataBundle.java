@@ -10,6 +10,7 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -271,5 +272,9 @@ public class RSSDataBundle implements Parcelable{
             rdBundle.setRead(true);
             rdBundle.notifyDatabaseReadChanged(context);
        }
+    }
+
+    public static String getFormattedTextFromHtml(String s) {
+        return Html.fromHtml(s).toString().trim().replaceAll("(\\n){3,}", "\n\n");
     }
 }
