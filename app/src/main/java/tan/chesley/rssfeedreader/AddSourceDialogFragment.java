@@ -38,15 +38,12 @@ public class AddSourceDialogFragment extends DialogFragment{
         addSourceDialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view) {
-                SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
-                // TODO validation and validation feedback text
                 String s = addSourceDialogEditText.getText().toString();
                 if (!s.startsWith("http://") && !s.startsWith("https://")) {
                     s = "http://" + s;
                     Log.e("URL", "URL modified to " + s);
                 }
-                dbHelper.addSource(s, SourcesOpenHelper.ENABLED);
-                mCallback.onAddSourceCallback();
+                ((ModifySources)getActivity()).validateAndAddSource(s);
                 dialog.dismiss();
             }
         });

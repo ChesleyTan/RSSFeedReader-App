@@ -93,10 +93,13 @@ public class RSSDataBundle implements Parcelable{
     public void setRead(boolean bool) {
         read = bool;
     }
-    // NOTE: This method must be called when the data in the RSSDataBundle is changed after
-    // initialization to update the data inside the database
     public void notifyDatabaseDataChanged(Context context) {
         new RSSDataBundleOpenHelper(context).updateData(this);
+    }
+    // NOTE: This method must be called when the data in the RSSDataBundle is changed after
+    // initialization to update the data inside the database
+    public void notifyDatabaseReadChanged(Context context) {
+        new RSSDataBundleOpenHelper(context).updateRead(this);
     }
 	public Calendar getCalendar() {
 		Calendar calendar = Calendar.getInstance();
@@ -266,7 +269,7 @@ public class RSSDataBundle implements Parcelable{
     public static void markAsRead(Context context, RSSDataBundle rdBundle) {
        if (!rdBundle.isRead()) {
             rdBundle.setRead(true);
-            rdBundle.notifyDatabaseDataChanged(context);
+            rdBundle.notifyDatabaseReadChanged(context);
        }
     }
 }

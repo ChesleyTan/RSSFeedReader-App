@@ -49,4 +49,7 @@
     <string name="noUnreadArticlesFound">No unread articles found.</string>
     <string name="pref_maxDatabaseSize_title">Max number of articles stored</string>
     <string name="storageSettings">Storage settings</string>
+    <string name="validatingNewSource">Validating new source...</string>
+    <string name="invalidSource">Source was invalid. Please verify that the source is a working RSS feed.</string>
+    <string name="validSource">Source validation successful.</string>
 </resources>

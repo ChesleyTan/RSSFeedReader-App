@@ -29,7 +29,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/bottom_action_bar_height"
         android:layout_gravity="center_horizontal"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@color/ActionBarBackgroundColor">
 
         <View
             android:id="@+id/bottomActionBarKeyline"

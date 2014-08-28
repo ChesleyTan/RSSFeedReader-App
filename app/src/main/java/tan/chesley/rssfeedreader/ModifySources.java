@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -15,26 +16,33 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import java.io.BufferedOutputStream;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 public class ModifySources extends ListActivity implements ModifySourceDialogFragment.ModifySourceCallbacks, AddSourceDialogFragment.AddSourceCallbacks{
 
@@ -46,6 +54,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     private final Context context = this;
     private ArrayList<String> sources;
     private boolean isAutomaticChange;
+    private Toast toast;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -254,13 +263,126 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     }
 
     public void showToast (String s, int toastDurationFlag) {
-        Toast toast = Toast.makeText(this, s,
-                                     toastDurationFlag);
+        if (toast != null) {
+            toast.cancel();
+        }
+        toast = Toast.makeText(getApplicationContext(), s,
+                               toastDurationFlag);
         TextView toastTextView = (TextView) toast.getView().findViewById(
             android.R.id.message);
         toastTextView.setTextColor(getResources().getColor(
             R.color.AppPrimaryTextColor));
+        toast.getView().setBackgroundColor(getResources().getColor(R.color.AppDefaultBackgroundColor));
         toast.getView().getBackground().setAlpha(180);
         toast.show();
+    }
+
+    public void validateAndAddSource(String s) {
+        ValidationAsyncTask task = new ValidationAsyncTask();
+        task.execute(s);
+    }
+
+    private class ValidationAsyncTask extends AsyncTask<String, Void, Void> {
+
+        final long validationTimeout = 3000;
+        final long startTime = System.currentTimeMillis();
+        private String s = "";
+        private boolean isValidFeed = true;
+
+        @Override
+        protected Void doInBackground (String... strings) {
+            s = strings[0];
+            SAXParserFactory mySAXParserFactory = SAXParserFactory
+                .newInstance();
+            SAXParser mySAXParser = null;
+            XMLReader myXMLReader = null;
+            try {
+                mySAXParser = mySAXParserFactory.newSAXParser();
+                myXMLReader = mySAXParser.getXMLReader();
+            } catch (SAXException e) {
+                e.printStackTrace();
+                Log.e("Validation", "Could not connect to RSS feed! Error 1");
+                isValidFeed = false;
+                return null;
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+                Log.e("Validation", "Could not connect to RSS feed! Error 2.");
+                isValidFeed = false;
+                return null;
+            }
+            if (System.currentTimeMillis() - startTime > validationTimeout) {
+                Log.e("Validation", "Validation timeout reached.");
+                isValidFeed = false;
+                return null;
+            }
+            DefaultHandler myRSSValidationHandler = new DefaultHandler();
+            myXMLReader.setContentHandler(myRSSValidationHandler);
+            InputSource myInputSource;
+            InputStream feedStream;
+            URL url = null;
+            try {
+                url = new URL(s);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                Log.e("Validation", "Cannot connect to RSS feed! Error 3.");
+                isValidFeed = false;
+                return null;
+            }
+            if (System.currentTimeMillis() - startTime > validationTimeout) {
+                Log.e("Validation", "Validation timeout reached.");
+                isValidFeed = false;
+                return null;
+            }
+            try {
+                feedStream = url.openStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("Validation", "Cannot connect to RSS feed! Error 4.");
+                isValidFeed = false;
+                return null;
+            }
+            if (System.currentTimeMillis() - startTime > validationTimeout) {
+                Log.e("Validation", "Validation timeout reached.");
+                isValidFeed = false;
+                return null;
+            }
+            myInputSource = new InputSource(feedStream);
+            try {
+                myXMLReader.parse(myInputSource);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("Validation", "Cannot connect to RSS feed! Error 5.");
+                isValidFeed = false;
+                return null;
+            } catch (SAXException e) {
+                e.printStackTrace();
+                Log.e("Validation", "Cannot connect to RSS feed! Error 6.");
+                isValidFeed = false;
+                return null;
+            }
+            return null;
+        }
+
+
+        @Override
+        protected void onPreExecute () {
+            super.onPreExecute();
+            showToast(getResources().getString(R.string.validatingNewSource), Toast.LENGTH_SHORT);
+        }
+
+        @Override
+        protected void onPostExecute (Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (isValidFeed) {
+                SourcesOpenHelper dbHelper = new SourcesOpenHelper(getApplicationContext());
+                dbHelper.addSource(s, SourcesOpenHelper.ENABLED);
+                showToast(getResources().getString(R.string.validSource), Toast.LENGTH_SHORT);
+                showListView(true);
+            }
+            else {
+                Log.e("Validation", s + " is an invalid source.");
+                showToast(getResources().getString(R.string.invalidSource), Toast.LENGTH_LONG);
+            }
+        }
     }
 }

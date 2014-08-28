@@ -44,14 +44,12 @@ public class ModifySourceDialogFragment extends DialogFragment{
             public void onClick (View view) {
                 SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
                 dbHelper.deleteSource(source);
-                // TODO validation and validation feedback text
                 String s = sourceEditText.getText().toString();
                 if (!s.startsWith("http://") && !s.startsWith("https://")) {
                     s = "http://" + s;
                     Log.e("URL", "URL modified to " + s);
                 }
-                dbHelper.addSource(s, SourcesOpenHelper.ENABLED);
-                mCallback.onModifySourceCallback();
+                ((ModifySources)getActivity()).validateAndAddSource(s);
                 dialog.dismiss();
             }
         });

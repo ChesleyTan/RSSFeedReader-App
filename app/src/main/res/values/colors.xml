@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="AppDefaultBackgroundColor">#000000</color>
+    <color name="AppDefaultBackgroundColor">#002b36</color>
     <color name="AppPrimaryTextColor">#00BFFF</color>
+    <color name="ActionBarBackgroundColor">#073642</color>
     <color name="SemiTransparentBlack">#95000000</color>
     <color name="DisabledTextColor">#555555</color>
     <color name="UnreadListItemBgColor">#222222</color>

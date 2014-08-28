@@ -344,6 +344,7 @@ public class HeadlinesFragment extends ListFragment implements
             android.R.id.message);
         toastTextView.setTextColor(getResources().getColor(
             R.color.AppPrimaryTextColor));
+        toast.getView().setBackgroundColor(getResources().getColor(R.color.AppDefaultBackgroundColor));
         toast.getView().getBackground().setAlpha(180);
         toast.show();
     }

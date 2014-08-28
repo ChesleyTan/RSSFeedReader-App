@@ -126,7 +126,7 @@ public class TaskFragment extends Fragment {
     public class GetRssFeedTask extends AsyncTask<String, Void, Void> {
 
         long startTime = System.currentTimeMillis();
-        long longRequestTime = 4000;
+        final long longRequestTime = 4000;
         private RSSHandler myRSSHandler;
 
         @Override

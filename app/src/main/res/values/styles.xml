@@ -18,11 +18,13 @@
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@color/AppDefaultBackgroundColor</item>
     </style>
 
     <style name="Widget.Styled.ActionBar" parent="android:Widget.Holo.ActionBar">
         <item name="android:displayOptions">showHome|useLogo</item>
         <item name="displayOptions">showHome|useLogo</item>
+        <item name="android:windowBackground">@color/ActionBarBackgroundColor</item>
     </style>
 
     <style name="RSSFeed" parent="AppTheme">

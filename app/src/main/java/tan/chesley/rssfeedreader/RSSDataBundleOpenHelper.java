@@ -199,6 +199,19 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         db.close();
     }
 
+    public void updateRead(RSSDataBundle rdBundle) {
+        SQLiteDatabase db = getWritableDatabase();
+        Log.e("Updating read for article: ", rdBundle.getTitle());
+        db.execSQL(String.format("UPDATE %s SET %s=? WHERE %s=?;",
+                                 RSS_DATA_TABLE_NAME,
+                                 KEY_READ,
+                                 KEY_UUID), new String[] {
+                                                          rdBundle.isRead() ? "1" : "0",
+                                                          rdBundle.getId()
+                                            });
+        db.close();
+    }
+
     public void constrainDatabaseSize(int maxSize) {
         long currentSize = DatabaseUtils.queryNumEntries(getReadableDatabase(), RSS_DATA_TABLE_NAME);
         Log.e("Database size before: ", Long.toString(currentSize));
