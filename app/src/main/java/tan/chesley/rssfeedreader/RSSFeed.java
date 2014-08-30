@@ -6,11 +6,13 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 
@@ -23,6 +25,7 @@ public class RSSFeed extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        BrightnessControl.toggleBrightness(getApplicationContext(), this);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		setContentView(R.layout.activity_rssfeed);
 		FragmentManager fragMan = getFragmentManager();
@@ -111,6 +114,12 @@ public class RSSFeed extends Activity {
                 HeadlinesFragment.getInstance().goToTop();
             }
             return true;
+        }
+        else if (id == R.id.action_lights_off_mode) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            boolean lightsOffMode = prefs.getBoolean(BrightnessControl.LIGHTS_OFF_MODE, false);
+            prefs.edit().putBoolean(BrightnessControl.LIGHTS_OFF_MODE, !lightsOffMode).apply();
+            BrightnessControl.toggleBrightness(getApplicationContext(), this);
         }
 		return super.onOptionsItemSelected(item);
 	}

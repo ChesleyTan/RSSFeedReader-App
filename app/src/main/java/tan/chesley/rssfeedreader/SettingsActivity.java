@@ -15,6 +15,7 @@ public class SettingsActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        BrightnessControl.toggleBrightness(getApplicationContext(), this);
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
 
         getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);

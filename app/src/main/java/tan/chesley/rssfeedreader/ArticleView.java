@@ -55,6 +55,7 @@ public class ArticleView extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        BrightnessControl.toggleBrightness(getApplicationContext(), this);
 		if (savedInstanceState == null) {
 			rssData = HeadlinesFragment.getInstance().getRssData();
 		}

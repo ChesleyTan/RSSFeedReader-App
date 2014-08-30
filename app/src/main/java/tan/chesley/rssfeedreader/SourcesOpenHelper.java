@@ -78,7 +78,7 @@ public class SourcesOpenHelper extends SQLiteOpenHelper{
     public void deleteSource(String source) {
         Log.e("SourcesOpenHelper", "Deleting source " + source);
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + SOURCES_TABLE_NAME + " WHERE " + KEY_SOURCE + " = \"" + source + "\";");
+        db.execSQL("DELETE FROM " + SOURCES_TABLE_NAME + " WHERE rowid = (SELECT rowid FROM " + SOURCES_TABLE_NAME + " WHERE " + KEY_SOURCE + " = \"" + source + "\" LIMIT 1);");
         db.close();
     }
 

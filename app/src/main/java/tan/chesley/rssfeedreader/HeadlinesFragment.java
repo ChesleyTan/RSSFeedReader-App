@@ -56,7 +56,6 @@ public class HeadlinesFragment extends ListFragment implements
     private LinearLayout syncProgressBarContainer;
     private LinearLayout action_goToPreviousUnread;
     private LinearLayout action_goToNextUnread;
-    private Toast toast;
 
     public HeadlinesFragment () {
         singleton = this;
@@ -178,7 +177,7 @@ public class HeadlinesFragment extends ListFragment implements
             NetworkInfo activeNetworkInfo = connectivityManager
                 .getActiveNetworkInfo();
             if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
-                showToast("Could not connect to network", Toast.LENGTH_SHORT);
+                Toaster.showToast(getActivity(), "Could not connect to network", Toast.LENGTH_SHORT);
                 return;
             }
             // Use syncing flag to prevent calling multiple sync tasks
@@ -190,7 +189,7 @@ public class HeadlinesFragment extends ListFragment implements
             mTaskFragment = new TaskFragment();
             getActivity().getFragmentManager().beginTransaction()
                          .add(mTaskFragment, TASK_FRAGMENT).commit();
-            showToast("Syncing feeds...", Toast.LENGTH_LONG);
+            Toaster.showToast(getActivity(), "Syncing feeds...", Toast.LENGTH_LONG);
         }
     }
 
@@ -332,21 +331,6 @@ public class HeadlinesFragment extends ListFragment implements
         }
     }
 
-    public void showToast (String s, int toastDurationFlag) {
-        if (toast != null) {
-            toast.cancel();
-        }
-        toast = Toast.makeText(getActivity(), s,
-                                     toastDurationFlag);
-        TextView toastTextView = (TextView) toast.getView().findViewById(
-            android.R.id.message);
-        toastTextView.setTextColor(getResources().getColor(
-            R.color.AppPrimaryTextColor));
-        toast.getView().setBackgroundColor(getResources().getColor(R.color.AppDefaultBackgroundColor));
-        toast.getView().getBackground().setAlpha(180);
-        toast.show();
-    }
-
     public ArrayList<RSSDataBundle> filterOutdated(ArrayList<RSSDataBundle> list) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         boolean enforceAgeLimit = prefs.getBoolean("pref_articleAgeLimitCheckBox", false);
@@ -464,7 +448,7 @@ public class HeadlinesFragment extends ListFragment implements
 
     @Override
     public void onProgressUpdate () {
-        showToast("Still working...", Toast.LENGTH_SHORT);
+        Toaster.showToast(getActivity(), "Still working...", Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -538,7 +522,7 @@ public class HeadlinesFragment extends ListFragment implements
             }
         }
         if (!foundNext) {
-            showToast(getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
+            Toaster.showToast(getActivity(), getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
         }
     }
 
@@ -566,7 +550,7 @@ public class HeadlinesFragment extends ListFragment implements
             }
         }
         if (!foundPrevious) {
-            showToast(getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
+            Toaster.showToast(getActivity(), getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
         }
     }
 

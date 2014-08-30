@@ -75,7 +75,8 @@ public class TaskFragment extends Fragment {
                             mTask.cancel(true);
                             mTask.onCancelled();
                             if (mCallbacks != null) {
-                                ((HeadlinesFragment) mCallbacks).showToast(
+                                Toaster.showToast(
+                                    ((HeadlinesFragment) mCallbacks).getActivity(),
                                     "Sync connection timeout",
                                     Toast.LENGTH_SHORT);
                             }

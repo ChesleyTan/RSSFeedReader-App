@@ -33,4 +33,10 @@
         android:title="@string/goToTop"
         android:showAsAction="collapseActionView"
         />
+
+    <item
+    android:id="@+id/action_lights_off_mode"
+    android:title="@string/toggleLightsOffMode"
+    android:showAsAction="collapseActionView"
+    />
 </menu>
