@@ -157,6 +157,20 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         return retBool;
     }
 
+    public boolean isRead(String uuid) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(String.format("SELECT %s from %s WHERE %s=?",
+                                                  KEY_READ,
+                                                  RSS_DATA_TABLE_NAME,
+                                                  KEY_UUID
+        ), new String[] {uuid});
+        cursor.moveToFirst();
+        boolean bool = cursor.getInt(0) == 1;
+        cursor.close();
+        db.close();
+        return bool;
+    }
+
     public ArrayList<RSSDataBundle> getBundles() {
         SQLiteDatabase db = getReadableDatabase();
         ArrayList<RSSDataBundle> bundles = new ArrayList<RSSDataBundle>();

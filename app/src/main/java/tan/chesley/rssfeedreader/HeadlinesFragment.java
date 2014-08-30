@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -311,6 +312,19 @@ public class HeadlinesFragment extends ListFragment implements
         if (requestCode == ARTICLE_VIEW_INTENT) {
             resumingFromArticleViewActivity = true;
             Assert.assertNotNull(data);
+
+            // If "Don't Keep Activities" is enabled, we need to update the read flag manually
+            // because references back to the data ArrayList in other classes will not resolve correctly
+            if (Settings.System.getInt(getActivity().getContentResolver(), Settings.Global.ALWAYS_FINISH_ACTIVITIES, 0) == 1) {
+                RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getActivity());
+                for (RSSDataBundle rdBundle : HeadlinesFragment.data) {
+                    if (!rdBundle.isRead() && dbHelper.isRead(rdBundle.getId())) {
+                        Log.e("Correcting read for: ", rdBundle.getTitle());
+                        rdBundle.setRead(true);
+                    }
+                }
+            }
+
             // Force redraw of the ListView to update the Views for read/unread articles
             adapter.notifyDataSetChanged();
             getListView().setSelection(
