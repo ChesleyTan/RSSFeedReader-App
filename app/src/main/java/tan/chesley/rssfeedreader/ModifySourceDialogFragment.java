@@ -1,8 +1,11 @@
 package tan.chesley.rssfeedreader;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -39,10 +42,10 @@ public class ModifySourceDialogFragment extends DialogFragment{
         Button saveButton = (Button) dialog.findViewById(R.id.saveButton);
         Button deleteButton = (Button) dialog.findViewById(R.id.deleteButton);
         sourceEditText.setText(source);
+        final SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view) {
-                SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
                 dbHelper.deleteSource(source);
                 String s = sourceEditText.getText().toString();
                 if (!s.startsWith("http://") && !s.startsWith("https://")) {
@@ -56,9 +59,20 @@ public class ModifySourceDialogFragment extends DialogFragment{
         deleteButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View view) {
-                SourcesOpenHelper dbHelper = new SourcesOpenHelper(getActivity());
-                dbHelper.deleteSource(source);
-                mCallback.onModifySourceCallback();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick (DialogInterface dialogInterface, int i) {
+                        if (i == DialogInterface.BUTTON_POSITIVE) {
+                            dbHelper.deleteSource(source);
+                            mCallback.onModifySourceCallback();
+                        }
+                    }
+                };
+                builder.setMessage(getResources().getString(R.string.confirm_deleteSource))
+                       .setPositiveButton(getResources().getString(R.string.yes), onClickListener)
+                       .setNegativeButton(getResources().getString(R.string.cancel), onClickListener)
+                       .show();
                 dialog.dismiss();
             }
         });

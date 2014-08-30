@@ -70,45 +70,58 @@ public class SourcesOpenHelper extends SQLiteOpenHelper{
     }
 
     public void addSource(String source, int enabled) {
-        getWritableDatabase().execSQL("INSERT INTO " + SOURCES_TABLE_NAME + " VALUES (\"" + source + "\", " + enabled + ");");
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO " + SOURCES_TABLE_NAME + " VALUES (\"" + source + "\", " + enabled + ");");
+        db.close();
     }
 
     public void deleteSource(String source) {
         Log.e("SourcesOpenHelper", "Deleting source " + source);
-        getWritableDatabase().execSQL("DELETE FROM " + SOURCES_TABLE_NAME + " WHERE " + KEY_SOURCE + " = \"" + source + "\";");
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + SOURCES_TABLE_NAME + " WHERE " + KEY_SOURCE + " = \"" + source + "\";");
+        db.close();
     }
 
     public void setEnabled(String source, boolean enabled) {
+        SQLiteDatabase db = getWritableDatabase();
         int bool = enabled ? 1 : 0;
-        getWritableDatabase().execSQL("UPDATE " + SOURCES_TABLE_NAME + " SET " + KEY_ENABLED + " = " + bool + " WHERE " + KEY_SOURCE + " = \"" + source + "\";");
+        db.execSQL("UPDATE " + SOURCES_TABLE_NAME + " SET " + KEY_ENABLED + " = " + bool + " WHERE " + KEY_SOURCE + " = \"" + source + "\";");
+        db.close();
     }
 
     public boolean isEnabled(String source) {
-        Cursor cursor = getReadableDatabase().rawQuery("SELECT " + KEY_ENABLED + " FROM " + SOURCES_TABLE_NAME + " WHERE " + KEY_SOURCE + " = \"" + source + "\";", null);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + KEY_ENABLED + " FROM " + SOURCES_TABLE_NAME + " WHERE " + KEY_SOURCE + " = \"" + source + "\";", null);
         cursor.moveToFirst();
         boolean enabled = cursor.getInt(0) != 0;
         cursor.close();
+        db.close();
         return enabled;
     }
 
     public void clearAllSources() {
-        getWritableDatabase().execSQL("DELETE FROM " + SOURCES_TABLE_NAME + ";");
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + SOURCES_TABLE_NAME + ";");
+        db.close();
     }
 
     public ArrayList<String> getSourcesArrayList() {
+        SQLiteDatabase db = getReadableDatabase();
         ArrayList<String> sources = new ArrayList<String>();
-        Cursor cursor = getReadableDatabase().rawQuery("SELECT " + KEY_SOURCE + " FROM " + SOURCES_TABLE_NAME + ";", null);
+        Cursor cursor = db.rawQuery("SELECT " + KEY_SOURCE + " FROM " + SOURCES_TABLE_NAME + ";", null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             sources.add(cursor.getString(0));
             cursor.moveToNext();
         }
         cursor.close();
+        db.close();
         return sources;
     }
 
     public String[] getSources() {
-        Cursor cursor = getReadableDatabase().rawQuery("SELECT " + KEY_SOURCE + " FROM " + SOURCES_TABLE_NAME + ";", null);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + KEY_SOURCE + " FROM " + SOURCES_TABLE_NAME + ";", null);
         String[] sources = new String[cursor.getCount()];
         int index = 0;
         cursor.moveToFirst();
@@ -117,11 +130,13 @@ public class SourcesOpenHelper extends SQLiteOpenHelper{
             cursor.moveToNext();
         }
         cursor.close();
+        db.close();
         return sources;
     }
 
     public String[] getEnabledSources() {
-        Cursor cursor = getReadableDatabase().rawQuery("SELECT " + KEY_SOURCE + " FROM " + SOURCES_TABLE_NAME + " WHERE " + KEY_ENABLED + " = 1;", null);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + KEY_SOURCE + " FROM " + SOURCES_TABLE_NAME + " WHERE " + KEY_ENABLED + " = 1;", null);
         String[] sources = new String[cursor.getCount()];
         int index = 0;
         cursor.moveToFirst();
@@ -130,6 +145,7 @@ public class SourcesOpenHelper extends SQLiteOpenHelper{
             cursor.moveToNext();
         }
         cursor.close();
+        db.close();
         return sources;
     }
 }

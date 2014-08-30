@@ -52,4 +52,10 @@
     <string name="validatingNewSource">Validating new source...</string>
     <string name="invalidSource">Source was invalid. Please verify that the source is a working RSS feed.</string>
     <string name="validSource">Source validation successful.</string>
+    <string name="goToTop">Go to top</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm_markAllRead">Mark all as read?</string>
+    <string name="confirm_clearAllArticles">Clear all articles?</string>
+    <string name="confirm_deleteSource">Delete source?</string>
 </resources>

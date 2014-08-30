@@ -1,8 +1,10 @@
 package tan.chesley.rssfeedreader;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -69,14 +71,44 @@ public class RSSFeed extends Activity {
 			return true;
 		}
         else if (id == R.id.action_clear) {
-            if (HeadlinesFragment.getInstance() != null) {
-                HeadlinesFragment.getInstance().clearAllData();
-            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick (DialogInterface dialogInterface, int i) {
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        if (HeadlinesFragment.getInstance() != null) {
+                            HeadlinesFragment.getInstance().clearAllData();
+                        }
+                    }
+                }
+            };
+            builder.setMessage(getResources().getString(R.string.confirm_clearAllArticles))
+                   .setPositiveButton(getResources().getString(R.string.yes), onClickListener)
+                   .setNegativeButton(getResources().getString(R.string.cancel), onClickListener)
+                   .show();
             return true;
         }
         else if (id == R.id.action_mark_all_read) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick (DialogInterface dialogInterface, int i) {
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        if (HeadlinesFragment.getInstance() != null) {
+                            HeadlinesFragment.getInstance().markAllRead();
+                        }
+                    }
+                }
+            };
+            builder.setMessage(getResources().getString(R.string.confirm_markAllRead))
+                   .setPositiveButton(getResources().getString(R.string.yes), onClickListener)
+                   .setNegativeButton(getResources().getString(R.string.cancel), onClickListener)
+                   .show();
+            return true;
+        }
+        else if (id == R.id.action_go_to_top) {
             if (HeadlinesFragment.getInstance() != null) {
-                HeadlinesFragment.getInstance().markAllRead();
+                HeadlinesFragment.getInstance().goToTop();
             }
             return true;
         }

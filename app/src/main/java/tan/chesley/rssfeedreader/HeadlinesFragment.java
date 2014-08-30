@@ -569,4 +569,8 @@ public class HeadlinesFragment extends ListFragment implements
             showToast(getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
         }
     }
+
+    public void goToTop() {
+        getListView().setSelection(0);
+    }
 }

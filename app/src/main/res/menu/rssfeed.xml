@@ -28,4 +28,9 @@
         android:title="@string/markAllRead"
         android:showAsAction="collapseActionView" />
 
+    <item
+        android:id="@+id/action_go_to_top"
+        android:title="@string/goToTop"
+        android:showAsAction="collapseActionView"
+        />
 </menu>
