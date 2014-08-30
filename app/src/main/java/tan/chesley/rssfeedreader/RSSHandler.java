@@ -2,12 +2,25 @@ package tan.chesley.rssfeedreader;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.NetworkOnMainThreadException;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -205,14 +218,7 @@ public class RSSHandler extends DefaultHandler {
                 // Log.e("New Headline", rdBundle.getTitle());
                 if (!gotDescription) {
                     rdBundle.setDescription(articleDescriptionPart);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run () {
-                            if (context != null) {
-                                RSSHandler.sanitizeDescription(context, rdBundle);
-                            }
-                        }
-                    }).start();
+                    sanitizeDescriptionThread(context, rdBundle).start();
                     gotDescription = true;
                 }
                 // Log.e("Number of description parts", Integer.toString(numDescriptionParts));
@@ -405,7 +411,7 @@ public class RSSHandler extends DefaultHandler {
         return s;
     }
 
-    public static String sanitizeDescription(Context context, RSSDataBundle rdBundle) {
+    public static String sanitizeDescription(final Context context, RSSDataBundle rdBundle) {
         String noDescriptionAvailableString = context.getResources().getString(
             R.string.noDescriptionAvailable);
         int maxSanitizationIterations, numSanitizationIterations = 0;
@@ -418,11 +424,6 @@ public class RSSHandler extends DefaultHandler {
         }
         String s = rdBundle.getRawDescription();
         int startIndex, endIndex;
-        while (numSanitizationIterations < maxSanitizationIterations && ((startIndex = s.indexOf("<a")) > -1 || (startIndex = s.indexOf("</a")) > -1) && (endIndex = s.indexOf(">", startIndex)) > -1) {
-            //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
-            s = s.substring(0, startIndex) + s.substring(endIndex + 1);
-            numSanitizationIterations++;
-        }
         while (numSanitizationIterations < maxSanitizationIterations && ((startIndex = s.indexOf("<img")) > -1 || (startIndex = s.indexOf("</img")) > -1) && (endIndex = s.indexOf(">", startIndex)) > -1) {
             //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
@@ -435,13 +436,55 @@ public class RSSHandler extends DefaultHandler {
             newStartIndex = startIndex + 10; // 10 is to offset the length of the new newlines that were added
             numSanitizationIterations++;
         }
+
+        boolean reading = true;
+        int index = 0;
+        // Locate location of first plain text
+        while (index < s.length()) {
+            String tmp = s.substring(index, index + 1);
+            if (tmp.equals("<")) {
+                reading = false;
+            }
+            else if (tmp.equals(">")) {
+                reading = true;
+            }
+            else if (reading && !tmp.equals(" ")) {
+                break;
+            }
+            index++;
+        }
+        // Remove newlines preceding the first plain text
+        s = s.substring(0, index).replaceAll("<br/>", "") + s.substring(index);
+        // Locate location of last plain text
+        index = s.length() - 1;
+        reading = true;
+        while (index > 0) {
+            String tmp = s.substring(index, index + 1);
+            if (tmp.equals(">")) {
+                reading = false;
+            }
+            else if (tmp.equals("<")) {
+                reading = true;
+            }
+            else if (reading && !tmp.equals(" ")) {
+                break;
+            }
+            index--;
+        }
+        // Remove newlines following last plain text
+        if (index > 0) {
+            s = s.substring(0, index) + s.substring(index).replaceAll("<br/>", "");
+        }
+
         if (numSanitizationIterations < maxSanitizationIterations) {
             s = s.trim().replaceAll("\\s+", " ");
-            rdBundle.setDescription(RSSDataBundle.getFormattedTextFromHtml(s));
+            rdBundle.setDescription(s);
+            rdBundle.setPreviewDescription(Html.fromHtml(s).toString());
         }
         else {
             Log.e("RSSHandler", "Max number of sanitization iterations reached. Using default description.");
             rdBundle.setDescription(noDescriptionAvailableString);
+            rdBundle.setPreviewDescription(noDescriptionAvailableString);
         }
         RSSDataBundle.markAsDescriptionSanitized(context, rdBundle);
         return rdBundle.getRawDescription();
@@ -454,5 +497,16 @@ public class RSSHandler extends DefaultHandler {
     public void notifyCurrentSource (String url) {
         sourceURL = url;
         // Log.e("New Source", url);
+    }
+
+    public Thread sanitizeDescriptionThread(final Context context, final RSSDataBundle rdBundle) {
+        return new Thread(new Runnable() {
+            @Override
+            public void run () {
+                if (context != null) {
+                    RSSHandler.sanitizeDescription(context, rdBundle);
+                }
+            }
+        });
     }
 }

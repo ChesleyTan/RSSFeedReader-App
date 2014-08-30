@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +48,8 @@ public class ArticleViewFragment extends Fragment {
 		View theView = inflater
 				.inflate(R.layout.article_view, container, false);
 		articleTextView = (TextView) theView.findViewById(R.id.articleTextView);
-		articleTextView.setText(rdBundle.getDescription(getActivity()));
+		articleTextView.setText(Html.fromHtml(rdBundle.getDescription(getActivity())));
+        articleTextView.setMovementMethod(LinkMovementMethod.getInstance());
 		titleTextView = (TextView) theView.findViewById(R.id.titleTextView);
 		titleTextView.setText(rdBundle.getTitle());
 		sourceTextView = (TextView) theView.findViewById(R.id.sourceTextView);

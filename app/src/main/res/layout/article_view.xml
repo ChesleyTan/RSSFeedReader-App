@@ -75,7 +75,8 @@
                 android:padding="10dp"
                 android:text="Article Placeholder"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="#BBBBBB"/>
+                android:textColor="#BBBBBB"
+                android:linksClickable="true"/>
         </LinearLayout>
     </ScrollView>
 

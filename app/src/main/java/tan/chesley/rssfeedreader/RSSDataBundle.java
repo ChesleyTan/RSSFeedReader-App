@@ -6,18 +6,20 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RSSDataBundle implements Parcelable{
     public static final String NUMBERS = "0123456789";
-	private String title, description, link, source, sourceTitle; // Required descriptors
-	private String pubDate; // Optional descriptors
-	private String stringUUID;
+	private String title, description, previewDescription, link, source, sourceTitle, pubDate, stringUUID;
     private boolean read;
     private long age;
     private boolean descriptionSanitized;
@@ -100,6 +102,18 @@ public class RSSDataBundle implements Parcelable{
     }
     public boolean isDescriptionSanitized() { return descriptionSanitized; }
     public void setDescriptionSanitized(boolean bool) { descriptionSanitized = bool; }
+    public String getPreviewDescription(Context context) {
+        if (!descriptionSanitized) {
+            RSSHandler.sanitizeDescription(context, this);
+        }
+        return previewDescription;
+    }
+    public String getRawPreviewDescription() {
+        return previewDescription;
+    }
+    public void setPreviewDescription(String s) {
+        previewDescription = s;
+    }
 
     // NOTE: One or more of these methods must be called when the data in the RSSDataBundle is changed after
     // initialization to update the data inside the database
@@ -219,6 +233,7 @@ public class RSSDataBundle implements Parcelable{
 	public void restoreParcel(Parcel parcel) {
 		title = parcel.readString();
 		description = parcel.readString();
+        previewDescription = parcel.readString();
 		link = parcel.readString();
 		source = parcel.readString();
 		sourceTitle = parcel.readString();
@@ -238,7 +253,7 @@ public class RSSDataBundle implements Parcelable{
 	}
 	
 	public int getParceledLength() {
-		return 10; // the total number of descriptors that are packaged in the parcel
+		return 11; // the total number of descriptors that are packaged in the parcel
 	}
 
 	public static final Parcelable.Creator<RSSDataBundle> CREATOR = new Parcelable.Creator<RSSDataBundle>() {
@@ -270,6 +285,7 @@ public class RSSDataBundle implements Parcelable{
 		*/
 		arg0.writeString(title);
 		arg0.writeString(description);
+        arg0.writeString(previewDescription);
 		arg0.writeString(link);
 		arg0.writeString(source);
 		arg0.writeString(sourceTitle);
@@ -294,7 +310,4 @@ public class RSSDataBundle implements Parcelable{
         }
     }
 
-    public static String getFormattedTextFromHtml(String s) {
-        return Html.fromHtml(s).toString().trim().replaceAll("(\\n){3,}", "\n\n");
-    }
 }

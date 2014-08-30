@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -248,7 +249,7 @@ public class HeadlinesFragment extends ListFragment implements
             headlineTextView.setText(rdBundle.getTitle());
             sourceTextView.setText(rdBundle.getSourceTitle());
             dateTextView.setText(rdBundle.getUserPreferredDateFormat(getContext()));
-            articleTextView.setText(rdBundle.getDescription(getContext()));
+            articleTextView.setText(rdBundle.getPreviewDescription(getContext()));
             // Toggle the color indicator to signify if read/unread
             if (!rdBundle.isRead()) {
                 convertView.findViewById(R.id.colorIndicator).setVisibility(View.VISIBLE);

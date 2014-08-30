@@ -1,42 +1,44 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="tan.chesley.rssfeedreader.RSSFeed" >
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="tan.chesley.rssfeedreader.RSSFeed">
 
     <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="0"
-        android:title="@string/action_update"
-        android:showAsAction="always" />
-    
+        android:showAsAction="always"
+        android:title="@string/action_update"/>
+
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_action_settings"
         android:orderInCategory="150"
-        android:title="@string/action_settings"
-        android:showAsAction="always"/>
+        android:showAsAction="always"
+        android:title="@string/action_settings"/>
 
     <item
         android:id="@+id/action_clear"
-        android:title="@string/clearArticles"
         android:showAsAction="collapseActionView"
+        android:title="@string/clearArticles"
         />
 
     <item
         android:id="@+id/action_mark_all_read"
-        android:title="@string/markAllRead"
-        android:showAsAction="collapseActionView" />
+        android:showAsAction="collapseActionView"
+        android:title="@string/markAllRead"/>
 
+    <item
+        android:id="@+id/action_lights_off_mode"
+        android:showAsAction="collapseActionView"
+        android:title="@string/toggleLightsOffMode"
+        />
+    
     <item
         android:id="@+id/action_go_to_top"
-        android:title="@string/goToTop"
         android:showAsAction="collapseActionView"
+        android:title="@string/goToTop"
         />
 
-    <item
-    android:id="@+id/action_lights_off_mode"
-    android:title="@string/toggleLightsOffMode"
-    android:showAsAction="collapseActionView"
-    />
+
 </menu>
