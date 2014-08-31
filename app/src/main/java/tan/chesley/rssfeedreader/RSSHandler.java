@@ -267,7 +267,7 @@ public class RSSHandler extends DefaultHandler {
             throw new SAXException();
         }
         if (state == stateTitle) {
-            articleTitlePart += makeString(ch, start, length, true);
+            articleTitlePart += makeString(ch, start, length, false);
         }
         else if (state == stateDescription && !gotDescription) {
             if (numDescriptionParts > maxDescriptionParts) {
@@ -424,6 +424,7 @@ public class RSSHandler extends DefaultHandler {
         }
         String s = rdBundle.getRawDescription();
         int startIndex, endIndex;
+        // TODO show images
         while (numSanitizationIterations < maxSanitizationIterations && ((startIndex = s.indexOf("<img")) > -1 || (startIndex = s.indexOf("</img")) > -1) && (endIndex = s.indexOf(">", startIndex)) > -1) {
             //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
@@ -476,10 +477,13 @@ public class RSSHandler extends DefaultHandler {
             s = s.substring(0, index) + s.substring(index).replaceAll("<br/>", "");
         }
 
+        // Replace inline font coloring with a high-contrast gray color
+        s = s.replaceAll("color=\"[^\"]*\"", "color=\"#DDDDDD\"");
+
         if (numSanitizationIterations < maxSanitizationIterations) {
             s = s.trim().replaceAll("\\s+", " ");
             rdBundle.setDescription(s);
-            rdBundle.setPreviewDescription(Html.fromHtml(s).toString());
+            rdBundle.setPreviewDescription(rdBundle.getRawSpannedDescription().toString());
         }
         else {
             Log.e("RSSHandler", "Max number of sanitization iterations reached. Using default description.");

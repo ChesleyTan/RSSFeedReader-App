@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="AppDefaultBackgroundColor">#002b36</color>
-    <color name="AppPrimaryTextColor">#00BFFF</color>
-    <color name="ActionBarBackgroundColor">#073642</color>
+    <color name="AppDefaultBackgroundColor">@color/SolarizedOne</color>
+    <color name="AppPrimaryTextColor">@color/DeepSkyBlue</color>
+    <color name="ActionBarBackgroundColor">@color/SolarizedTwo</color>
     <color name="SemiTransparentBlack">#95000000</color>
+    <color name="ArticleViewTextColor">#BBBBBB</color>
     <color name="DisabledTextColor">#555555</color>
     <color name="UnreadListItemBgColor">#222222</color>
+    <color name="DeepSkyBlue">#00BFFF</color>
+    <color name="DeepSkyBlueSlight">#00BEFF</color>
+    <color name="DeepSkyBlueDarker">#008BBB</color>
+    <color name="DeepSkyBlueDarkerSlight">#008ABB</color>
+    <color name="SolarizedOne">#002b36</color>
+    <color name="SolarizedTwo">#073642</color>
+    <color name="SolarizedThree">#586e75</color>
+    <color name="TermGreen">#87FF00</color>
+    <color name="TermGreenSlight">#86FF00</color>
     <color name="White">#FFFFFF</color>
     <color name="Ivory">#FFFFF0</color>
     <color name="LightYellow">#FFFFE0</color>
@@ -136,7 +146,6 @@
     <color name="Lime">#00FF00</color>
     <color name="MediumSpringGreen">#00FA9A</color>
     <color name="DarkTurquoise">#00CED1</color>
-    <color name="DeepSkyBlue">#00BFFF</color>
     <color name="DarkCyan">#008B8B</color>
     <color name="Teal">#008080</color>
     <color name="Green">#008000</color>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true"
+          android:color="@color/TermGreenSlight" /> <!-- There needs to be a color change in order for
+                                                    the text highlight to be triggered, so we will use
+                                                    a color that is nearly identical so as to be
+                                                    undetectable (because this triggers all links to
+                                                    change their color) -->
+    <item
+        android:color="@color/TermGreen"
+        />
+</selector>

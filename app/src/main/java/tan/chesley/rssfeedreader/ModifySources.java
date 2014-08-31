@@ -1,6 +1,7 @@
 package tan.chesley.rssfeedreader;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -51,7 +52,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     private static final String TAG_ADD_SOURCE_DIALOG_FRAGMENT = "tan.chesley.rssfeedreader.addsourcedialogfragment";
     private static final int TAG_IMPORT_FILE_RESULT_CODE = 467678; // "import" in phone number representation
     private static final int TAG_EXPORT_FILE_RESULT_CODE = 397678; // "export" in phone number representation
-    private final Context context = this;
+    private final Activity activity = this;
     private ArrayList<String> sources;
     private boolean isAutomaticChange;
 
@@ -109,7 +110,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
             TextView positionTextView = (TextView) convertView.findViewById(R.id.positionTextView);
             ToggleButton disabledToggleButton = (ToggleButton) convertView.findViewById(R.id.disabledToggleButton);
             disabledToggleButton.setOnCheckedChangeListener(new ToggleButtonOnCheckedChangeListener(sourceTextView));
-            SourcesOpenHelper dbHelper = new SourcesOpenHelper(context);
+            SourcesOpenHelper dbHelper = new SourcesOpenHelper(activity);
             String source = getItem(position);
             // Check if the source is disabled and change its appearance as appropriate
             if (!dbHelper.isEnabled(source)) {
@@ -144,7 +145,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
                 sourceTextView.setTextColor(getResources().getColor(R.color.DisabledTextColor));
             }
             if (!isAutomaticChange) {
-                SourcesOpenHelper dbHelper = new SourcesOpenHelper(context);
+                SourcesOpenHelper dbHelper = new SourcesOpenHelper(activity);
                 dbHelper.setEnabled(sourceTextView.getText().toString(), b);
             }
         }
@@ -188,7 +189,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
             if (activities.size() > 0) {
                 startActivityForResult(intent, TAG_IMPORT_FILE_RESULT_CODE);
             } else {
-                Toaster.showToast(getApplicationContext(), getResources().getString(R.string.importFailedNoFileBrowser), Toast.LENGTH_LONG);
+                Toaster.showToast(this, getResources().getString(R.string.importFailedNoFileBrowser), Toast.LENGTH_LONG);
             }
             return true;
         }
@@ -206,14 +207,14 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
                         writer.write(s + "\n");
                     }
                     writer.close();
-                    Toaster.showToast(getApplicationContext(), getResources().getString(R.string.successfulExportToFile) + file.getAbsolutePath(), Toast.LENGTH_LONG);
+                    Toaster.showToast(this, getResources().getString(R.string.successfulExportToFile) + file.getAbsolutePath(), Toast.LENGTH_LONG);
                 } catch (IOException e) {
-                    Toaster.showToast(getApplicationContext(), getResources().getString(R.string.errorOccurredDuringWrite), Toast.LENGTH_LONG);
+                    Toaster.showToast(this, getResources().getString(R.string.errorOccurredDuringWrite), Toast.LENGTH_LONG);
                     e.printStackTrace();
                 }
             }
             else {
-                Toaster.showToast(getApplicationContext(), getResources().getString(R.string.noExternalStorageAccess), Toast.LENGTH_LONG);
+                Toaster.showToast(this, getResources().getString(R.string.noExternalStorageAccess), Toast.LENGTH_LONG);
             }
             return true;
         }
@@ -243,18 +244,18 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
                         while ((line = reader.readLine()) != null) {
                             dbHelper.addSource(line, 1);
                         }
-                        Toaster.showToast(getApplicationContext(), getResources().getString(R.string.successfulImportFromFile) + filePath, Toast.LENGTH_LONG);
+                        Toaster.showToast(this, getResources().getString(R.string.successfulImportFromFile) + filePath, Toast.LENGTH_LONG);
                         // Reload ListView items
                         showListView(true);
                     }
                     else {
                         Log.e("File format not recognized: ", line);
-                        Toaster.showToast(getApplicationContext(), getResources().getString(R.string.invalidFileFormat), Toast.LENGTH_LONG);
+                        Toaster.showToast(this, getResources().getString(R.string.invalidFileFormat), Toast.LENGTH_LONG);
                     }
                     reader.close();
                     // TODO validate sources that are imported
                 } catch (IOException e) {
-                    Toaster.showToast(getApplicationContext(), getResources().getString(R.string.errorOccurredDuringRead), Toast.LENGTH_LONG);
+                    Toaster.showToast(this, getResources().getString(R.string.errorOccurredDuringRead), Toast.LENGTH_LONG);
                     e.printStackTrace();
                 }
             }
@@ -351,7 +352,7 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
         @Override
         protected void onPreExecute () {
             super.onPreExecute();
-            Toaster.showToast(getApplicationContext(), getResources().getString(R.string.validatingNewSource), Toast.LENGTH_SHORT);
+            Toaster.showToast(activity, getResources().getString(R.string.validatingNewSource), Toast.LENGTH_SHORT);
         }
 
         @Override
@@ -360,12 +361,12 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
             if (isValidFeed) {
                 SourcesOpenHelper dbHelper = new SourcesOpenHelper(getApplicationContext());
                 dbHelper.addSource(s, SourcesOpenHelper.ENABLED);
-                Toaster.showToast(getApplicationContext(), getResources().getString(R.string.validSource), Toast.LENGTH_SHORT);
+                Toaster.showToast(activity, getResources().getString(R.string.validSource), Toast.LENGTH_SHORT);
                 showListView(true);
             }
             else {
                 Log.e("Validation", s + " is an invalid source.");
-                Toaster.showToast(getApplicationContext(), getResources().getString(R.string.invalidSource), Toast.LENGTH_LONG);
+                Toaster.showToast(activity, getResources().getString(R.string.invalidSource), Toast.LENGTH_LONG);
             }
         }
     }

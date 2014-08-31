@@ -20,9 +20,13 @@ import java.util.regex.Pattern;
 public class RSSDataBundle implements Parcelable{
     public static final String NUMBERS = "0123456789";
 	private String title, description, previewDescription, link, source, sourceTitle, pubDate, stringUUID;
+    // description stores the description including all markup
+    // previewDescription stores the description without markup
     private boolean read;
     private long age;
     private boolean descriptionSanitized;
+    private boolean isCached_spannedDescription;
+    private Spanned cached_spannedDescription;
 
 	public RSSDataBundle(String stringUUID) {
         if (stringUUID == null) {
@@ -310,4 +314,20 @@ public class RSSDataBundle implements Parcelable{
         }
     }
 
+    public Spanned getSpannedDescription(Context context) {
+        if (!isCached_spannedDescription) {
+            return cached_spannedDescription = Html.fromHtml(getDescription(context));
+        }
+        else {
+            return cached_spannedDescription;
+        }
+    }
+    public Spanned getRawSpannedDescription() {
+        if (!isCached_spannedDescription) {
+            return cached_spannedDescription = Html.fromHtml(getRawDescription());
+        }
+        else {
+            return cached_spannedDescription;
+        }
+    }
 }
