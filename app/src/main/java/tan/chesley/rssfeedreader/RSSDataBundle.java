@@ -8,14 +8,11 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class RSSDataBundle implements Parcelable{
     public static final String NUMBERS = "0123456789";

@@ -3,7 +3,6 @@ package tan.chesley.rssfeedreader;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ListActivity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;

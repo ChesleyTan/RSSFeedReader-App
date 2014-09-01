@@ -72,7 +72,13 @@ Setting is not actually stored at this key -->
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_bottomActionBarCheckBox"
-            android:title="@string/pref_enableBottomActionBarTitle">
+            android:title="@string/pref_enableBottomActionBar_title">
+        </CheckBoxPreference>
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_centerArticleViewDescriptionText"
+            android:title="@string/pref_centerArticleViewDescriptionText_title">
         </CheckBoxPreference>
     </PreferenceCategory>
 

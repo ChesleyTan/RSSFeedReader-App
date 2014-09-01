@@ -1,29 +1,22 @@
 package tan.chesley.rssfeedreader;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.IOException;
-import java.net.URL;
 
 public class ArticleViewFragment extends Fragment {
 
@@ -65,6 +58,10 @@ public class ArticleViewFragment extends Fragment {
 		//articleTextView.setText(Html.fromHtml(rdBundle.getDescription(getActivity()), new URLImageParser(articleTextView, getActivity()), null));
         //articleTextView.setText(Html.fromHtml(rdBundle.getDescription(getActivity())));
         articleTextView.setText(rdBundle.getSpannedDescription(getActivity()));
+        boolean centerDescriptionText = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_centerArticleViewDescriptionText", false);
+        if (centerDescriptionText) {
+            articleTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+        }
         // TODO make text selectable while retaining clickability of the links
         // Make links clickable
         articleTextView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -79,7 +76,6 @@ public class ArticleViewFragment extends Fragment {
             }
         }
         */
-        Log.e("description", rdBundle.getRawDescription());
 
 		titleTextView = (TextView) theView.findViewById(R.id.titleTextView);
 		titleTextView.setText(rdBundle.getTitle());

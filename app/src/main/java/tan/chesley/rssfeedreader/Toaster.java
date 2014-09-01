@@ -1,9 +1,6 @@
 package tan.chesley.rssfeedreader;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +20,19 @@ public class Toaster {
         textView.setText(s);
         toast = new Toast(activity.getApplicationContext());
         toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 100);
+        toast.setDuration(toastDurationFlag);
+        toast.setView(v);
+        toast.show();
+    }
+
+    public static void showSeparateToast(Activity activity, String s, int toastDurationFlag) {
+        Toast toast = new Toast(activity);
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View v = inflater.inflate(R.layout.toast_layout, (ViewGroup) activity.findViewById(R.id.toast_layout_root));
+        TextView textView = (TextView) v.findViewById(R.id.text);
+        textView.setText(s);
+        toast = new Toast(activity.getApplicationContext());
+        toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 100);
         toast.setDuration(toastDurationFlag);
         toast.setView(v);
         toast.show();

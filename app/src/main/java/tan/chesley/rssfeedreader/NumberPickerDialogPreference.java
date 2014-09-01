@@ -3,10 +3,8 @@ package tan.chesley.rssfeedreader;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.DialogPreference;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.NumberPicker;
 
 public class NumberPickerDialogPreference extends DialogPreference{
 

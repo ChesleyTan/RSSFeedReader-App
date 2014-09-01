@@ -2,25 +2,12 @@ package tan.chesley.rssfeedreader;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.NetworkOnMainThreadException;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -426,55 +413,66 @@ public class RSSHandler extends DefaultHandler {
         int startIndex, endIndex;
         // TODO show images
         while (numSanitizationIterations < maxSanitizationIterations && ((startIndex = s.indexOf("<img")) > -1 || (startIndex = s.indexOf("</img")) > -1) && (endIndex = s.indexOf(">", startIndex)) > -1) {
-            //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
             s = s.substring(0, startIndex) + s.substring(endIndex + 1);
             numSanitizationIterations++;
         }
         int newStartIndex = 0;
         while (numSanitizationIterations < maxSanitizationIterations && (startIndex = s.indexOf("<br", newStartIndex)) > -1 && (endIndex = s.indexOf(">", startIndex)) > -1) {
-            //Log.e("Deleting substring: ", s.substring(startIndex, endIndex + 1));
             s = s.substring(0, startIndex) + "<br/><br/>" + s.substring(endIndex + 1);
             newStartIndex = startIndex + 10; // 10 is to offset the length of the new newlines that were added
             numSanitizationIterations++;
         }
 
-        boolean reading = true;
-        int index = 0;
-        // Locate location of first plain text
-        while (index < s.length()) {
-            String tmp = s.substring(index, index + 1);
-            if (tmp.equals("<")) {
-                reading = false;
-            }
-            else if (tmp.equals(">")) {
-                reading = true;
-            }
-            else if (reading && !tmp.equals(" ")) {
-                break;
-            }
-            index++;
+        // Locate location of first visible text
+        int index = indexOfFirstVisibleText(s, 1);
+        // Remove newlines preceding the first visible text
+        if (index > -1) {
+            s = s.substring(0, index).replaceAll("<br/>", "") + s.substring(index);
         }
-        // Remove newlines preceding the first plain text
-        s = s.substring(0, index).replaceAll("<br/>", "") + s.substring(index);
-        // Locate location of last plain text
-        index = s.length() - 1;
-        reading = true;
-        while (index > 0) {
-            String tmp = s.substring(index, index + 1);
-            if (tmp.equals(">")) {
-                reading = false;
-            }
-            else if (tmp.equals("<")) {
-                reading = true;
-            }
-            else if (reading && !tmp.equals(" ")) {
-                break;
-            }
-            index--;
-        }
-        // Remove newlines following last plain text
-        if (index > 0) {
+        // Locate location of last visible text
+        index = indexOfFirstVisibleText(s, -1);
+        // Remove newlines following last visible text
+        if (index > -1) {
             s = s.substring(0, index) + s.substring(index).replaceAll("<br/>", "");
+        }
+
+        // Remove extraneous newlines between text
+        int numNewlines = 0;
+        index = 0;
+        while (index < s.length()) {
+            String tmp = s.substring(index);
+            int firstVisibleTextIndex = indexOfFirstVisibleText(tmp, 1);
+            // If there is visible text after this index
+            if (firstVisibleTextIndex > -1) {
+                // Get substring up to first visible text
+                tmp = tmp.substring(0, firstVisibleTextIndex);
+
+                // Count the number of newlines up to the first visible text
+                int tmpIndex;
+                while ((tmpIndex = tmp.indexOf("<br/>")) > -1) {
+                    numNewlines++;
+                    tmp = tmp.substring(tmpIndex + 1);
+                }
+
+                // Remove extraneous newlines
+                tmp = s.substring(index);
+                while (numNewlines > 2) {
+                    Log.e("numNewlines", "greater than 2");
+                    tmp = tmp.replace("<br/>", "");
+                    numNewlines--;
+                }
+
+                // Set our description as the result
+                s = s.substring(0, index) + tmp;
+                numNewlines = 0;
+
+                // Set our new start index
+                index += firstVisibleTextIndex + 1;
+            }
+            // If there is no visible text after this index, then stop
+            else {
+                break;
+            }
         }
 
         // Replace inline font coloring with a high-contrast gray color
@@ -492,6 +490,38 @@ public class RSSHandler extends DefaultHandler {
         }
         RSSDataBundle.markAsDescriptionSanitized(context, rdBundle);
         return rdBundle.getRawDescription();
+    }
+
+    public static int indexOfFirstVisibleText(String s, int step) {
+        int index = 0;
+        if (step < 0) {
+            index = s.length() - 1;
+        }
+        boolean insideTag = false;
+        while ((step > 0 && index < s.length()) || (step < 0 && index >= 0)) {
+            String tmp = s.substring(index, index + 1);
+            if (tmp.equals("<")) {
+                if (step > 0) {
+                    insideTag = true;
+                }
+                else if (step < 0) {
+                    insideTag = false;
+                }
+            }
+            else if (tmp.equals(">")) {
+                if (step > 0) {
+                    insideTag = false;
+                }
+                else if (step < 0) {
+                    insideTag = true;
+                }
+            }
+            else if (!insideTag && !tmp.equals(" ")) {
+                return index;
+            }
+            index += step;
+        }
+        return -1;
     }
 
     public ArrayList<RSSDataBundle> getData () {

@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Gravity;

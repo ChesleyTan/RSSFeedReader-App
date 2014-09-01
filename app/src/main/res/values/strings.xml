@@ -45,7 +45,7 @@
     <string name="goToNextUnread">Go to next unread</string>
     <string name="goToPreviousUnread">Go to previous unread</string>
     <string name="other_settings">Other settings</string>
-    <string name="pref_enableBottomActionBarTitle">Enable bottom action bar</string>
+    <string name="pref_enableBottomActionBar_title">Enable bottom action bar</string>
     <string name="noUnreadArticlesFound">No unread articles found.</string>
     <string name="pref_maxDatabaseSize_title">Max number of articles stored</string>
     <string name="storageSettings">Storage settings</string>
@@ -60,4 +60,5 @@
     <string name="confirm_deleteSource">Delete source?</string>
     <string name="toggleLightsOffMode">Toggle lights off mode</string>
     <string name="takingYouTo">Taking you to:\n</string>
+    <string name="pref_centerArticleViewDescriptionText_title">Center description in article view</string>
 </resources>

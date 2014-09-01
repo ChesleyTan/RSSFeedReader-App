@@ -2,7 +2,6 @@ package tan.chesley.rssfeedreader;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
 
