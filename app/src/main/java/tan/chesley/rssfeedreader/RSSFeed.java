@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class RSSFeed extends Activity {
 
@@ -115,6 +116,12 @@ public class RSSFeed extends Activity {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             boolean lightsOffMode = prefs.getBoolean(BrightnessControl.LIGHTS_OFF_MODE, false);
             prefs.edit().putBoolean(BrightnessControl.LIGHTS_OFF_MODE, !lightsOffMode).apply();
+            if (lightsOffMode) {
+                Toaster.showAlternateToast(this, getResources().getString(R.string.lightsOffMode_disabled), "", getResources().getDrawable(R.drawable.ic_action_brightness_high), Toast.LENGTH_SHORT);
+            }
+            else {
+                Toaster.showAlternateToast(this, getResources().getString(R.string.lightsOffMode_enabled), "", getResources().getDrawable(R.drawable.ic_action_brightness_low), Toast.LENGTH_SHORT);
+            }
             BrightnessControl.toggleBrightness(getApplicationContext(), this);
         }
 		return super.onOptionsItemSelected(item);

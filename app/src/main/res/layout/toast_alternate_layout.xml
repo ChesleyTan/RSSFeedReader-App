@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/toast_layout_root"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="8dp"
+              android:background="@drawable/toast_alternate_background"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="5dp"
+        android:id="@+id/linearLayout">
+    <ImageView  android:id="@+id/toast_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="5dp"
+        />
+
+    <TextView android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/AppPrimaryTextColor"
+        android:shadowColor="#BB000000"
+        android:shadowRadius="2.75"
+        android:text="Title Placeholder"
+        android:textSize="20sp"
+        android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+    <TextView android:id="@+id/text"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:textColor="@color/AppPrimaryTextColor"
+              android:shadowColor="#BB000000"
+              android:shadowRadius="2.75"
+              android:text="Text Placeholder"
+              android:layout_below="@+id/linearLayout"
+              android:layout_alignParentLeft="true"
+              android:layout_alignParentStart="true"/>
+</RelativeLayout>

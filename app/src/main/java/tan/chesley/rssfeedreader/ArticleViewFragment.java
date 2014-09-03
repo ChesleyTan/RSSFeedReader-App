@@ -123,8 +123,9 @@ public class ArticleViewFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(getActivity(), getResources().getString(R.string.takingYouTo) + url, Toast.LENGTH_LONG).show();
+            //Toast.makeText(getActivity(), getResources().getString(R.string.takingYouTo) + url, Toast.LENGTH_LONG).show();
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            Toaster.showAlternateToast(getActivity(), getResources().getString(R.string.takingYouTo) , url, getResources().getDrawable(R.drawable.ic_action_web_site), Toast.LENGTH_LONG);
             startActivity(intent);
         }
     }
@@ -142,6 +143,7 @@ public class ArticleViewFragment extends Fragment {
 		public void onClick(View arg0) {
 			String url = rdBundle.getLink();
 			// Log.e("URL Open", "URL: " + url);
+            Toaster.showAlternateToast(getActivity(), getResources().getString(R.string.takingYouTo) , url, getResources().getDrawable(R.drawable.ic_action_web_site), Toast.LENGTH_LONG);
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 		}
 

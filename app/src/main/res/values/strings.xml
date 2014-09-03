@@ -59,6 +59,8 @@
     <string name="confirm_clearAllArticles">Clear all articles?</string>
     <string name="confirm_deleteSource">Delete source?</string>
     <string name="toggleLightsOffMode">Toggle lights off mode</string>
-    <string name="takingYouTo">Taking you to:\n</string>
+    <string name="takingYouTo">Taking you to:</string>
     <string name="pref_centerArticleViewDescriptionText_title">Center description in article view</string>
+    <string name="lightsOffMode_disabled">Lights off mode disabled</string>
+    <string name="lightsOffMode_enabled">Lights off mode enabled</string>
 </resources>

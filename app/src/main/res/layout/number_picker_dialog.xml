@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <NumberPicker
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:id="@+id/dialogNumberPicker"
         android:layout_gravity="center_vertical"
