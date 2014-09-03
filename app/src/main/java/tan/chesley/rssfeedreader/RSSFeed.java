@@ -36,7 +36,6 @@ public class RSSFeed extends Activity {
 		}
 
 
-        Log.e("Launching", "Service");
         Intent intent = new Intent(this, RssSyncService.class);
         startService(intent);
 	}

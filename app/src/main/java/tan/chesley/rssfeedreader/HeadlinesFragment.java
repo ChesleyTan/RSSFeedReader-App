@@ -93,7 +93,7 @@ public class HeadlinesFragment extends ListFragment implements
     public void onResume () {
         super.onResume();
         // If resuming from preference activity, update the ListView
-        if (!syncing && !resumingFromArticleViewActivity && data != null) {
+        if (!syncing && !resumingFromArticleViewActivity) {
             int maxDbSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_MAX_DATABASE_SIZE, getResources().getInteger(R.integer.max_database_size_default));
             new RSSDataBundleOpenHelper(getActivity()).constrainDatabaseSize(maxDbSize);
             updateFeedView();
@@ -310,7 +310,6 @@ public class HeadlinesFragment extends ListFragment implements
         // Receive current article index from ArticleView activity
         if (requestCode == ARTICLE_VIEW_INTENT) {
             resumingFromArticleViewActivity = true;
-            Assert.assertNotNull(data);
 
             // If "Don't Keep Activities" is enabled, we need to update the read flag manually
             // because references back to the data ArrayList in other classes will not resolve correctly

@@ -6,16 +6,29 @@ import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 public class RssSyncService extends Service{
 
     private final Service parent = this;
-    private long counter = 0;
 
     @Override
     public void onCreate () {
@@ -24,42 +37,39 @@ public class RssSyncService extends Service{
         new Thread(new Runnable() {
             @Override
             public void run () {
-                while (true) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run () {
-                            //Toast.makeText(parent, Long.toString(counter += 5), Toast.LENGTH_SHORT).show();
-
-                            LayoutInflater li = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-
-                            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-                                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                                PixelFormat.TRANSLUCENT
-                            );
-
-                            params.gravity = Gravity.RIGHT | Gravity.TOP;
-                            View myview = li.inflate(R.layout.toast_alternate_layout, null);
-
-                            wm.addView(myview, params);
-
-                        }
-                    });
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run () {
+                        Toast.makeText(parent, "Starting sync service", Toast.LENGTH_SHORT).show();
+                        TaskFragment taskFragment = new TaskFragment();
+                        String[] FEEDS = new SourcesOpenHelper(getApplicationContext()).getEnabledSources();
+                        int SYNC_TIMEOUT = 1000 * PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT, getResources().getInteger(R.integer.sync_timeout_default));
+                        taskFragment.setFEEDS(parent, FEEDS);
+                        taskFragment.setSYNC_TIMEOUT(parent, SYNC_TIMEOUT);
+                        taskFragment.setContext(parent, getApplicationContext());
+                        TaskFragment.GetRssFeedTask getRssFeedTask = taskFragment.new GetRssFeedTask() {
+                            @Override
+                            protected void onPostExecute (Void v) {
+                                if (HeadlinesFragment.getInstance() != null) {
+                                    HeadlinesFragment.getInstance().setRssData(getFetchedData(), true);
+                                    HeadlinesFragment.getInstance().updateFeedView();
+                                    super.onPostExecute(v);
+                                }
+                            }
+                        };
+                        getRssFeedTask.execute(FEEDS);
+                        Toast.makeText(parent, "Finished starting sync service", Toast.LENGTH_SHORT).show();
                     }
-                    parent.stopSelf();
-                }
+                });
             }
         }).start();
     }
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-        return START_STICKY;
+        Log.e("Launching", "Service");
+        //return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override

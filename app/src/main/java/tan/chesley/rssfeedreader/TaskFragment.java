@@ -2,6 +2,8 @@ package tan.chesley.rssfeedreader;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.Service;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -24,9 +27,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 // Credits to Alex Lockwood for original model of a task fragment
 public class TaskFragment extends Fragment {
-
-    public long SYNC_TIMEOUT; // Timeout in milliseconds for syncing
-    public static final String TASK_COMPLETE = "tan.chesley.rssfeedreader.taskcomplete";
 
     public static interface TaskCallbacks {
 
@@ -39,7 +39,53 @@ public class TaskFragment extends Fragment {
         void onPostExecute ();
     }
 
+    public static final String TASK_COMPLETE = "tan.chesley.rssfeedreader.taskcomplete";
+    private long SYNC_TIMEOUT; // Timeout in milliseconds for syncing
+    private Context context;
     private String[] FEEDS;
+
+    public String[] getFEEDS (Service callerService) {
+        if (!(callerService instanceof RssSyncService)) {
+            throw new ClassCastException("This method may only be called by an instance of RssSyncService.");
+        }
+        return FEEDS;
+    }
+
+    public void setFEEDS (Service callerService, String[] FEEDS) {
+        if (!(callerService instanceof RssSyncService)) {
+            throw new ClassCastException("This method may only be called by an instance of RssSyncService.");
+        }
+        this.FEEDS = FEEDS;
+    }
+
+    public Context getContext (Service callerService) {
+        if (!(callerService instanceof RssSyncService)) {
+            throw new ClassCastException("This method may only be called by an instance of RssSyncService.");
+        }
+        return context;
+    }
+
+    public void setContext (Service callerService, Context context) {
+        if (!(callerService instanceof RssSyncService)) {
+            throw new ClassCastException("This method may only be called by an instance of RssSyncService.");
+        }
+        this.context = context;
+    }
+
+    public long getSYNC_TIMEOUT (Service callerService) {
+        if (!(callerService instanceof RssSyncService)) {
+            throw new ClassCastException("This method may only be called by an instance of RssSyncService.");
+        }
+        return SYNC_TIMEOUT;
+    }
+
+    public void setSYNC_TIMEOUT (Service callerService, long SYNC_TIMEOUT) {
+        if (!(callerService instanceof RssSyncService)) {
+            throw new ClassCastException("This method may only be called by an instance of RssSyncService.");
+        }
+        this.SYNC_TIMEOUT = SYNC_TIMEOUT;
+    }
+
     private TaskCallbacks mCallbacks;
     private GetRssFeedTask mTask;
     private InputStream feedStream;
@@ -52,6 +98,7 @@ public class TaskFragment extends Fragment {
         FEEDS = new SourcesOpenHelper(activity).getEnabledSources();
         mCallbacks = (TaskCallbacks) ((RSSFeed) activity)
             .getHeadlinesFragment();
+        context = activity.getApplicationContext();
     }
 
     @Override
@@ -146,7 +193,7 @@ public class TaskFragment extends Fragment {
                 e.printStackTrace();
                 Log.e("Feed", "Could not connect to RSS feed! Error 2.");
             }
-            myRSSHandler = new RSSHandler(this, FEEDS.length, SYNC_TIMEOUT, getActivity());
+            myRSSHandler = new RSSHandler(this, FEEDS.length, SYNC_TIMEOUT, context);
             myXMLReader.setContentHandler(myRSSHandler);
             InputSource myInputSource;
             URL url = null;
@@ -253,6 +300,13 @@ public class TaskFragment extends Fragment {
             }
             ((HeadlinesFragment) mCallbacks).setRssData(myRSSHandler.getData(), true);
             taskCompleted = true;
+        }
+
+        public ArrayList<RSSDataBundle> getFetchedData() {
+            if (myRSSHandler == null) {
+                return null;
+            }
+            return myRSSHandler.getData();
         }
 
     }
