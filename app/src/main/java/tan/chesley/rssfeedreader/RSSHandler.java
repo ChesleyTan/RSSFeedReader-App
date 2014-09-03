@@ -3,6 +3,7 @@ package tan.chesley.rssfeedreader;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Log;
 
 import org.xml.sax.SAXException;
@@ -44,7 +45,7 @@ public class RSSHandler extends DefaultHandler {
     long startParsingTime = 0;
     RSSDataBundle rdBundle = null;
     boolean reading = false;
-    String sourceTitle = null;
+    String sourceTitlePart = "";
     String sourceURL = null;
     String articleTitlePart = "";
     String articleDescriptionPart = "";
@@ -87,7 +88,7 @@ public class RSSHandler extends DefaultHandler {
         startParsingTime = 0;
         rdBundle = null;
         reading = false;
-        sourceTitle = null;
+        sourceTitlePart = "";
         sourceURL = null;
         articleTitlePart = "";
         articleDescriptionPart = "";
@@ -167,7 +168,7 @@ public class RSSHandler extends DefaultHandler {
 
         if (!reading) {
             // Check if we need to get the source title
-            if (sourceTitle == null && qName.equalsIgnoreCase("title")) {
+            if (sourceTitlePart.equals("") && qName.equalsIgnoreCase("title")) {
                 state = stateSourceTitle;
             }
             // Skip to first article
@@ -216,7 +217,7 @@ public class RSSHandler extends DefaultHandler {
                 }
                 rdBundle.setLink(linkPart);
                 // Log.e("New Link", rdBundle.getLink());
-                rdBundle.setSourceTitle(sourceTitle);
+                rdBundle.setSourceTitle(Html.fromHtml(sourceTitlePart).toString());
                 rdBundle.setSource(sourceURL);
                 data.add(rdBundle);
                 dbHelper.addBundle(rdBundle);
@@ -272,7 +273,7 @@ public class RSSHandler extends DefaultHandler {
             linkPart += makeString(ch, start, length, true);
         }
         else if (state == stateSourceTitle) {
-            sourceTitle = makeString(ch, start, length, true);
+            sourceTitlePart += makeString(ch, start, length, true);
             // Log.e("New Source Title", sourceTitle);
         }
         else if (state == statePubDate) {

@@ -3,6 +3,9 @@ package tan.chesley.rssfeedreader;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,6 +38,15 @@ public class AddSourceDialogFragment extends DialogFragment{
         dialog.setTitle(getResources().getString(R.string.addSourceTitle));
         final EditText addSourceDialogEditText = (EditText) dialog.findViewById(R.id.addSourceDialogEditText);
         final Button addSourceDialogButton = (Button) dialog.findViewById(R.id.addSourceDialogButton);
+        ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboardManager.hasPrimaryClip()) {
+            if (clipboardManager.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+                String pasteUrl = clipboardManager.getPrimaryClip().getItemAt(0).getText().toString();
+                if (pasteUrl != null && pasteUrl.startsWith("http")) {
+                    addSourceDialogEditText.setText(pasteUrl);
+                }
+            }
+        }
         addSourceDialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view) {
