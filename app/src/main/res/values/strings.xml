@@ -63,4 +63,12 @@
     <string name="pref_centerArticleViewDescriptionText_title">Center description in article view</string>
     <string name="lightsOffMode_disabled">Lights off mode disabled</string>
     <string name="lightsOffMode_enabled">Lights off mode enabled</string>
+    <string name="autosyncInterval">Set autosync interval</string>
+    <string name="stopAutosyncService">Stop autosync service</string>
+    <string name="startAutosyncService">Start autosync service</string>
+    <string name="serviceStopped">Service stopped</string>
+    <string name="autosyncInBackground">Allow autosync in background</string>
+    <string name="startingSyncService">Starting sync service</string>
+    <string name="invalidIntervalUnderOneMinute">Invalid interval: The minimum interval is one minute.</string>
+    <string name="syncing">Syncing</string>
 </resources>

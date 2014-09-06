@@ -10,6 +10,7 @@ public class SettingsActivity extends Activity {
     public static final String KEY_PREF_ARTICLE_AGE_LIMIT = "tan.chesley.rssfeedreader.keyprefarticleagelimit";
     public static final String KEY_PREF_SYNC_TIMEOUT = "tan.chesley.rssfeedreader.synctimeout";
     public static final String KEY_PREF_MAX_DATABASE_SIZE = "tan.chesley.rssfeedreader.maxdatabasesize";
+    public static final String KEY_PREF_AUTOSYNC_INTERVAL = "tan.chesley.rssfeedreader.autosyncinterval";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

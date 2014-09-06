@@ -19,6 +19,8 @@ public class RSSDataBundle implements Parcelable{
 	private String title, description, previewDescription, link, source, sourceTitle, pubDate, stringUUID;
     // description stores the description including all markup
     // previewDescription stores the description without markup
+    // pubDate stores the publication date in the format: "dayOfMonth(2) month(3) year(4) hours(2):minutes(2):seconds(2) (+/-)offset(4)"
+    // or "dd MMM yyyy HH:mm:ss Z" in SimpleDateFormat
     private boolean read;
     private long age;
     private boolean descriptionSanitized;

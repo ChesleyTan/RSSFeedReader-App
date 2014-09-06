@@ -206,7 +206,6 @@ public class RSSHandler extends DefaultHandler {
                 // Log.e("New Headline", rdBundle.getTitle());
                 if (!gotDescription) {
                     rdBundle.setDescription(articleDescriptionPart);
-                    sanitizeDescriptionThread(context, rdBundle).start();
                     gotDescription = true;
                 }
                 // Log.e("Number of description parts", Integer.toString(numDescriptionParts));
@@ -221,6 +220,7 @@ public class RSSHandler extends DefaultHandler {
                 rdBundle.setSource(sourceURL);
                 data.add(rdBundle);
                 dbHelper.addBundle(rdBundle);
+                sanitizeDescriptionThread(context, rdBundle).start();
             }
             // Reset rdBundle to store next item's data
             rdBundle = null;

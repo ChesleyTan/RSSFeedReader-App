@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -530,6 +532,8 @@ public class HeadlinesFragment extends ListFragment implements
             if (!data.get(i).isRead()) {
                 //getListView().smoothScrollToPosition(i, 0);
                 getListView().setSelection(i);
+                // Stop the current scrolling animation
+                getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
                 foundNext = true;
                 break;
             }
@@ -558,6 +562,8 @@ public class HeadlinesFragment extends ListFragment implements
             if (!data.get(i).isRead()) {
                 //getListView().smoothScrollToPosition(i, 0);
                 getListView().setSelection(i);
+                // Stop the current scrolling animation
+                getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
                 foundPrevious = true;
                 break;
             }
@@ -569,5 +575,7 @@ public class HeadlinesFragment extends ListFragment implements
 
     public void goToTop() {
         getListView().setSelection(0);
+        // Stop the current scrolling animation
+        getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
     }
 }

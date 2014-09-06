@@ -54,6 +54,16 @@ Setting is not actually stored at this key -->
             android:title="@string/pref_syncTimeoutNumberPicker_title">
         </tan.chesley.rssfeedreader.SyncTimeoutNumberPickerDialog>
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_autosync"
+            android:title="@string/autosyncInBackground">
+        </CheckBoxPreference>
+
+        <tan.chesley.rssfeedreader.AutosyncTimePickerDialog
+            android:title="@string/autosyncInterval">
+        </tan.chesley.rssfeedreader.AutosyncTimePickerDialog>
+
         <Preference android:title="@string/pref_modify_sources">
             <intent android:action="tan.chesley.rssfeedreader.ModifySources"/>
         </Preference>

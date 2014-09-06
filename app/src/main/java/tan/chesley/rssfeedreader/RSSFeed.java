@@ -34,10 +34,6 @@ public class RSSFeed extends Activity {
 			fragMan.beginTransaction()
 					.add(R.id.container, new HeadlinesFragment()).commit();
 		}
-
-
-        Intent intent = new Intent(this, RssSyncService.class);
-        startService(intent);
 	}
 
 	public HeadlinesFragment getHeadlinesFragment() {
@@ -45,11 +41,25 @@ public class RSSFeed extends Activity {
 				.findFragmentById(R.id.container);
 	}
 
+    // Used to create dynamic menu
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-
+	public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.rssfeed, menu);
+        if (!(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("pref_autosync", false))) {
+            menu.findItem(R.id.action_start_autosync_service).setVisible(false);
+            menu.findItem(R.id.action_stop_autosync_service).setVisible(false);
+        }
+        else if (RssSyncService.getInstance() == null) {
+            menu.findItem(R.id.action_start_autosync_service).setVisible(true);
+            menu.findItem(R.id.action_stop_autosync_service).setVisible(false);
+        }
+        // Handles case when autosync is disabled, but the service is still running
+        if (RssSyncService.getInstance() != null) {
+            menu.findItem(R.id.action_start_autosync_service).setVisible(false);
+            menu.findItem(R.id.action_stop_autosync_service).setVisible(true);
+        }
 		return true;
 	}
 
@@ -127,6 +137,20 @@ public class RSSFeed extends Activity {
                 Toaster.showAlternateToast(this, getResources().getString(R.string.lightsOffMode_enabled), "", getResources().getDrawable(R.drawable.ic_action_brightness_low), Toast.LENGTH_SHORT);
             }
             BrightnessControl.toggleBrightness(getApplicationContext(), this);
+        }
+        else if (id == R.id.action_stop_autosync_service) {
+            if (RssSyncService.getInstance() != null) {
+                // RssSyncService.cancel() breaks the while loop that does the syncing
+                RssSyncService.getInstance().cancel();
+            }
+            Intent intent = new Intent(this, RssSyncService.class);
+            stopService(intent);
+            Toast.makeText(this, getResources().getString(R.string.serviceStopped), Toast.LENGTH_SHORT).show();
+            Log.e("Stopped service: ", "Autosync");
+        }
+        else if (id == R.id.action_start_autosync_service) {
+            Intent intent = new Intent(this, RssSyncService.class);
+            startService(intent);
         }
 		return super.onOptionsItemSelected(item);
 	}
