@@ -265,7 +265,7 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
 
     public void constrainDatabaseSize(int maxSize) {
         long currentSize = DatabaseUtils.queryNumEntries(getReadableDatabase(), RSS_DATA_TABLE_NAME);
-        Log.e("Database size before: ", Long.toString(currentSize));
+        //Log.e("Database size before: ", Long.toString(currentSize));
         if (currentSize > maxSize) {
             String ALTER_TBL = "DELETE FROM " + RSS_DATA_TABLE_NAME +
                 " WHERE rowid IN (SELECT rowid FROM " + RSS_DATA_TABLE_NAME + " ORDER BY rowid LIMIT " + (currentSize - maxSize) + ");";
@@ -273,6 +273,6 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
             db.execSQL(ALTER_TBL);
             db.close();
         }
-        Log.e("Database size after: ", Long.toString(DatabaseUtils.queryNumEntries(getReadableDatabase(), RSS_DATA_TABLE_NAME)));
+        //Log.e("Database size after: ", Long.toString(DatabaseUtils.queryNumEntries(getReadableDatabase(), RSS_DATA_TABLE_NAME)));
     }
 }

@@ -71,4 +71,6 @@
     <string name="startingSyncService">Starting sync service</string>
     <string name="invalidIntervalUnderOneMinute">Invalid interval: The minimum interval is one minute.</string>
     <string name="syncing">Syncing</string>
+    <string name="rssSyncService">RSS Autosync Service</string>
+    <string name="serviceIsCurrentlyRunning">This service is currently running.</string>
 </resources>

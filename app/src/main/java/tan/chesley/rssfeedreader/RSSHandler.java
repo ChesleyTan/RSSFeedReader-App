@@ -458,7 +458,7 @@ public class RSSHandler extends DefaultHandler {
                 // Remove extraneous newlines
                 tmp = s.substring(index);
                 while (numNewlines > 2) {
-                    Log.e("numNewlines", "greater than 2");
+                    //Log.e("numNewlines", "greater than 2");
                     tmp = tmp.replace("<br/>", "");
                     numNewlines--;
                 }

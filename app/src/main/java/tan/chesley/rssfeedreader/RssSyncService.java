@@ -1,16 +1,22 @@
 package tan.chesley.rssfeedreader;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 
 public class RssSyncService extends Service {
 
+    public static int SYNC_STATUS_NOTIFICATION_ID = 7962;
     private static RssSyncService singleton;
     private final Service parent = this;
     private static boolean cancelled;
@@ -20,6 +26,31 @@ public class RssSyncService extends Service {
         super.onCreate();
         singleton = this;
         final Handler handler = new Handler(Looper.getMainLooper());
+
+        // Create notification to show that this service is running
+        Intent clickIntent = new Intent(getApplicationContext(), RSSFeed.class);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Notification notification;
+
+        // Modify task stack to allow the user to return to the home screen when pressing the back button
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+        stackBuilder.addParentStack(RSSFeed.class);
+        stackBuilder.addNextIntent(clickIntent);
+        PendingIntent pendingClickIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Build the notification
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+        builder.setSmallIcon(R.drawable.ic_launcher)
+               .setContentTitle(getResources().getString(R.string.rssSyncService))
+               .setContentText(getResources().getString(R.string.serviceIsCurrentlyRunning))
+               .setOngoing(true)
+               .setWhen(0)
+               .setPriority(Notification.PRIORITY_MIN)
+               .setContentIntent(pendingClickIntent);
+
+        notification = builder.build();
+        notificationManager.notify(SYNC_STATUS_NOTIFICATION_ID, notification);
+
         new Thread(new Runnable() {
             @Override
             public void run () {
@@ -37,9 +68,6 @@ public class RssSyncService extends Service {
                         // Prevent intervals below 1 minute
                         interval = 60000;
                     }
-
-                    // TODO testing
-                    interval = 10000;
 
                     // Run this on the main thread
                     handler.post(new Runnable() {

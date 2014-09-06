@@ -48,7 +48,8 @@ public class RSSFeed extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.rssfeed, menu);
         if (!(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("pref_autosync", false))) {
-            menu.findItem(R.id.action_start_autosync_service).setVisible(false);
+            // Start autosync service button is disabled, but visible
+            menu.findItem(R.id.action_start_autosync_service).setEnabled(false);
             menu.findItem(R.id.action_stop_autosync_service).setVisible(false);
         }
         else if (RssSyncService.getInstance() == null) {
