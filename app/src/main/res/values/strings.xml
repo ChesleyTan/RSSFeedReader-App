@@ -73,4 +73,5 @@
     <string name="syncing">Syncing</string>
     <string name="rssSyncService">RSS Autosync Service</string>
     <string name="serviceIsCurrentlyRunning">This service is currently running.</string>
+    <string name="minutesToNextSync">Minutes to next sync:</string>
 </resources>
