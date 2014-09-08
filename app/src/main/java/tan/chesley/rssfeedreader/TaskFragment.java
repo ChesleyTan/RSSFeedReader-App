@@ -290,6 +290,8 @@ public class TaskFragment extends Fragment {
             }
 
         private void deliverData () {
+            // Constrain the database size
+            new RSSDataBundleOpenHelper(getActivity().getApplicationContext()).constrainDatabaseSize(getActivity().getApplicationContext());
             if (myRSSHandler == null) {
                 Log.e("TaskFragment", "Data delivery failed... myRSSHandler was null!");
                 return;

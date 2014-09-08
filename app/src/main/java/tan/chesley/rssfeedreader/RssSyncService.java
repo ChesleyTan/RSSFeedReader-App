@@ -87,6 +87,8 @@ public class RssSyncService extends Service {
                     TaskFragment.GetRssFeedTask getRssFeedTask = taskFragment.new GetRssFeedTask() {
                         @Override
                         protected void onPostExecute (Void v) {
+                            // Constrain the database size
+                            new RSSDataBundleOpenHelper(getApplicationContext()).constrainDatabaseSize(getApplicationContext());
                             final HeadlinesFragment headlinesFragment = HeadlinesFragment.getInstance();
                             if (headlinesFragment != null && headlinesFragment.getActivity() != null) {
                                 // Run this on the main thread

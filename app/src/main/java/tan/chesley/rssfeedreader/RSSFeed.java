@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,14 +24,20 @@ public class RSSFeed extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        //Log.e("RSSFeed", "Calling onCreate");
         BrightnessControl.toggleBrightness(getApplicationContext(), this);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		setContentView(R.layout.activity_rssfeed);
 		FragmentManager fragMan = getFragmentManager();
 		Fragment theFragment = fragMan.findFragmentById(R.id.container);
+        // If this is the first run and the content fragment has not been created yet
 		if (theFragment == null) {
-			// Log.e("Instance",
-			// "Instance: New HeadlinesFragment created by RSSFeed.");
+            // If this is the first run and the autosync service is not running, clear any obsolete notifications
+            if (RssSyncService.getInstance() == null) {
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.cancel(RssSyncService.SYNC_STATUS_NOTIFICATION_ID);
+            }
+			//Log.e("RSSFeed", "Instance: New HeadlinesFragment created by RSSFeed.");
 			fragMan.beginTransaction()
 					.add(R.id.container, new HeadlinesFragment()).commit();
 		}

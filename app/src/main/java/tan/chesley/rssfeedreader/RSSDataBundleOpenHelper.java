@@ -1,12 +1,16 @@
 package tan.chesley.rssfeedreader;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+
+import junit.framework.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -157,7 +161,11 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         return retBool;
     }
 
-    public boolean isRead(String uuid) {
+    // This method returns:
+    //                     -1 if the entry does not exist
+    //                     0 if the entry exists and is NOT read
+    //                     1 if the entry exists and is read
+    public int isRead(String uuid) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(String.format("SELECT %s from %s WHERE %s=?",
                                                   KEY_READ,
@@ -165,10 +173,13 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
                                                   KEY_UUID
         ), new String[] {uuid});
         cursor.moveToFirst();
-        boolean bool = cursor.getInt(0) == 1;
+        if (cursor.getCount() == 0) {
+            return -1;
+        }
+        int read = cursor.getInt(0); // should be either 0 or 1
         cursor.close();
         db.close();
-        return bool;
+        return read;
     }
 
     public ArrayList<RSSDataBundle> getBundles() {
@@ -263,9 +274,10 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         db.close();
     }
 
-    public void constrainDatabaseSize(int maxSize) {
+    public void constrainDatabaseSize(Context context) {
+        int maxSize = PreferenceManager.getDefaultSharedPreferences(context).getInt(SettingsActivity.KEY_PREF_MAX_DATABASE_SIZE, context.getResources().getInteger(R.integer.max_database_size_default));
         long currentSize = DatabaseUtils.queryNumEntries(getReadableDatabase(), RSS_DATA_TABLE_NAME);
-        //Log.e("Database size before: ", Long.toString(currentSize));
+        Log.e("Database size before: ", Long.toString(currentSize));
         if (currentSize > maxSize) {
             String ALTER_TBL = "DELETE FROM " + RSS_DATA_TABLE_NAME +
                 " WHERE rowid IN (SELECT rowid FROM " + RSS_DATA_TABLE_NAME + " ORDER BY rowid LIMIT " + (currentSize - maxSize) + ");";
@@ -273,6 +285,6 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
             db.execSQL(ALTER_TBL);
             db.close();
         }
-        //Log.e("Database size after: ", Long.toString(DatabaseUtils.queryNumEntries(getReadableDatabase(), RSS_DATA_TABLE_NAME)));
+        Log.e("Database size after: ", Long.toString(DatabaseUtils.queryNumEntries(getReadableDatabase(), RSS_DATA_TABLE_NAME)));
     }
 }

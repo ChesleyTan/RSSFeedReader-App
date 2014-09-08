@@ -96,8 +96,6 @@ public class HeadlinesFragment extends ListFragment implements
         super.onResume();
         // If resuming from preference activity, update the ListView
         if (!syncing && !resumingFromArticleViewActivity) {
-            int maxDbSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_MAX_DATABASE_SIZE, getResources().getInteger(R.integer.max_database_size_default));
-            new RSSDataBundleOpenHelper(getActivity()).constrainDatabaseSize(maxDbSize);
             updateFeedView();
             toggleBottomActionBar();
         }
@@ -317,8 +315,18 @@ public class HeadlinesFragment extends ListFragment implements
             // because references back to the data ArrayList in other classes will not resolve correctly
             if (Settings.System.getInt(getActivity().getContentResolver(), Settings.Global.ALWAYS_FINISH_ACTIVITIES, 0) == 1) {
                 RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getActivity());
-                for (RSSDataBundle rdBundle : HeadlinesFragment.data) {
-                    if (!rdBundle.isRead() && dbHelper.isRead(rdBundle.getId())) {
+                Iterator<RSSDataBundle> iterator = HeadlinesFragment.data.iterator();
+                RSSDataBundle rdBundle;
+                while (iterator.hasNext()) {
+                    rdBundle = iterator.next();
+                    int existsAndRead = dbHelper.isRead(rdBundle.getId());
+                    // Remove entries that have been automatically deleted when constraining the database size
+                    if (existsAndRead == -1) {
+                        Log.e("Correcting existence for: ", rdBundle.getTitle());
+                        iterator.remove();
+                    }
+                    // Correct the read flag
+                    else if (!rdBundle.isRead() &&  existsAndRead == 1) {
                         Log.e("Correcting read for: ", rdBundle.getTitle());
                         rdBundle.setRead(true);
                     }
