@@ -161,6 +161,19 @@ public class RSSDataBundleOpenHelper extends SQLiteOpenHelper{
         return retBool;
     }
 
+    public ArrayList<String> getTitlesNoWhitespace() {
+        SQLiteDatabase db = getReadableDatabase();
+        ArrayList<String> titles = new ArrayList<String>();
+        Cursor cursor = db.rawQuery(String.format("SELECT %s FROM %s", KEY_TITLE, RSS_DATA_TABLE_NAME), null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            titles.add(cursor.getString(0).replaceAll("\\s", ""));
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return titles;
+    }
+
     // This method returns:
     //                     -1 if the entry does not exist
     //                     0 if the entry exists and is NOT read

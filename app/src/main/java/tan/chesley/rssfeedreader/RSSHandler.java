@@ -11,6 +11,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -53,11 +54,14 @@ public class RSSHandler extends DefaultHandler {
     boolean gotDescription = false;
     String linkPart = "";
     boolean badInput = false;
+    ArrayList<String> titlesNoWhitespace = null; // Cache article titles to facilitate search for duplicates
 
     public RSSHandler (GetRssFeedTask task, int numSources, long syncTimeout, Context context) {
         parent = task;
         this.context = context;
         dbHelper = new RSSDataBundleOpenHelper(context);
+        titlesNoWhitespace = dbHelper.getTitlesNoWhitespace();
+        Collections.sort(titlesNoWhitespace); // sort the article title cache so we can use binary search
         noDescriptionAvailableString = context.getResources().getString(
             R.string.noDescriptionAvailable);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -195,7 +199,7 @@ public class RSSHandler extends DefaultHandler {
             throw new SAXException();
         }
         if (state == stateTitle) {
-            if (!dbHelper.isUnique(dbHelper.getReadableDatabase(), articleTitlePart)) {
+            if (Collections.binarySearch(titlesNoWhitespace, articleTitlePart.replaceAll("\\s", "")) >= 0) {
                 badInput = true;
                 Log.e("RSSHandler", "Article already databased. Skipping.");
             }
@@ -221,6 +225,8 @@ public class RSSHandler extends DefaultHandler {
                 data.add(rdBundle);
                 dbHelper.addBundle(rdBundle);
                 sanitizeDescriptionThread(context, rdBundle).start();
+                // Add title to cache
+                titlesNoWhitespace.add(rdBundle.getTitle().replaceAll("\\s", ""));
             }
             // Reset rdBundle to store next item's data
             rdBundle = null;
@@ -334,8 +340,7 @@ public class RSSHandler extends DefaultHandler {
                     .toString(hourOffset);
                 String minutesOffsetStr = minutesOffset == 0 ? "00" : Integer
                     .toString(minutesOffset);
-                String sign = offset >= 0 ? "+" : ""; // Negative offsets already
-                // have a sign
+                String sign = offset >= 0 ? "+" : ""; // Negative offsets already have a sign
                 dateStringFields[5] = sign + hourOffsetStr + minutesOffsetStr;
                 //Log.e("New pubDate", "Non-offset time zone detected. Using "
                 //		+ sign + hourOffsetStr + minutesOffsetStr + " instead.");
