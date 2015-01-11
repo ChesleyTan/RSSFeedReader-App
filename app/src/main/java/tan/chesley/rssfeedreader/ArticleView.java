@@ -24,7 +24,7 @@ public class ArticleView extends FragmentActivity {
 	private ViewPager viewPager;
 	private ArrayList<RSSDataBundle> rssData;
 	private ArticleViewPagerChangeListener viewPagerPageChangeListener;
-	private FragmentStatePagerAdapter viewPagerAdapter;
+	private static FragmentStatePagerAdapter viewPagerAdapter;
 	private TextView title;
 
 	public class ArticleViewPagerChangeListener implements
@@ -142,5 +142,11 @@ public class ArticleView extends FragmentActivity {
 		//Log.e("ArticleView", "Activity Finished.");
 		super.finish();
 	}
+
+    public static void notifyPagerAdapterDataSetChanged() {
+        if (viewPagerAdapter != null) {
+            viewPagerAdapter.notifyDataSetChanged();
+        }
+    }
 
 }

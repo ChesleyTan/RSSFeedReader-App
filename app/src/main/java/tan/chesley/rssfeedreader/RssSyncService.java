@@ -97,6 +97,7 @@ public class RssSyncService extends Service {
                                     public void run () {
                                         headlinesFragment.setRssData(getFetchedData(), true);
                                         headlinesFragment.updateFeedView();
+                                        ArticleView.notifyPagerAdapterDataSetChanged();
                                     }
                                 });
                                 super.onPostExecute(v);
