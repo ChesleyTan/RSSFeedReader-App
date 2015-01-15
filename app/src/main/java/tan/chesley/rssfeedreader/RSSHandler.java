@@ -199,7 +199,7 @@ public class RSSHandler extends DefaultHandler {
             throw new SAXException();
         }
         if (state == stateTitle) {
-            if (Collections.binarySearch(titlesNoWhitespace, articleTitlePart.replaceAll("\\s", "")) >= 0) {
+            if (titleCached(articleTitlePart)) {
                 badInput = true;
                 Log.e("RSSHandler", "Article already databased. Skipping.");
             }
@@ -226,7 +226,7 @@ public class RSSHandler extends DefaultHandler {
                 dbHelper.addBundle(rdBundle);
                 sanitizeDescriptionThread(context, rdBundle).start();
                 // Add title to cache
-                titlesNoWhitespace.add(rdBundle.getTitle().replaceAll("\\s", ""));
+                addToTitleCache(rdBundle.getTitle());
             }
             // Reset rdBundle to store next item's data
             rdBundle = null;
@@ -548,5 +548,37 @@ public class RSSHandler extends DefaultHandler {
                 }
             }
         });
+    }
+
+    public boolean titleCached(String title) {
+        return Collections.binarySearch(titlesNoWhitespace, title.replaceAll("\\s", "")) >= 0;
+    }
+
+    public void addToTitleCache(String title) {
+        title = title.replaceAll("\\s", "");
+        // Perform binary insertion into titlesNoWhitespace cache
+        int l = 0, h = titlesNoWhitespace.size() - 1, m = (l + h) / 2;
+        boolean b1;
+        if (h < l) { // Special case when titlesNoWhitespace is empty
+            titlesNoWhitespace.add(title);
+        }
+        else {
+            while (h > l && !((b1 = titlesNoWhitespace.get(m).compareTo(title) < 0)
+                && (titlesNoWhitespace.get(m + 1).compareTo(title) > 0))) {
+                if (b1) {
+                    l = m + 1;
+                }
+                else {
+                    h = m - 1;
+                }
+                m = (l + h) / 2;
+            }
+            if (m == 0 && titlesNoWhitespace.get(m).compareTo(title) > 0) { // Special case when inserting to front
+                titlesNoWhitespace.add(0, title);
+            }
+            else {
+                titlesNoWhitespace.add(m + 1, title);
+            }
+        }
     }
 }
