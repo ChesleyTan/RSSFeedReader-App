@@ -310,11 +310,15 @@ public class HeadlinesFragment extends ListFragment implements
         // Receive current article index from ArticleView activity
         if (requestCode == ARTICLE_VIEW_INTENT) {
             resumingFromArticleViewActivity = true;
-
+            int currentArticleIndex = data.getIntExtra(ArticleView.ARTICLE_SELECTED_KEY, 0);
+            RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getActivity());
+            RSSDataBundle currentSelection = adapter.getItem(currentArticleIndex);
+            boolean currentMarkedReadInDB = dbHelper.isRead(currentSelection.getId()) == 1;
+            boolean isListViewSyncedWithDB = currentSelection.isRead() == currentMarkedReadInDB;
             // If "Don't Keep Activities" is enabled, we need to update the read flag manually
             // because references back to the data ArrayList in other classes will not resolve correctly
-            if (Settings.System.getInt(getActivity().getContentResolver(), Settings.Global.ALWAYS_FINISH_ACTIVITIES, 0) == 1) {
-                RSSDataBundleOpenHelper dbHelper = new RSSDataBundleOpenHelper(getActivity());
+            // Additionally, if the ListView data is out of sync with the database, we need to reload the data
+            if (Settings.System.getInt(getActivity().getContentResolver(), Settings.Global.ALWAYS_FINISH_ACTIVITIES, 0) == 1 || !isListViewSyncedWithDB) {
                 Iterator<RSSDataBundle> iterator = HeadlinesFragment.data.iterator();
                 RSSDataBundle rdBundle;
                 while (iterator.hasNext()) {
@@ -335,8 +339,7 @@ public class HeadlinesFragment extends ListFragment implements
 
             // Force redraw of the ListView to update the Views for read/unread articles
             adapter.notifyDataSetChanged();
-            getListView().setSelection(
-                data.getIntExtra(ArticleView.ARTICLE_SELECTED_KEY, 0));
+            getListView().setSelection(currentArticleIndex);
         }
     }
 

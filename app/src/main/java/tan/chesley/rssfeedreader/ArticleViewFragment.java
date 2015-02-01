@@ -14,7 +14,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +25,6 @@ public class ArticleViewFragment extends Fragment {
 	private TextView titleTextView;
 	private TextView sourceTextView;
     private TextView dateTextView;
-	private Button openInBrowserButton;
 
 	public static ArticleViewFragment newArticleViewFragment(RSSDataBundle rdBundle) {
 		Bundle bundle = new Bundle();
@@ -52,7 +50,7 @@ public class ArticleViewFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View theView = inflater
-				.inflate(R.layout.article_view, container, false);
+				.inflate(R.layout.article_view_fragment, container, false);
 		articleTextView = (TextView) theView.findViewById(R.id.articleTextView);
         // TODO show images
 		//articleTextView.setText(Html.fromHtml(rdBundle.getDescription(getActivity()), new URLImageParser(articleTextView, getActivity()), null));
@@ -83,10 +81,6 @@ public class ArticleViewFragment extends Fragment {
 		sourceTextView.setText(rdBundle.getSourceTitle());
         dateTextView = (TextView) theView.findViewById(R.id.dateTextView);
         dateTextView.setText(rdBundle.getUserPreferredDateFormat(getActivity()));
-		openInBrowserButton = (Button) theView
-				.findViewById(R.id.openInBrowserButton);
-		openInBrowserButton
-				.setOnClickListener(new ArticleViewOpenInBrowserButtonClickListener());
 
 		return theView;
 	}
@@ -134,19 +128,6 @@ public class ArticleViewFragment extends Fragment {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
         outState.putParcelable(RSSDATABUNDLE, rdBundle);
-	}
-
-	public class ArticleViewOpenInBrowserButtonClickListener implements
-			View.OnClickListener {
-
-		@Override
-		public void onClick(View arg0) {
-			String url = rdBundle.getLink();
-			// Log.e("URL Open", "URL: " + url);
-            Toaster.showAlternateToast(getActivity(), getResources().getString(R.string.takingYouTo) , url, getResources().getDrawable(R.drawable.ic_action_web_site), Toast.LENGTH_LONG);
-			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-		}
-
 	}
 
     /*

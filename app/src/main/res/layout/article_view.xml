@@ -1,92 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:id="@+id/articleViewContainer"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
 
-    <ScrollView
-        android:id="@+id/scrollView1"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fadeScrollbars="true"
-        android:fillViewport="true"
-        android:scrollbarDefaultDelayBeforeFade="0"
-        android:scrollbarFadeDuration="700"
-        android:scrollbarThumbVertical="@drawable/scrollbar">
+        android:layout_weight="1"/>
+    <RelativeLayout
+        android:id="@+id/bottomActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_action_bar_height"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:background="@color/ActionBarBackgroundColor">
+
+        <View
+            android:id="@+id/bottomActionBarKeyline"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/bottom_action_bar_keyline_height"
+            android:background="@drawable/ab_transparent_dark_holo"/>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="fill_parent">
 
-            <TextView
-                android:id="@+id/titleTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Headline Placeholder"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/AppPrimaryTextColor"
-                android:textSize="32sp"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/sourceTextView"
+            <LinearLayout
+                android:id="@+id/action_previous_unread"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                style="@android:style/Widget.Holo.ActionButton">
+                <ImageButton
+                    android:clickable="false"
+                    android:layout_gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:text="Source Placeholder"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="#888888"/>
+                    android:background="@drawable/ic_action_previous_item"/>
+            </LinearLayout>
 
-                <TextView
-                    android:id="@+id/dateTextView"
+            <LinearLayout
+                android:id="@+id/action_open_in_browser"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                style="@android:style/Widget.Holo.ActionButton">
+                <ImageButton
+                    android:clickable="false"
+                    android:layout_gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:text="Date Placeholder"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="#888888"/>
+                    android:background="@drawable/ic_action_web_site"/>
+            </LinearLayout>
 
-            </RelativeLayout>
-
-            <View
-                style="@style/HorizontalLine"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:alpha="0.1"
-                android:background="#999999"/>
-
-            <TextView
-                android:id="@+id/articleTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Article Placeholder"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/ArticleViewTextColor"
-                android:textColorLink="@color/link_text_color"
-                android:textColorHighlight="@color/DarkSlateGray"/>
+            <LinearLayout
+                android:id="@+id/action_next_unread"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                style="@android:style/Widget.Holo.ActionButton">
+                <ImageButton
+                    android:clickable="false"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_action_next_item"/>
+            </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
-
-    <Button
-        android:id="@+id/openInBrowserButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/openInBrowser"
-        android:textColor="@color/button_text_color"/>
-
+    </RelativeLayout>
 </LinearLayout>

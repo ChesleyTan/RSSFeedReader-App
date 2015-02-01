@@ -3,6 +3,7 @@ package tan.chesley.rssfeedreader;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FixedFragmentStatePagerAdapter;
 import android.support.v4.app.Fragment;
@@ -12,8 +13,12 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils.TruncateAt;
 import android.text.method.SingleLineTransformationMethod;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -26,6 +31,9 @@ public class ArticleView extends FragmentActivity {
 	private ArticleViewPagerChangeListener viewPagerPageChangeListener;
 	private static FragmentStatePagerAdapter viewPagerAdapter;
 	private TextView title;
+    private LinearLayout action_openInBrowser;
+    private LinearLayout action_previous_unread;
+    private LinearLayout action_next_unread;
 
 	public class ArticleViewPagerChangeListener implements
 			ViewPager.OnPageChangeListener {
@@ -62,9 +70,8 @@ public class ArticleView extends FragmentActivity {
 		else {
 			rssData = savedInstanceState.getParcelableArrayList(RSS_DATA_KEY);
 		}
-        viewPager = new ViewPager(this);
-		viewPager.setId(R.id.viewPager);
-		setContentView(viewPager);
+		setContentView(R.layout.article_view);
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
 
 		viewPager
 				.setOnPageChangeListener(viewPagerPageChangeListener = new ArticleViewPagerChangeListener());
@@ -114,6 +121,16 @@ public class ArticleView extends FragmentActivity {
 					.getInstance());
 			title.setTextColor(getResources().getColor((R.color.AppPrimaryTextColor)));
 		}
+
+        action_openInBrowser = (LinearLayout) findViewById(R.id.action_open_in_browser);
+        action_openInBrowser
+            .setOnClickListener(new ArticleViewOpenInBrowserActionClickListener());
+        action_next_unread = (LinearLayout) findViewById(R.id.action_next_unread);
+        action_next_unread
+            .setOnClickListener(new ArticleViewNextUnreadActionClickListener());
+        action_previous_unread = (LinearLayout) findViewById(R.id.action_previous_unread);
+        action_previous_unread
+            .setOnClickListener(new ArticleViewPreviousUnreadActionClickListener());
 	}
 
 	@Override
@@ -139,7 +156,7 @@ public class ArticleView extends FragmentActivity {
 		Intent intent = new Intent();
 		intent.putExtra(ARTICLE_SELECTED_KEY, viewPager.getCurrentItem());
 		setResult(Activity.RESULT_OK, intent);
-		//Log.e("ArticleView", "Activity Finished.");
+		Log.e("ArticleView", "Activity Finished.");
 		super.finish();
 	}
 
@@ -149,4 +166,43 @@ public class ArticleView extends FragmentActivity {
         }
     }
 
+    public class ArticleViewOpenInBrowserActionClickListener implements
+                                                             View.OnClickListener {
+        @Override
+        public void onClick(View arg0) {
+            RSSDataBundle rdBundle = rssData.get(viewPager.getCurrentItem());
+            String url = rdBundle.getLink();
+            // Log.e("URL Open", "URL: " + url);
+            Toaster.showAlternateToast(ArticleView.this, getResources().getString(R.string.takingYouTo) , url, getResources().getDrawable(R.drawable.ic_action_web_site), Toast.LENGTH_LONG);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+    }
+
+    public class ArticleViewNextUnreadActionClickListener implements
+                                                          View.OnClickListener {
+        @Override
+        public void onClick(View arg0) {
+            for (int i = viewPager.getCurrentItem();i < rssData.size();i++) {
+                if (!rssData.get(i).isRead()) {
+                    viewPager.setCurrentItem(i, true);
+                    return;
+                }
+            }
+            Toaster.showToast(ArticleView.this, getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
+        }
+    }
+
+    public class ArticleViewPreviousUnreadActionClickListener implements
+                                                              View.OnClickListener {
+        @Override
+        public void onClick(View arg0) {
+            for (int i = viewPager.getCurrentItem();i >= 0;i--) {
+                if (!rssData.get(i).isRead()) {
+                    viewPager.setCurrentItem(i, true);
+                    return;
+                }
+            }
+            Toaster.showToast(ArticleView.this, getResources().getString(R.string.noUnreadArticlesFound), Toast.LENGTH_SHORT);
+        }
+    }
 }
