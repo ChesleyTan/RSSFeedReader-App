@@ -80,7 +80,9 @@ public class RssSyncService extends Service {
                     );
                     TaskFragment taskFragment = new TaskFragment();
                     String[] FEEDS = new SourcesOpenHelper(getApplicationContext()).getEnabledSources();
-                    int SYNC_TIMEOUT = 1000 * PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT, getResources().getInteger(R.integer.sync_timeout_default));
+                    int SYNC_TIMEOUT = 1000 * PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                                                               .getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT,
+                                                                       getResources().getInteger(R.integer.sync_timeout_default));
                     taskFragment.setFEEDS(parent, FEEDS);
                     taskFragment.setSYNC_TIMEOUT(parent, SYNC_TIMEOUT);
                     taskFragment.setContext(parent, getApplicationContext());

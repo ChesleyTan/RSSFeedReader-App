@@ -27,7 +27,7 @@ public class RSSHandler extends DefaultHandler {
     final int stateLink = 3;
     final int stateSourceTitle = 4;
     final int statePubDate = 5;
-    final long timeout; // timeout for parsing an individual feed
+    final int timeout; // timeout for parsing an individual feed
     final GetRssFeedTask parent;
     final Context context;
     final String noDescriptionAvailableString;
@@ -56,7 +56,7 @@ public class RSSHandler extends DefaultHandler {
     boolean badInput = false;
     ArrayList<String> titlesNoWhitespace = null; // Cache article titles to facilitate search for duplicates
 
-    public RSSHandler (GetRssFeedTask task, long syncTimeout, Context context) {
+    public RSSHandler (GetRssFeedTask task, int syncTimeout, Context context) {
         parent = task;
         this.context = context;
         dbHelper = new RSSDataBundleOpenHelper(context);

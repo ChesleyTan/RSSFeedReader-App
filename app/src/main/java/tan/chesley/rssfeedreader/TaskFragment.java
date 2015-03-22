@@ -41,7 +41,7 @@ public class TaskFragment extends Fragment {
     }
 
     public static final String TASK_COMPLETE = "tan.chesley.rssfeedreader.taskcomplete";
-    private long SYNC_TIMEOUT; // Timeout in milliseconds for syncing
+    private int SYNC_TIMEOUT; // Timeout in milliseconds for syncing
     private Context context;
     private String[] FEEDS;
 
@@ -73,14 +73,14 @@ public class TaskFragment extends Fragment {
         this.context = context;
     }
 
-    public long getSYNC_TIMEOUT (Service callerService) {
+    public int getSYNC_TIMEOUT (Service callerService) {
         if (!(callerService instanceof RssSyncService)) {
             throw new ClassCastException("This method may only be called by an instance of RssSyncService.");
         }
         return SYNC_TIMEOUT;
     }
 
-    public void setSYNC_TIMEOUT (Service callerService, long SYNC_TIMEOUT) {
+    public void setSYNC_TIMEOUT (Service callerService, int SYNC_TIMEOUT) {
         if (!(callerService instanceof RssSyncService)) {
             throw new ClassCastException("This method may only be called by an instance of RssSyncService.");
         }
@@ -106,7 +106,9 @@ public class TaskFragment extends Fragment {
     public void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        SYNC_TIMEOUT = 1000 * PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT, getResources().getInteger(R.integer.sync_timeout_default));
+        SYNC_TIMEOUT = 1000 * PreferenceManager.getDefaultSharedPreferences(getActivity())
+                                               .getInt(SettingsActivity.KEY_PREF_SYNC_TIMEOUT,
+                                                       getResources().getInteger(R.integer.sync_timeout_default));
         if (savedInstanceState != null) {
             taskCompleted = savedInstanceState.getBoolean(TASK_COMPLETE);
         }
@@ -195,7 +197,7 @@ public class TaskFragment extends Fragment {
                 Log.e("Feed", "Could not connect to RSS feed! Error 2.");
             }
             // Timeout represents the timeout for an individual feed
-            long timeout = FEEDS.length == 0 ? 0 : SYNC_TIMEOUT / FEEDS.length;
+            int timeout = FEEDS.length == 0 ? 0 : SYNC_TIMEOUT / FEEDS.length;
             myRSSHandler = new RSSHandler(this, timeout, context);
             myXMLReader.setContentHandler(myRSSHandler);
             InputSource myInputSource;
@@ -219,8 +221,8 @@ public class TaskFragment extends Fragment {
                 // Try to open an InputStream with the URL
                 try {
                     URLConnection connection = url.openConnection();
-                    connection.setConnectTimeout(1000);
-                    connection.setReadTimeout(1500);
+                    connection.setConnectTimeout(timeout);
+                    connection.setReadTimeout(timeout);
                     feedStream = connection.getInputStream();
                 } catch (IOException e) {
                     e.printStackTrace();
