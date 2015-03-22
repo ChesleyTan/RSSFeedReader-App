@@ -59,15 +59,14 @@ public class ModifySources extends ListActivity implements ModifySourceDialogFra
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         BrightnessControl.toggleBrightness(getApplicationContext(), this);
-        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
-        int titleId = getResources().getIdentifier("action_bar_title", "id",
-                                                   "android");
-        TextView title = (TextView) findViewById(titleId);
-        if (title != null) {
-            setTitle(getResources().getString(R.string.sources));
-            title.setTextColor(getResources().getColor(
-                (R.color.AppPrimaryTextColor)));
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+                                      | ActionBar.DISPLAY_USE_LOGO
+                                      | ActionBar.DISPLAY_SHOW_TITLE
+                                      | ActionBar.DISPLAY_HOME_AS_UP);
         }
+        Utils.setActivityTitle(this, getResources().getString(R.string.sources));
         setContentView(R.layout.modify_sources);
         if (savedInstanceState != null) {
             sources = savedInstanceState.getStringArrayList(TAG_SOURCES);

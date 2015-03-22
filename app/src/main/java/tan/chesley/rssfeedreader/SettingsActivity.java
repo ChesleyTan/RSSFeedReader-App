@@ -18,15 +18,14 @@ public class SettingsActivity extends Activity {
         BrightnessControl.toggleBrightness(getApplicationContext(), this);
 		getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
 
-        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
-		int	titleId = getResources().getIdentifier("action_bar_title", "id",
-					"android");
-		TextView title = (TextView) findViewById(titleId);
-		if (title != null) {
-			setTitle(R.string.settingsTitle);
-			title.setTextColor(getResources().getColor((R.color.AppPrimaryTextColor)));
-		}
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+                                      | ActionBar.DISPLAY_USE_LOGO
+                                      | ActionBar.DISPLAY_SHOW_TITLE
+                                      | ActionBar.DISPLAY_HOME_AS_UP);
+        }
+        Utils.setActivityTitle(this, getResources().getString(R.string.settingsTitle));
 	}
 
-	
 }

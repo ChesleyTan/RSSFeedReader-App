@@ -105,10 +105,14 @@ public class ArticleView extends FragmentActivity {
 			}
 		}
 
-        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
-		int	titleId = getResources().getIdentifier("action_bar_title", "id",
-					"android");
-		title = (TextView) findViewById(titleId);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+                                      | ActionBar.DISPLAY_USE_LOGO
+                                      | ActionBar.DISPLAY_SHOW_TITLE
+                                      | ActionBar.DISPLAY_HOME_AS_UP);
+        }
+        title = Utils.getTitleTextView(this);
 
 		if (title != null) {
 			title.setEllipsize(TruncateAt.MARQUEE);

@@ -73,15 +73,13 @@ public class HeadlinesFragment extends ListFragment implements
         super.onCreate(savedInstanceState);
         singleton = this;
 
-        getActivity().getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
-        int titleId = getResources().getIdentifier("action_bar_title", "id",
-                                                   "android");
-        TextView title = (TextView) getActivity().findViewById(titleId);
-        if (title != null) {
-            getActivity().setTitle(getResources().getString(R.string.feeds));
-            title.setTextColor(getResources().getColor(
-                (R.color.AppPrimaryTextColor)));
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+                                      | ActionBar.DISPLAY_USE_LOGO
+                                      | ActionBar.DISPLAY_SHOW_TITLE);
         }
+        Utils.setActivityTitle(getActivity(), getResources().getString(R.string.feeds));
 
         if (savedInstanceState != null) {
             restoredDataFromDB = savedInstanceState.getBoolean(RESTORED_DATA_FROM_DB);
