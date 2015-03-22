@@ -56,7 +56,7 @@ public class RSSHandler extends DefaultHandler {
     boolean badInput = false;
     ArrayList<String> titlesNoWhitespace = null; // Cache article titles to facilitate search for duplicates
 
-    public RSSHandler (GetRssFeedTask task, int numSources, long syncTimeout, Context context) {
+    public RSSHandler (GetRssFeedTask task, long syncTimeout, Context context) {
         parent = task;
         this.context = context;
         dbHelper = new RSSDataBundleOpenHelper(context);
@@ -78,12 +78,7 @@ public class RSSHandler extends DefaultHandler {
         if (enforceArticleAgeLimit) {
             articleAgeLimit = MILLISECONDS_IN_A_DAY * prefs.getInt(SettingsActivity.KEY_PREF_ARTICLE_AGE_LIMIT, context.getResources().getInteger(R.integer.article_age_limit_default));
         }
-        if (numSources == 0) {
-            timeout = 0;
-        }
-        else {
-            timeout = syncTimeout / numSources;
-        }
+        timeout = syncTimeout;
     }
 
     public void reset () {

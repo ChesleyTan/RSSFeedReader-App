@@ -85,7 +85,6 @@ public class HeadlinesFragment extends ListFragment implements
             restoredDataFromDB = savedInstanceState.getBoolean(RESTORED_DATA_FROM_DB);
             syncing = savedInstanceState.getBoolean(SYNCING);
         }
-
         //Log.e("HeadlinesFragment", "Instance: Calling onCreate method.");
     }
 
@@ -108,9 +107,9 @@ public class HeadlinesFragment extends ListFragment implements
         View view = inflater.inflate(R.layout.fragment_rssfeed, container,
                                      false);
         syncProgressBar = (ProgressBar) view.findViewById(R.id.syncProgressBar);
-        syncProgressBarContainer = (LinearLayout) view
-            .findViewById(R.id.progressBarContainer);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_bottomActionBarCheckBox", true)) {
+        syncProgressBarContainer = (LinearLayout) view .findViewById(R.id.progressBarContainer);
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity())
+                             .getBoolean("pref_bottomActionBarCheckBox", true)) {
             attachBottomActionBarListeners(view);
         }
         else {
@@ -208,8 +207,7 @@ public class HeadlinesFragment extends ListFragment implements
             setListAdapter(adapter);
         }
         else {
-            // If adapter already exists, update its data and notify it of
-            // changes
+            // If adapter already exists, update its data and notify it of changes
             adapter.clear();
             for (RSSDataBundle rdBundle : data) {
                 adapter.add(rdBundle);
@@ -316,7 +314,9 @@ public class HeadlinesFragment extends ListFragment implements
             // If "Don't Keep Activities" is enabled, we need to update the read flag manually
             // because references back to the data ArrayList in other classes will not resolve correctly
             // Additionally, if the ListView data is out of sync with the database, we need to reload the data
-            if (Settings.System.getInt(getActivity().getContentResolver(), Settings.Global.ALWAYS_FINISH_ACTIVITIES, 0) == 1 || !isListViewSyncedWithDB) {
+            if (Settings.System.getInt(getActivity().getContentResolver(),
+                                       Settings.Global.ALWAYS_FINISH_ACTIVITIES,
+                                       0) == 1 || !isListViewSyncedWithDB) {
                 Iterator<RSSDataBundle> iterator = HeadlinesFragment.data.iterator();
                 RSSDataBundle rdBundle;
                 while (iterator.hasNext()) {
@@ -542,7 +542,10 @@ public class HeadlinesFragment extends ListFragment implements
                 //getListView().smoothScrollToPosition(i, 0);
                 getListView().setSelection(i);
                 // Stop the current scrolling animation
-                getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+                getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+                                                                    SystemClock.uptimeMillis(),
+                                                                    MotionEvent.ACTION_CANCEL,
+                                                                    0, 0, 0));
                 foundNext = true;
                 break;
             }
@@ -572,7 +575,10 @@ public class HeadlinesFragment extends ListFragment implements
                 //getListView().smoothScrollToPosition(i, 0);
                 getListView().setSelection(i);
                 // Stop the current scrolling animation
-                getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+                getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+                                                                    SystemClock.uptimeMillis(),
+                                                                    MotionEvent.ACTION_CANCEL,
+                                                                    0, 0, 0));
                 foundPrevious = true;
                 break;
             }
@@ -585,6 +591,10 @@ public class HeadlinesFragment extends ListFragment implements
     public void goToTop() {
         getListView().setSelection(0);
         // Stop the current scrolling animation
-        getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+        getListView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+                                                            SystemClock.uptimeMillis(),
+                                                            MotionEvent.ACTION_CANCEL,
+                                                            0, 0, 0));
     }
+
 }

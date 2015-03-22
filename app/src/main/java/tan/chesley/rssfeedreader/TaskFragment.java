@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -193,7 +194,9 @@ public class TaskFragment extends Fragment {
                 e.printStackTrace();
                 Log.e("Feed", "Could not connect to RSS feed! Error 2.");
             }
-            myRSSHandler = new RSSHandler(this, FEEDS.length, SYNC_TIMEOUT, context);
+            // Timeout represents the timeout for an individual feed
+            long timeout = FEEDS.length == 0 ? 0 : SYNC_TIMEOUT / FEEDS.length;
+            myRSSHandler = new RSSHandler(this, timeout, context);
             myXMLReader.setContentHandler(myRSSHandler);
             InputSource myInputSource;
             URL url = null;
@@ -215,7 +218,10 @@ public class TaskFragment extends Fragment {
                 }
                 // Try to open an InputStream with the URL
                 try {
-                    feedStream = url.openStream();
+                    URLConnection connection = url.openConnection();
+                    connection.setConnectTimeout(1000);
+                    connection.setReadTimeout(1500);
+                    feedStream = connection.getInputStream();
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.e("Feed", "Cannot connect to RSS feed! Error 4.");
